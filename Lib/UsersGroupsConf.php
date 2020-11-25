@@ -11,7 +11,7 @@ namespace Modules\ModuleUsersGroups\Lib;
 use MikoPBX\Common\Models\PbxExtensionModules;
 use MikoPBX\Modules\Config\ConfigClass;
 use MikoPBX\PBXCoreREST\Lib\PBXApiResult;
-use MikoPBX\Core\System\{System, Util};
+use MikoPBX\Core\System\{PBX, System, Util};
 use Modules\ModuleUsersGroups\Models\AllowedOutboundRules;
 use Modules\ModuleUsersGroups\Models\GroupMembers;
 use Modules\ModuleUsersGroups\Models\UsersGroups as ModelUsersGroups;
@@ -19,6 +19,18 @@ use Modules\ModuleUsersGroups\Models\UsersGroups as ModelUsersGroups;
 
 class UsersGroupsConf extends ConfigClass
 {
+    /**
+     * [
+     *  'extension-1' => 'numberGroup1',
+     *  'extension-2' => 'numberGroup2',
+     * ]
+     */
+    private array $listUsers = [];
+
+    public function getSettings(): void{
+        $this->listUsers = UsersGroups::initUserList();
+    }
+
     /**
      *  Process CoreAPI requests under root rights
      *
@@ -79,7 +91,7 @@ class UsersGroupsConf extends ConfigClass
     {
         $mod = new UsersGroups();
         $mod->fillAsteriskDatabase();
-
+        $this->getSettings();
         return '';
     }
 
@@ -95,8 +107,9 @@ class UsersGroupsConf extends ConfigClass
             case AllowedOutboundRules::class:
             case GroupMembers::class:
             case ModelUsersGroups::class:
-                    $mod = new UsersGroups();
-                    $mod->fillAsteriskDatabase();
+                $mod = new UsersGroups();
+                $mod->fillAsteriskDatabase();
+                $this->getSettings();
                 break;
             default:
         }
@@ -111,7 +124,31 @@ class UsersGroupsConf extends ConfigClass
     {
         $mod = new UsersGroups();
         $mod->fillAsteriskDatabase();
+        $this->getSettings();
+        PBX::sipReload();
     }
 
+    public function onAfterModuleDisable(): void{
+        PBX::sipReload();
+    }
+
+    /**
+     * Переопределение опций Endpoint в pjsip.conf
+     * @param string $id
+     * @param array $options
+     * @return array
+     */
+    public function overridePJSIPOptions(string $id, array $options):array{
+        if(empty($this->listUsers)){
+            $this->getSettings();
+        }
+        $groupID = $this->listUsers[$id]??'';
+        $type    = $options['type']??'';
+        if(!empty($groupID) && $type === 'endpoint'){
+            $options['call_group']   = $groupID;
+            $options['pickup_group'] = $groupID;
+        }
+        return $options;
+    }
 
 }

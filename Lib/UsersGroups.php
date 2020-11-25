@@ -9,9 +9,7 @@
 
 namespace Modules\ModuleUsersGroups\Lib;
 
-
 use MikoPBX\Common\Models\Extensions;
-use MikoPBX\Common\Models\PbxExtensionModules;
 use MikoPBX\Core\Asterisk\AstDB;
 use MikoPBX\Modules\PbxExtensionBase;
 use MikoPBX\Modules\PbxExtensionUtils;
@@ -20,6 +18,40 @@ use Modules\ModuleUsersGroups\Models\GroupMembers;
 
 class UsersGroups extends PbxExtensionBase
 {
+    /**
+     * Возвращает соответствие ID учетки и ID группы.
+     * @return array
+     */
+    public static function initUserList():array {
+        $userList   = [];
+
+        $grMembers  = GroupMembers::find();
+        $extensions = Extensions::find("type='SIP'");
+        $groups     = [];
+
+        /**
+         * @var GroupMembers $member
+         */
+        foreach ($grMembers as $member){
+            $groups[$member->user_id] = $member->group_id+1;
+        }
+        if(empty($groups)){
+            return $userList;
+        }
+
+        /**
+         * @var Extensions $extension
+         */
+        foreach ($extensions as $extension){
+            $grId = $groups[$extension->userid]??'';
+            if(empty($grId)){
+                continue;
+            }
+            $userList[$extension->number] = $grId;
+        }
+        return $userList;
+    }
+
     public function fillAsteriskDatabase(): void
     {
         $enabled = PbxExtensionUtils::isEnabled($this->moduleUniqueId);
