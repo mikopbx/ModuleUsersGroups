@@ -57,45 +57,63 @@ class UsersGroups extends PbxExtensionBase
         $enabled = PbxExtensionUtils::isEnabled($this->moduleUniqueId);
         
         $db        = new AstDB();
-        $extension = Extensions::find("type='SIP'");
+        $extension = Extensions::find("type='SIP'")->toArray();
         if ($enabled === false) {
-            foreach ($extension as $exten_data) {
-                $db->databasePut('UsersGroups', $exten_data->number, 'GR_PERM_ENABLE=0');
+            foreach ($extension as $extensionData) {
+                $db->databasePut('UsersGroups', $extensionData['number'], 'GR_PERM_ENABLE=0');
             }
         } else {
-            $group_members = GroupMembers::find();
+            $groupMembers = GroupMembers::find()->toArray();
             /** @var AllowedOutboundRules $rule */
-            $allowed_rules = AllowedOutboundRules::find();
-            foreach ($extension as $exten_data) {
-                /** @var GroupMembers $member_data */
-                /** @var Extensions $exten_data */
-                // Найдем группу, к которой принадлежит сотрудник.
-                $group_id = null;
-                $number   = $exten_data->number;
-                foreach ($group_members as $member_data) {
-                    if ($member_data->user_id === $exten_data->userid) {
-                        $group_id = $member_data->group_id;
-                        break;
-                    }
-                }
-                if ($group_id !== null) {
-                    // Найдем все маршруты, разрешенные в группе.
-                    $set_var_data = 'GR_PERM_ENABLE=1';
-                    /** @var AllowedOutboundRules $rule_data */
-                    foreach ($allowed_rules as $rule_data) {
-                        if ($rule_data->group_id === $group_id) {
-                            // Обработка правил маршрута.
-                            $set_var_data .= ",GR_ID_{$rule_data->rule_id}=1";
-                            if ( ! empty($rule_data->caller_id)) {
-                                $set_var_data .= ",GR_CID_{$rule_data->rule_id}={$rule_data->caller_id}";
-                            }
-                        }
-                    }
-                } else {
-                    $set_var_data = 'GR_PERM_ENABLE=0';
-                }
-                $db->databasePut('UsersGroups', $number, $set_var_data);
+            $allowedRules = AllowedOutboundRules::find()->toArray();
+            foreach ($extension as $extensionData) {
+                [$groupId, $number] = $this->initGroupID($extensionData, $groupMembers);
+                $channelVars = $this->initChannelVariables($groupId, $allowedRules);
+                // Поместим значение в ast DB
+                $db->databasePut('UsersGroups', $number, $channelVars);
             }
         }
+    }
+
+    /**
+     * @param       $group_id
+     * @param array $allowedRules
+     * @return string
+     */
+    private function initChannelVariables($group_id, array $allowedRules): string{
+        if ($group_id) {
+            // Найдем все маршруты, разрешенные в группе.
+            $channelVars = 'GR_PERM_ENABLE=1';
+            foreach ($allowedRules as $ruleData) {
+                if ($ruleData['group_id'] === $group_id) {
+                    // Обработка правил маршрута.
+                    $channelVars .= ",GR_ID_{$ruleData['rule_id']}=1";
+                    if (!empty($ruleData['caller_id'])) {
+                        $channelVars .= ",GR_CID_{$ruleData['rule_id']}={$ruleData['caller_id']}";
+                    }
+                }
+            }
+        } else {
+            $channelVars = 'GR_PERM_ENABLE=0';
+        }
+        return $channelVars;
+    }
+
+    /**
+     * @param       $extensionData
+     * @param array $groupMembers
+     * @return array
+     */
+    private function initGroupID($extensionData, array $groupMembers): array{
+        // Найдем группу, к которой принадлежит сотрудник.
+        $groupId = null;
+        $number = $extensionData['number'];
+        foreach ($groupMembers as $memberData) {
+            if ($memberData['user_id'] === $extensionData['userid']) {
+                $groupId = $memberData['group_id'];
+                break;
+            }
+        }
+        return array($groupId, $number);
     }
 }
