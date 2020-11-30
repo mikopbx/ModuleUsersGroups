@@ -85,13 +85,15 @@ class UsersGroups extends PbxExtensionBase
             // Найдем все маршруты, разрешенные в группе.
             $channelVars = 'GR_PERM_ENABLE=1';
             foreach ($allowedRules as $ruleData) {
-                if ($ruleData['group_id'] === $group_id) {
-                    // Обработка правил маршрута.
-                    $channelVars .= ",GR_ID_{$ruleData['rule_id']}=1";
-                    if (!empty($ruleData['caller_id'])) {
-                        $channelVars .= ",GR_CID_{$ruleData['rule_id']}={$ruleData['caller_id']}";
-                    }
+                if ($ruleData['group_id'] !== $group_id) {
+                    continue;
                 }
+                // Обработка правил маршрута.
+                $channelVars .= sprintf(',GR_ID_%s=1', $ruleData['rule_id']);
+                if (empty($ruleData['caller_id'])) {
+                    continue;
+                }
+                $channelVars .= sprintf(',GR_CID_%s=%s', $ruleData['rule_id'], $ruleData['caller_id']);
             }
         } else {
             $channelVars = 'GR_PERM_ENABLE=0';
