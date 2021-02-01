@@ -59,8 +59,9 @@ class UsersGroups extends PbxExtensionBase
         $db        = new AstDB();
         $extension = Extensions::find("type='SIP'")->toArray();
         if ($enabled === false) {
+            $cmd = "ARRAY(GR_PERM_ENABLE)=0)";
             foreach ($extension as $extensionData) {
-                $db->databasePut('UsersGroups', $extensionData['number'], 'GR_PERM_ENABLE=0');
+                $db->databasePut('UsersGroups', $extensionData['number'], $cmd);
             }
         } else {
             $groupMembers = GroupMembers::find()->toArray();
@@ -76,29 +77,34 @@ class UsersGroups extends PbxExtensionBase
     }
 
     /**
+     * Генерация команды установки переменной канала.
      * @param       $group_id
      * @param array $allowedRules
      * @return string
      */
     private function initChannelVariables($group_id, array $allowedRules): string{
         if ($group_id) {
+            $varNames  = 'GR_PERM_ENABLE';
+            $varValues = '1';
             // Найдем все маршруты, разрешенные в группе.
-            $channelVars = 'GR_PERM_ENABLE=1';
             foreach ($allowedRules as $ruleData) {
                 if ($ruleData['group_id'] !== $group_id) {
                     continue;
                 }
                 // Обработка правил маршрута.
-                $channelVars .= sprintf(',GR_ID_%s=1', $ruleData['rule_id']);
+                $varNames .= sprintf(',GR_ID_%s', $ruleData['rule_id']);
+                $varValues.= ',1';
                 if (empty($ruleData['caller_id'])) {
                     continue;
                 }
-                $channelVars .= sprintf(',GR_CID_%s=%s', $ruleData['rule_id'], $ruleData['caller_id']);
+                $varNames .= sprintf(',GR_CID_%s', $ruleData['rule_id']);
+                $varValues.= ','.$ruleData['caller_id'];
             }
         } else {
-            $channelVars = 'GR_PERM_ENABLE=0';
+            $varNames  = 'GR_PERM_ENABLE';
+            $varValues = '1';
         }
-        return $channelVars;
+        return "ARRAY({$varNames})={$varValues})";
     }
 
     /**
