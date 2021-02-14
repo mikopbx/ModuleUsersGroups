@@ -104,7 +104,7 @@ class UsersGroups extends PbxExtensionBase
             $varNames  = 'GR_PERM_ENABLE';
             $varValues = '1';
         }
-        return "ARRAY({$varNames})={$varValues})";
+        return "ARRAY({$varNames})={$varValues}";
     }
 
     /**
