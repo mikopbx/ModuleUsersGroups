@@ -11,6 +11,7 @@ namespace Modules\ModuleUsersGroups\Lib;
 
 use MikoPBX\Common\Models\Extensions;
 use MikoPBX\Core\Asterisk\AstDB;
+use MikoPBX\Core\System\PBX;
 use MikoPBX\Modules\PbxExtensionBase;
 use MikoPBX\Modules\PbxExtensionUtils;
 use Modules\ModuleUsersGroups\Models\AllowedOutboundRules;
@@ -52,6 +53,9 @@ class UsersGroups extends PbxExtensionBase
         return $userList;
     }
 
+    /**
+     * Наполнение AstDB
+     */
     public function fillAsteriskDatabase(): void
     {
         $enabled = PbxExtensionUtils::isEnabled($this->moduleUniqueId);
@@ -102,7 +106,7 @@ class UsersGroups extends PbxExtensionBase
             }
         } else {
             $varNames  = 'GR_PERM_ENABLE';
-            $varValues = '1';
+            $varValues = '0';
         }
         return "ARRAY({$varNames})={$varValues}";
     }
@@ -123,5 +127,15 @@ class UsersGroups extends PbxExtensionBase
             }
         }
         return array($groupId, $number);
+    }
+
+    /**
+     * Запуск создания конфигов, перезаполнения базы данных asterisk.
+     */
+    public static function reloadConfigs():void{
+        $mod = new self();
+        $mod->fillAsteriskDatabase();
+        PBX::sipReload();
+        PBX::dialplanReload();
     }
 }

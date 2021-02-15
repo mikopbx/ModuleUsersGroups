@@ -64,8 +64,6 @@ class UsersGroupsConf extends ConfigClass
 
     /**
      * Дополнительные параметры для
-     *
-     *
      * @return string
      */
     public function generatePeersPj(): string
@@ -88,9 +86,8 @@ class UsersGroupsConf extends ConfigClass
             case AllowedOutboundRules::class:
             case GroupMembers::class:
             case ModelUsersGroups::class:
-                $mod = new UsersGroups();
-                $mod->fillAsteriskDatabase();
                 $this->getSettings();
+                UsersGroups::reloadConfigs();
                 break;
             default:
         }
@@ -103,16 +100,12 @@ class UsersGroupsConf extends ConfigClass
      */
     public function onAfterModuleEnable(): void
     {
-        $mod = new UsersGroups();
-        $mod->fillAsteriskDatabase();
         $this->getSettings();
-        PBX::sipReload();
-        PBX::dialplanReload();
+        UsersGroups::reloadConfigs();
     }
 
     public function onAfterModuleDisable(): void{
-        PBX::sipReload();
-        PBX::dialplanReload();
+        UsersGroups::reloadConfigs();
     }
 
     /**
@@ -133,5 +126,4 @@ class UsersGroupsConf extends ConfigClass
         }
         return $options;
     }
-
 }
