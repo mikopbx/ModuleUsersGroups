@@ -9,6 +9,7 @@
 namespace Modules\ModuleUsersGroups\Lib;
 
 use MikoPBX\Common\Models\PbxExtensionModules;
+use MikoPBX\Core\Workers\WorkerModelsEvents;
 use MikoPBX\Modules\Config\ConfigClass;
 use MikoPBX\PBXCoreREST\Lib\PBXApiResult;
 use MikoPBX\Core\System\{PBX, System, Util};
@@ -32,26 +33,6 @@ class UsersGroupsConf extends ConfigClass
     }
 
     /**
-     *  Process CoreAPI requests under root rights
-     *
-     * @param array $request
-     *
-     * @return PBXApiResult
-     */
-    public function moduleRestAPICallback(array $request): PBXApiResult
-    {
-        $res = new PBXApiResult();
-        $res->processor = __METHOD__;
-        $action = strtoupper($request['action']);
-        switch ($action){
-            default:
-                $res->success = false;
-                $res->messages[]='API action not found in moduleRestAPICallback ModuleUsersGroups';
-        }
-        return $res;
-    }
-
-    /**
      * Кастомизация исходящего контекста для конкретного маршрута.
      *
      * @param $rout
@@ -60,11 +41,11 @@ class UsersGroupsConf extends ConfigClass
      */
     public function generateOutRoutContext($rout): string
     {
-        $conf = 'same => n,ExecIf($["x${FROM_PEER}" == "x" && "${CHANNEL(channeltype)}" == "PJSIP" ]?Gosub(set_from_peer,s,1))' . " \n\t";
+        $conf = "\t".'same => n,ExecIf($["x${FROM_PEER}" == "x" && "${CHANNEL(channeltype)}" == "PJSIP" ]?Gosub(set_from_peer,s,1))' . " \n\t";
         $conf .= 'same => n,Set(GR_VARS=${DB(UsersGroups/${FROM_PEER})})' . " \n\t";
-        $conf .= 'same => n,ExecIf($["${GR_VARS}x" != "x"]?Exec(MSet(${GR_VARS})))' . " \n\t";
+        $conf .= 'same => n,ExecIf($["${GR_VARS}x" != "x"]?Exec(Set(${GR_VARS})))' . " \n\t";
         $conf .= 'same => n,ExecIf($["${GR_PERM_ENABLE}" == "1" && "${GR_ID_' . $rout['id'] . '}" != "1"]?return)' . " \n\t";
-        $conf .= 'same => n,ExecIf($["${GR_PERM_ENABLE}" == "1" && "${GR_CID_' . $rout['id'] . '}x" != "x"]?MSet(GR_OLD_CALLERID=${CALLERID(num)},CALLERID(num)=${GR_CID_' . $rout['id'] . '}))' . " \n\t";
+        $conf .= 'same => n,ExecIf($["${GR_PERM_ENABLE}" == "1" && "${GR_CID_' . $rout['id'] . '}x" != "x"]?MSet(GR_OLD_CALLERID=${CALLERID(num)},OUTGOING_CID=${GR_CID_' . $rout['id'] . '}))';
 
         return $conf;
     }
@@ -78,13 +59,11 @@ class UsersGroupsConf extends ConfigClass
      */
     public function generateOutRoutAfterDialContext(array $rout): string
     {
-        return 'same => n,ExecIf($["${GR_PERM_ENABLE}" == "1" && "${GR_OLD_CALLERID}x" != "x"]?MSet(CALLERID(num)=${GR_OLD_CALLERID},GR_OLD_CALLERID=${UNDEFINED}))' . " \n\t";
+        return "\t".'same => n,ExecIf($["${GR_PERM_ENABLE}" == "1" && "${GR_OLD_CALLERID}x" != "x"]?MSet(CALLERID(num)=${GR_OLD_CALLERID},GR_OLD_CALLERID=${UNDEFINED}))';
     }
 
     /**
      * Дополнительные параметры для
-     *
-     *
      * @return string
      */
     public function generatePeersPj(): string
@@ -107,9 +86,8 @@ class UsersGroupsConf extends ConfigClass
             case AllowedOutboundRules::class:
             case GroupMembers::class:
             case ModelUsersGroups::class:
-                $mod = new UsersGroups();
-                $mod->fillAsteriskDatabase();
                 $this->getSettings();
+                UsersGroups::reloadConfigs();
                 break;
             default:
         }
@@ -122,14 +100,12 @@ class UsersGroupsConf extends ConfigClass
      */
     public function onAfterModuleEnable(): void
     {
-        $mod = new UsersGroups();
-        $mod->fillAsteriskDatabase();
         $this->getSettings();
-        PBX::sipReload();
+        UsersGroups::reloadConfigs();
     }
 
     public function onAfterModuleDisable(): void{
-        PBX::sipReload();
+        UsersGroups::reloadConfigs();
     }
 
     /**
@@ -150,5 +126,4 @@ class UsersGroupsConf extends ConfigClass
         }
         return $options;
     }
-
 }

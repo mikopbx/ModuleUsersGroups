@@ -11,6 +11,7 @@ namespace Modules\ModuleUsersGroups\Lib;
 
 use MikoPBX\Common\Models\Extensions;
 use MikoPBX\Core\Asterisk\AstDB;
+use MikoPBX\Core\System\PBX;
 use MikoPBX\Modules\PbxExtensionBase;
 use MikoPBX\Modules\PbxExtensionUtils;
 use Modules\ModuleUsersGroups\Models\AllowedOutboundRules;
@@ -52,6 +53,9 @@ class UsersGroups extends PbxExtensionBase
         return $userList;
     }
 
+    /**
+     * Наполнение AstDB
+     */
     public function fillAsteriskDatabase(): void
     {
         $enabled = PbxExtensionUtils::isEnabled($this->moduleUniqueId);
@@ -59,8 +63,9 @@ class UsersGroups extends PbxExtensionBase
         $db        = new AstDB();
         $extension = Extensions::find("type='SIP'")->toArray();
         if ($enabled === false) {
+            $cmd = "ARRAY(GR_PERM_ENABLE)=0)";
             foreach ($extension as $extensionData) {
-                $db->databasePut('UsersGroups', $extensionData['number'], 'GR_PERM_ENABLE=0');
+                $db->databasePut('UsersGroups', $extensionData['number'], $cmd);
             }
         } else {
             $groupMembers = GroupMembers::find()->toArray();
@@ -76,29 +81,34 @@ class UsersGroups extends PbxExtensionBase
     }
 
     /**
+     * Генерация команды установки переменной канала.
      * @param       $group_id
      * @param array $allowedRules
      * @return string
      */
     private function initChannelVariables($group_id, array $allowedRules): string{
         if ($group_id) {
+            $varNames  = 'GR_PERM_ENABLE';
+            $varValues = '1';
             // Найдем все маршруты, разрешенные в группе.
-            $channelVars = 'GR_PERM_ENABLE=1';
             foreach ($allowedRules as $ruleData) {
                 if ($ruleData['group_id'] !== $group_id) {
                     continue;
                 }
                 // Обработка правил маршрута.
-                $channelVars .= sprintf(',GR_ID_%s=1', $ruleData['rule_id']);
+                $varNames .= sprintf(',GR_ID_%s', $ruleData['rule_id']);
+                $varValues.= ',1';
                 if (empty($ruleData['caller_id'])) {
                     continue;
                 }
-                $channelVars .= sprintf(',GR_CID_%s=%s', $ruleData['rule_id'], $ruleData['caller_id']);
+                $varNames .= sprintf(',GR_CID_%s', $ruleData['rule_id']);
+                $varValues.= ','.$ruleData['caller_id'];
             }
         } else {
-            $channelVars = 'GR_PERM_ENABLE=0';
+            $varNames  = 'GR_PERM_ENABLE';
+            $varValues = '0';
         }
-        return $channelVars;
+        return "ARRAY({$varNames})={$varValues}";
     }
 
     /**
@@ -117,5 +127,15 @@ class UsersGroups extends PbxExtensionBase
             }
         }
         return array($groupId, $number);
+    }
+
+    /**
+     * Запуск создания конфигов, перезаполнения базы данных asterisk.
+     */
+    public static function reloadConfigs():void{
+        $mod = new self();
+        $mod->fillAsteriskDatabase();
+        PBX::sipReload();
+        PBX::dialplanReload();
     }
 }

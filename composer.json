@@ -2,7 +2,7 @@
     "name": "mikopbx/moduleusersgroups",
     "description": "ModuleUsersGroups",
     "require": {
-        "mikopbx/core": ">=2020.2.757"
+        "mikopbx/core": ">=2021.1.55"
     },
     "autoload": {
         "psr-4": {
