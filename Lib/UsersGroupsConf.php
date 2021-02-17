@@ -72,11 +72,11 @@ class UsersGroupsConf extends ConfigClass
     /**
      * Кастомизация исходящего контекста для конкретного маршрута.
      *
-     * @param $rout
+     * @param array $rout
      *
      * @return string
      */
-    public function generateOutRoutAfterDialContext($rout): string
+    public function generateOutRoutAfterDialContext(array $rout): string
     {
         return 'same => n,ExecIf($["${GR_PERM_ENABLE}" == "1" && "${GR_OLD_CALLERID}x" != "x"]?MSet(CALLERID(num)=${GR_OLD_CALLERID},GR_OLD_CALLERID=${UNDEFINED}))' . " \n\t";
     }
