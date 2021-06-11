@@ -35,11 +35,11 @@ class UsersGroupsConf extends ConfigClass
     /**
      * Кастомизация исходящего контекста для конкретного маршрута.
      *
-     * @param $rout
+     * @param array $rout
      *
      * @return string
      */
-    public function generateOutRoutContext($rout): string
+    public function generateOutRoutContext(array $rout): string
     {
         $conf = "\t".'same => n,ExecIf($["x${FROM_PEER}" == "x" && "${CHANNEL(channeltype)}" == "PJSIP" ]?Gosub(set_from_peer,s,1))' . " \n\t";
         $conf .= 'same => n,Set(GR_VARS=${DB(UsersGroups/${FROM_PEER})})' . " \n\t";
@@ -111,15 +111,17 @@ class UsersGroupsConf extends ConfigClass
 
     /**
      * Переопределение опций Endpoint в pjsip.conf
-     * @param string $id
-     * @param array $options
+     *
+     * @param string $extension
+     * @param array  $options
+     *
      * @return array
      */
-    public function overridePJSIPOptions(string $id, array $options):array{
+    public function overridePJSIPOptions(string $extension, array $options):array{
         if(empty($this->listUsers)){
             $this->getSettings();
         }
-        $groupID = $this->listUsers[$id]??'';
+        $groupID = $this->listUsers[$extension]??'';
         $type    = $options['type']??'';
         if(!empty($groupID) && $type === 'endpoint'){
             $options['call_group']   = $groupID;
