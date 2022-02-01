@@ -7,7 +7,7 @@ return [
  * Written by Nikolay Beketov, 11 2019
  *
  */
-    'repModuleUsersGroups' => 'Módulo de Grupo de Usuários',
+    'repModuleUsersGroups' => 'Módulo de grupo de usuários -% repesent%',
     'mo_ModuleModuleUsersGroups' => 'Módulo de grupo de usuários',
     'BreadcrumbModuleUsersGroups' => 'Grupos de usuários',
     'SubHeaderModuleUsersGroups' => 'Definir direitos para rotas de saída',
@@ -19,12 +19,12 @@ return [
     'mod_usrgr_ToggleFieldLabel' => 'Trocar',
     'mod_usrgr_DropDownFieldLabel' => 'Menu suspenso',
     'mod_usrgr_Connected' => 'Módulo conectado',
-    'mod_usrgr_Disconnected' => 'Módulo desativado',
-    'mod_usrgr_Groups' => 'Grupos de funcionários',
-    'mod_usrgr_Users' => 'Funcionários',
-    'mod_usrgr_AddNewUsersGroup' => 'Crie um grupo de funcionários',
+    'mod_usrgr_Disconnected' => 'Módulo desabilitado',
+    'mod_usrgr_Groups' => 'Grupos de ramais',
+    'mod_usrgr_Users' => 'Ramais',
+    'mod_usrgr_AddNewUsersGroup' => 'Crie um grupo de ramais',
     'mod_usrgr_ColumnGroupName' => 'Grupo',
-    'mod_usrgr_ColumnGroupDescription' => 'Descrição do produto',
+    'mod_usrgr_ColumnGroupDescription' => 'Descrição',
     'mod_usrgr_ColumnGroupMembersCount' => 'Número de participantes',
     'mod_usrgr_ValidateNameIsEmpty' => 'Verifique o campo com o nome do grupo',
     'mod_usrgr_ColumnGroup' => 'Grupo',

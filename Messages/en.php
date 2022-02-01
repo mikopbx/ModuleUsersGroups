@@ -7,10 +7,10 @@ return [
      * Written by Nikolay Beketov, 11 2019
      *
      */
-    'repModuleUsersGroups' => 'Module template - %repesent%',
-    'mo_ModuleModuleUsersGroups' => 'Module template',
-    'BreadcrumbModuleUsersGroups' => 'Template module',
-    'SubHeaderModuleUsersGroups' => 'Example to create own modules',
+    'repModuleUsersGroups' => 'User group module -% repesent%',
+    'mo_ModuleModuleUsersGroups' => 'User group module',
+    'BreadcrumbModuleUsersGroups' => 'Groups of users',
+    'SubHeaderModuleUsersGroups' => 'Setting rights for outgoing routes',
     'mod_usrgr_TextFieldLabel' => 'Text field example',
     'mod_usrgr_TextAreaFieldLabel' => 'TextArea field example',
     'mod_usrgr_PasswordFieldLabel' => 'Password field example',
