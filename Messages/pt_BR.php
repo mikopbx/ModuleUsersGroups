@@ -32,5 +32,5 @@ return [
     'mod_usrgr_UsersFilter' => 'Equipe do grupo',
     'mod_usrgr_RoutingRules' => 'Regras de roteamento de saída',
     'mod_usrgr_ColumnCallerId' => 'Identificador de chamadas',
-    'mod_usrgr_SelectMemberToAddToGroup' => 'Selecione um funcionário',
+    'mod_usrgr_SelectMemberToAddToGroup' => 'Selecione um ramal',
 ];
