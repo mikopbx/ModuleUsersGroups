@@ -37,6 +37,16 @@
             <label>{{ t._('mod_usrgr_ColumnGroupDescription') }}</label>
             {{ form.render('description') }}
         </div>
+        <div class="field">
+            <div class="ui toggle checkbox ">
+                {{ form.render('isolate') }}
+                <label>{{ t._('mod_usrgr_isolate') }}</label>
+            </div>
+        </div>
+        <div class="field">
+            <label>{{ t._('mod_usrgr_patterns') }}</label>
+            {{ form.render('patterns') }}
+        </div>
     </div>
 <div class="ui bottom attached tab segment active" data-tab="users">
 

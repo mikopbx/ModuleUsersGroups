@@ -20,8 +20,10 @@ return [
     'mod_usrgr_ToggleFieldLabel'   => 'Переключатель',
     'mod_usrgr_DropDownFieldLabel' => 'Выпадающее меню',
 
-    'mod_usrgr_Connected'    => 'Модуль подключен',
-    'mod_usrgr_Disconnected' => 'Модуль отключен',
+    'mod_usrgr_patterns'                 => 'Шаблоны номеров, относящихся к группе. Участник группы сможет звонить только на них',
+    'mod_usrgr_Connected'                => 'Модуль подключен',
+    'mod_usrgr_Disconnected'             => 'Модуль отключен',
+    'mod_usrgr_isolate'                  => 'Изолировать группу сотрудников',
 
     'mod_usrgr_Groups'                   => 'Группы сотрудников',
     'mod_usrgr_Users'                    => 'Сотрудники',

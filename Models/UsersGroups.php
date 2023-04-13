@@ -40,6 +40,19 @@ class UsersGroups extends ModulesModelsBase
      */
     public $description;
 
+    /**
+     * Group description
+     *
+     * @Column(type="string", nullable=true)
+     */
+    public $patterns;
+
+    /**
+     * Group isolate
+     *
+     * @Column(type="integer", nullable=true)
+     */
+    public $isolate ;
 
     public function initialize(): void
     {
