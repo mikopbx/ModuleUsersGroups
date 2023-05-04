@@ -33,4 +33,7 @@ return [
     'mod_usrgr_RoutingRules' => 'Regras de roteamento de saída',
     'mod_usrgr_ColumnCallerId' => 'Identificador de chamadas',
     'mod_usrgr_SelectMemberToAddToGroup' => 'Selecione um ramal',
+    'mod_usrgr_isolatePickUp' => 'Isolar a função de capturar chamadas (*8)',
+    'mod_usrgr_isolate' => 'Isolar um grupo de ramais',
+    'mod_usrgr_patterns' => 'Números relacionados ao grupo. Somente membros do grupo poderá chamá-los',
 ];
