@@ -332,6 +332,7 @@ class ModuleUsersGroupsController extends BaseController
             switch ($key) {
                 case 'id':
                     break;
+                case 'isolatePickUp':
                 case 'isolate':
                     if (array_key_exists($key, $data)) {
                         $record->$key = ($data[$key] === 'on') ? '1' : '0';

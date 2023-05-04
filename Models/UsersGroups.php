@@ -52,7 +52,14 @@ class UsersGroups extends ModulesModelsBase
      *
      * @Column(type="integer", nullable=true)
      */
-    public $isolate ;
+    public $isolate;
+
+    /**
+     * Group isolate
+     *
+     * @Column(type="integer", nullable=true)
+     */
+    public $isolatePickUp;
 
     public function initialize(): void
     {

@@ -59,6 +59,19 @@ const moduleUsersGroups = {
 			e.preventDefault();
 			moduleUsersGroups.deleteMemberFromTable(e.target);
 		});
+
+		$('#isolate').parent().checkbox({
+			onChange: moduleUsersGroups.changeIsolate
+		});
+		moduleUsersGroups.changeIsolate();
+	},
+
+	changeIsolate(){
+		if($('#isolate').parent().checkbox('is checked')){
+			$("#isolatePickUp").parent().hide();
+		}else{
+			$("#isolatePickUp").parent().show();
+		}
 	},
 	/**
 	 * Delete Group member from list

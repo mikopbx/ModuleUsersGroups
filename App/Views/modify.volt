@@ -44,6 +44,12 @@
             </div>
         </div>
         <div class="field">
+            <div class="ui toggle checkbox ">
+                {{ form.render('isolatePickUp') }}
+                <label>{{ t._('mod_usrgr_isolatePickUp') }}</label>
+            </div>
+        </div>
+        <div class="field">
             <label>{{ t._('mod_usrgr_patterns') }}</label>
             {{ form.render('patterns') }}
         </div>

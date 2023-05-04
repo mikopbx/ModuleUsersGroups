@@ -179,8 +179,14 @@ class UsersGroupsConf extends ConfigClass
         $groupID = $this->listUsers[$extension]??'';
         $type    = $options['type']??'';
         if(!empty($groupID) && $type === 'endpoint'){
-            $options['call_group']   = $groupID;
-            $options['pickup_group'] = $groupID;
+            if($this->groupSettings[$groupID]['isolate'] !== '1' && $this->groupSettings[$groupID]['isolatePickUp'] !== '1'){
+                return $options;
+            }
+            // Для старых версий, удаляем опции:
+            unset($options['call_group'], $options['pickup_group']);
+            // Устанавливаем более
+            $options['named_call_group']   = $groupID;
+            $options['named_pickup_group'] = $groupID;
         }
         return $options;
     }

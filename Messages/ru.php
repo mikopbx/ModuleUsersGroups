@@ -24,6 +24,7 @@ return [
     'mod_usrgr_Connected'                => 'Модуль подключен',
     'mod_usrgr_Disconnected'             => 'Модуль отключен',
     'mod_usrgr_isolate'                  => 'Изолировать группу сотрудников',
+    'mod_usrgr_isolatePickUp'            => 'Изолировать функцию перехвата (Pickup)',
 
     'mod_usrgr_Groups'                   => 'Группы сотрудников',
     'mod_usrgr_Users'                    => 'Сотрудники',
