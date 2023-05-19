@@ -42,7 +42,7 @@ class UsersGroupsConf extends ConfigClass
         $conf.= 'same => n,Set(srcIsolate=${DIALPLAN_EXISTS(users-group-isolate-${CHANNEL(callgroup)},s,1)})'.PHP_EOL;
         $conf.= 'same => n,Set(dstIsolateGroup=${DIALPLAN_EXISTS(users-group-dst-${CHANNEL(callgroup)},${EXTEN},1)})'.PHP_EOL;
         $conf.= 'same => n,Set(dstIsolate=${DIALPLAN_EXISTS(users-group-isolate,${EXTEN},1)})'.PHP_EOL;
-        $conf.= 'same => n,ExecIf($[ ${srcIsolate} && ${dstIsolateGroup} != 1 && dstIsolate != 1 && ${DIALPLAN_EXISTS(internal,${EXTEN},1} != 1 ]?Set(srcIsolate=0))'.PHP_EOL;
+        $conf.= 'same => n,ExecIf($[ ${srcIsolate} && ${dstIsolateGroup} != 1 && dstIsolate != 1 && ${DIALPLAN_EXISTS(internal,${EXTEN},1)} != 1 ]?Set(srcIsolate=0))'.PHP_EOL;
         $conf.= 'same => n,ExecIf($[ ${srcIsolate} && ${dstIsolateGroup} == 0 ]?Goto(internal-num-undefined,${EXTEN},1))'.PHP_EOL;
         $conf.= 'same => n,ExecIf($[ ${srcIsolate} == 0 && ${dstIsolate} ]?Goto(internal-num-undefined,${EXTEN},1))'.PHP_EOL;
         return $conf;
