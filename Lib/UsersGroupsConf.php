@@ -1,4 +1,22 @@
 <?php
+/*
+ * MikoPBX - free phone system for small business
+ * Copyright © 2017-2023 Alexey Portnov and Nikolay Beketov
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program.
+ * If not, see <https://www.gnu.org/licenses/>.
+ */
+
 /**
  * Copyright © MIKO LLC - All Rights Reserved
  * Unauthorized copying of this file, via any medium is strictly prohibited
@@ -26,6 +44,12 @@ class UsersGroupsConf extends ConfigClass
     private array $listUsers = [];
     private array $groupSettings = [];
 
+    /**
+     * Prepares settings dataset for a PBX module
+     * @see https://docs.mikopbx.com/mikopbx-development/module-developement/module-class#other
+     *
+     * @return void
+     */
     public function getSettings(): void{
         $this->listUsers = UsersGroups::initUserList();
         $data = ModelUsersGroups::find();
@@ -35,6 +59,12 @@ class UsersGroupsConf extends ConfigClass
         }
     }
 
+    /**
+     * Prepares additional rules for [all_peers] context section in the extensions.conf file
+     * @see https://docs.mikopbx.com/mikopbx-development/module-developement/module-class#extensiongenallpeerscontext
+     *
+     * @return string
+     */
     public function extensionGenAllPeersContext():string
     {
         // Проверка набираемого номера, относится ли он к группе сотрудников.
@@ -48,6 +78,12 @@ class UsersGroupsConf extends ConfigClass
         return $conf;
     }
 
+    /**
+     * Prepares additional contexts sections in the extensions.conf file
+     * @see https://docs.mikopbx.com/mikopbx-development/module-developement/module-class#extensiongencontexts
+     *
+     * @return string
+     */
     public function extensionGenContexts(): string
     {
         $this->getSettings();
@@ -87,7 +123,9 @@ class UsersGroupsConf extends ConfigClass
     }
 
     /**
-     * Кастомизация исходящего контекста для конкретного маршрута.
+     * Prepares additional parameters for each outgoing route context
+     * before dial call in the extensions.conf file
+     * @see https://docs.mikopbx.com/mikopbx-development/module-developement/module-class#generateoutroutcontext
      *
      * @param array $rout
      *
@@ -107,7 +145,9 @@ class UsersGroupsConf extends ConfigClass
     }
 
     /**
-     * Кастомизация исходящего контекста для конкретного маршрута.
+     * Prepares additional parameters for each outgoing route context
+     * after dial call in the extensions.conf file
+     * @see https://docs.mikopbx.com/mikopbx-development/module-developement/module-class#generateoutroutafterdialcontext
      *
      * @param array $rout
      *
@@ -119,7 +159,9 @@ class UsersGroupsConf extends ConfigClass
     }
 
     /**
-     * Дополнительные параметры для
+     * Prepares additional peers data in the pjsip.conf file
+     * @see https://docs.mikopbx.com/mikopbx-development/module-developement/module-class#generatepeerspj
+     *
      * @return string
      */
     public function generatePeersPj(): string
@@ -131,9 +173,12 @@ class UsersGroupsConf extends ConfigClass
     }
 
     /**
-     * Обработчик события изменения данных в базе настроек mikopbx.db.
+     * This method is called in the WorkerModelsEvents after each model change.
+     * @see https://docs.mikopbx.com/mikopbx-development/module-developement/module-class#modelseventchangedata
      *
-     * @param $data
+     * @param mixed $data The data related to the model change.
+     *
+     * @return void
      */
     public function modelsEventChangeData($data): void
     {
@@ -150,7 +195,8 @@ class UsersGroupsConf extends ConfigClass
     }
 
     /**
-     * Process after enable action in web interface
+     * Processes actions after enabling the module in the web interface
+     * @see https://docs.mikopbx.com/mikopbx-development/module-developement/module-class#onaftermoduleenable
      *
      * @return void
      */
@@ -160,15 +206,22 @@ class UsersGroupsConf extends ConfigClass
         UsersGroups::reloadConfigs();
     }
 
+    /**
+     * Processes actions after disabling the module in the web interface.
+     * @see https://docs.mikopbx.com/mikopbx-development/module-developement/module-class#onaftermoduledisable
+     *
+     * @return void
+     */
     public function onAfterModuleDisable(): void{
         UsersGroups::reloadConfigs();
     }
 
     /**
-     * Переопределение опций Endpoint в pjsip.conf
+     * Override pjsip options for peer in the pjsip.conf file
+     * @see https://docs.mikopbx.com/mikopbx-development/module-developement/module-class#overridepjsipoptions
      *
-     * @param string $extension
-     * @param array  $options
+     * @param string $extension the endpoint extension
+     * @param array  $options   list of pjsip options
      *
      * @return array
      */
