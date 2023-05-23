@@ -264,7 +264,7 @@ class UsersGroupsConf extends ConfigClass
         if ($controller==='Extensions'){
             switch ($blockName){
                 case "GeneralTabFields":
-                    $result = '/storage/usbdisk1/mikopbx/custom_modules/ModuleUsersGroups/App/Views/Extensions/modify';
+                    $result = "{$this->moduleDir}/App/Views/Extensions/modify";
                     break;
                 default:
             }
