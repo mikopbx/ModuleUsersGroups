@@ -26,11 +26,15 @@
 
 namespace Modules\ModuleUsersGroups\Lib;
 
-use MikoPBX\Core\Asterisk\Configs\ExtensionsConf;
+use MikoPBX\AdminCabinet\Forms\ExtensionEditForm;
 use MikoPBX\Modules\Config\ConfigClass;
 use Modules\ModuleUsersGroups\Models\AllowedOutboundRules;
 use Modules\ModuleUsersGroups\Models\GroupMembers;
 use Modules\ModuleUsersGroups\Models\UsersGroups as ModelUsersGroups;
+use Phalcon\Forms\Element\Select;
+use Phalcon\Forms\Form;
+use Phalcon\Mvc\Controller;
+use Phalcon\Mvc\View;
 
 
 class UsersGroupsConf extends ConfigClass
@@ -242,5 +246,120 @@ class UsersGroupsConf extends ConfigClass
             $options['named_pickup_group'] = $groupID;
         }
         return $options;
+    }
+
+    /**
+     * Prepares the include block within a Volt template.
+     * @see https://docs.mikopbx.com/mikopbx-development/module-developement/module-class#onvoltblockcompile
+     *
+     * @param string $controller The called controller name.
+     * @param string $blockName The named in volt template block name.
+     * @param View $view The view instance.
+     *
+     * @return string the volt partial file path without extension.
+     */
+    public function onVoltBlockCompile(string $controller, string $blockName, View $view):string
+    {
+        $result = '';
+        if ($controller==='Extensions'){
+            switch ($blockName){
+                case "GeneralTabFields":
+                    $result = '/storage/usbdisk1/mikopbx/custom_modules/ModuleUsersGroups/App/Views/Extensions/modify';
+                    break;
+                default:
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Called from BaseForm before the form is initialized.
+     * @see https://docs.mikopbx.com/mikopbx-development/module-developement/module-class#onbeforeforminitialize
+     *
+     * @param Form $form The called form instance.
+     * @param mixed $entity The called form entity.
+     * @param mixed $options The called form options.
+     *
+     * @return void
+     */
+    public function onBeforeFormInitialize(Form $form, $entity, $options):void
+    {
+        if (is_a($form, ExtensionEditForm::class)) {
+            // Prepare groups for select
+            $parameters = [
+                'columns'=>[
+                    'id',
+                    'name'
+                ]
+            ];
+            $arrGroups = ModelUsersGroups::find($parameters);
+            $arrGroupsForSelect = [];
+            foreach ($arrGroups as $group) {
+                $arrGroupsForSelect[$group->id] = $group->name;
+            }
+
+            // Find current value
+            $userGroupId = null;
+            if (isset($entity->userid)){
+                $parameters = [
+                    'conditions'=>'user_id = :user_id:',
+                    'bind'=>['user_id'=>$entity->userid]
+                ];
+
+                $curUserGroup = GroupMembers::findFirst($parameters);
+                if ($curUserGroup!==null){
+                    // Get the group ID from the existing group membership
+                    $userGroupId = $curUserGroup->group_id;
+                }
+            }
+
+            $groupForSelect = new Select(
+                'mod_usrgr_select_group', $arrGroupsForSelect, [
+                    'using'    => [
+                        'id',
+                        'name',
+                    ],
+                    'value' => $userGroupId,
+                    'useEmpty' => false,
+                    'class'    => 'ui selection dropdown search select-group-field',
+                ]
+            );
+
+            // Add the group select field to the form
+            $form->add($groupForSelect);
+        }
+    }
+
+    /**
+     * Calls from BaseController on afterExecuteRoute function
+     *
+     * @param Controller $controller
+     * @return void
+     */
+    public function onAfterExecuteRoute(Controller $controller):void
+    {
+        $userGroup = $controller->request->getPost('mod_usrgr_select_group');
+        $userId = $controller->request->getPost('user_id');
+        if (!empty($userGroup)){
+            $parameters = [
+                'conditions'=>'user_id = :user_id:',
+                'bind'=>[
+                    'user_id'=>$userId,
+                ]
+            ];
+
+            $curUserGroup = GroupMembers::findFirst($parameters);
+            if ($curUserGroup!==null){
+                // Update the group ID with the selected user group
+                $curUserGroup->group_id = $userGroup;
+            } else {
+                // Create a new group membership
+                $curUserGroup = new GroupMembers();
+                $curUserGroup->user_id = $userId;
+                $curUserGroup->group_id = $userGroup;
+            }
+            $curUserGroup->save();
+        }
     }
 }

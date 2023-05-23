@@ -30,7 +30,6 @@
                     {{ record.description }}
                 {% endif %}
             </td>
-            </td>
             {{ partial("partials/tablesbuttons",
                 [
                     'id': record.id,

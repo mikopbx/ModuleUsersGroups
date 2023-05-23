@@ -1,4 +1,22 @@
 <?php
+/*
+ * MikoPBX - free phone system for small business
+ * Copyright © 2017-2023 Alexey Portnov and Nikolay Beketov
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program.
+ * If not, see <https://www.gnu.org/licenses/>.
+ */
+
 /**
  * Copyright © MIKO LLC - All Rights Reserved
  * Unauthorized copying of this file, via any medium is strictly prohibited
@@ -38,7 +56,9 @@ class ModuleUsersGroupsController extends BaseController
     }
 
     /**
-     * Index page controller
+     * The index action for displaying the users groups page.
+     *
+     * @return void
      */
     public function indexAction(): void
     {
@@ -54,7 +74,7 @@ class ModuleUsersGroupsController extends BaseController
         $this->view->groups = UsersGroups::find();
         $this->view->pick("{$this->moduleDir}/App/Views/index");
 
-        // Получим список пользователей для отображения в фильтре
+        // Get the list of users for display in the filter
         $parameters = [
             'models'     => [
                 'Extensions' => Extensions::class,
@@ -83,9 +103,7 @@ class ModuleUsersGroupsController extends BaseController
         $query      = $this->di->get('modelsManager')->createBuilder($parameters)->getQuery();
         $extensions = $query->execute();
 
-
-
-        // Получим соответствие сотрудников и групп т.к. join в разных базах сделать нельзя
+        // Get the mapping of employees and groups since join across different databases is not possible
         $parameters      = [
             'models'     => [
                 'GroupMembers' => GroupMembers::class,
@@ -151,9 +169,11 @@ class ModuleUsersGroupsController extends BaseController
     }
 
     /**
-     * Users group modify card
+     * The modify action for creating or editing a user group.
      *
-     * @param string|NULL $id
+     * @param string|null $id The ID of the user group (optional)
+     *
+     * @return void
      */
     public function modifyAction(string $id = null): void
     {
@@ -164,7 +184,7 @@ class ModuleUsersGroupsController extends BaseController
         if ($record === null) {
             $record = new UsersGroups();
         } else {
-            // Получим список пользователей для отображения в фильтре
+            // Get the list of users for display in the filter
             $parameters = [
                 'models'     => [
                     'Extensions' => Extensions::class,
@@ -195,7 +215,7 @@ class ModuleUsersGroupsController extends BaseController
             $extensions = $query->execute();
 
 
-            // Получим соответствие сотрудников и групп т.к. join в разных базах сделать нельзя
+            // Get the mapping of employees and groups since join across different databases is not possible
             $parameters      = [
                 'models'     => [
                     'GroupMembers' => GroupMembers::class,
@@ -253,7 +273,7 @@ class ModuleUsersGroupsController extends BaseController
             }
             $this->view->members = $extensionTable;
 
-            // Получим список ссылок на разрещенные правила маршутизации в этой группе
+            // Get the list of links to allowed outbound rules in this group
             $parameters      = [
                 'columns'    => 'rule_id, caller_id',
                 'conditions' => 'group_id=:groupId:',
@@ -264,7 +284,7 @@ class ModuleUsersGroupsController extends BaseController
             $allowedRules    = AllowedOutboundRules::find($parameters)->toArray();
             $allowedRulesIds = array_column($allowedRules, 'rule_id');
 
-            // Получим список правил маршрутизации
+            // Get the list of outbound routing rules
             $rules        = OutgoingRoutingTable::find(['order' => 'priority']);
             $routingTable = [];
             foreach ($rules as $rule) {
@@ -371,7 +391,8 @@ class ModuleUsersGroupsController extends BaseController
             $this->flash->success($this->translation->_('ms_SuccessfulSaved'));
             $this->view->success = true;
             $this->db->commit();
-            // Если это было создание карточки то надо перегрузить страницу с указанием ID
+
+            // If it was a new record, reload the page with the specified ID
             if (empty($data['id'])) {
                 $this->view->reload = "module-users-groups/modify/{$record->id}";
             }
@@ -379,15 +400,15 @@ class ModuleUsersGroupsController extends BaseController
     }
 
     /**
-     * Сохраняет параметры маршрутов
+     * Save the allowed outbound rules for a group.
      *
-     * @param $data
+     * @param array $data The data containing the form inputs.
      *
-     * @return bool
+     * @return bool True if the saving process is successful, false otherwise.
      */
     private function saveAllowedOutboundRules($data): bool
     {
-        // 1. Удалим все старые ссылки на правила относящиеся к этой группе
+        // 1. Delete all old references to rules related to this group
         $parameters = [
             'conditions' => 'group_id=:groupId:',
             'bind'       => [
@@ -402,7 +423,7 @@ class ModuleUsersGroupsController extends BaseController
             return false;
         }
 
-        // 2. Запишем разрешенные направления
+        // 2. Save the allowed outbound rules
         foreach ($data as $key => $value) {
             if (substr_count($key, 'rule-') > 0) {
                 $rule_id = explode('rule-', $key)[1];
@@ -428,15 +449,15 @@ class ModuleUsersGroupsController extends BaseController
     }
 
     /**
-     * Сохраняет параметр выбранные пользоваетели
+     * Save the users associated with the group.
      *
-     * @param $data
+     * @param array $data The data containing the form inputs.
      *
-     * @return bool
+     * @return bool True if the saving process is successful, false otherwise.
      */
-    private function saveUsersGroups($data): bool
+    private function saveUsersGroups(array $data): bool
     {
-        // 1. Соберем новых пользователей
+        // 1. Collect new users
         $savedExtensions = [];
         $arrMembers      = json_decode($data['members'], true);
         foreach ($arrMembers as $key => $value) {
@@ -445,7 +466,7 @@ class ModuleUsersGroupsController extends BaseController
             }
         }
 
-        // Если никого в группе нет, то просто удалим всех и вернемся
+        // If there are no users in the group, delete all and return
         if (count($savedExtensions) === 0) {
             $parameters = [
                 'conditions' => 'group_id=:groupId:',
@@ -496,7 +517,7 @@ class ModuleUsersGroupsController extends BaseController
         $query      = $this->di->get('modelsManager')->createBuilder($parameters)->getQuery();
         $newMembers = $query->execute();
 
-        // 3. Переместим выбранных пользователей из других групп и создадим новые ссылки для текущих членов группы
+        // 3. Move selected users from other groups and create new links for current group members
         foreach ($newMembers as $member) {
             $parameters  = [
                 'conditions' => 'user_id=:userID:',
@@ -523,8 +544,7 @@ class ModuleUsersGroupsController extends BaseController
             }
         }
 
-
-        // 4. Удалим все старые ссылки на пользователей относящиеся к этой группе
+        // 4. Delete all old links to users related to this group
         foreach ($membersForDelete as $member) {
             $groupMember = GroupMembers::findFirstById($member['id']);
             if ($groupMember !== null && $groupMember->delete() === false) {
@@ -539,7 +559,7 @@ class ModuleUsersGroupsController extends BaseController
     }
 
     /**
-     * Меняем группу пользователя в списке
+     * Change the group of a user.
      */
     public function changeUserGroupAction(): void
     {
@@ -570,11 +590,11 @@ class ModuleUsersGroupsController extends BaseController
     }
 
     /**
-     * Delete group
+     * Delete a group.
      *
-     * @param $groupId
+     * @param string $groupId The ID of the group to be deleted.
      */
-    public function deleteAction($groupId): void
+    public function deleteAction(string $groupId): void
     {
         $group = UsersGroups::findFirstById($groupId);
         if ($group !== null && ! $group->delete()) {

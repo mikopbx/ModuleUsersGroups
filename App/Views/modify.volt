@@ -146,4 +146,4 @@
 
 
 {{ partial("partials/submitbutton",['indexurl':'module-users-groups/index/']) }}
-</form>
+{{ endform()}}
