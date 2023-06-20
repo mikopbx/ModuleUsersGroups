@@ -43,7 +43,7 @@ class ModuleUsersGroupsForm extends Form
         $this->add(new TextArea('description', ['rows' => $rows]));
         $this->add(new TextArea('patterns',    ['rows' => 6]));
 
-        // failoverextension
+        // select-extension-field
         $extension = new Select(
             'select-extension-field', [], [
             'using'    => [
