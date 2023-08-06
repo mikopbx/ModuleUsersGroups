@@ -65,7 +65,6 @@ class ModuleUsersGroupsController extends BaseController
             ->addCss("css/cache/{$this->moduleUniqueID}/module-users-groups.css", true);
 
         $this->view->groups = UsersGroups::find();
-        $this->view->pick("{$this->moduleDir}/App/Views/index");
 
         // Get the list of users for display in the filter
         $parameters = [
@@ -324,7 +323,6 @@ class ModuleUsersGroupsController extends BaseController
         $this->view->form      = new ModuleUsersGroupsForm($record);
         $this->view->represent = $record->getRepresent();
         $this->view->id        = $id;
-        $this->view->pick("{$this->moduleDir}/App/Views/modify");
     }
 
     /**
@@ -363,9 +361,7 @@ class ModuleUsersGroupsController extends BaseController
         }
 
         $error = false;
-        if ($record->save() === false) {
-            $errors = $record->getMessages();
-            $this->flash->error(implode('<br>', $errors));
+        if ($this->saveEntity($record) === false) {
             $error = true;
         }
 
@@ -399,7 +395,7 @@ class ModuleUsersGroupsController extends BaseController
      *
      * @return bool True if the saving process is successful, false otherwise.
      */
-    private function saveAllowedOutboundRules($data): bool
+    private function saveAllowedOutboundRules(array $data): bool
     {
         // 1. Delete all old references to rules related to this group
         $parameters = [
@@ -409,18 +405,17 @@ class ModuleUsersGroupsController extends BaseController
             ],
         ];
         $oldRules   = AllowedOutboundRules::find($parameters);
-        if ($oldRules->delete() === false) {
-            $errors = $oldRules->getMessages();
-            $this->flash->error(implode('<br>', $errors));
-
-            return false;
-        }
+       foreach ($oldRules as $oldRule) {
+           if ($this->deleteEntity($oldRule)===false){
+               return false;
+           }
+       }
 
         // 2. Save the allowed outbound rules
         foreach ($data as $key => $value) {
             if (substr_count($key, 'rule-') > 0) {
                 $rule_id = explode('rule-', $key)[1];
-                if ($data[$key] === 'on') {
+                if ($value === 'on') {
                     $newRule     = new AllowedOutboundRules();
                     $callerIdKey = "caller_id-$rule_id";
                     if (array_key_exists($callerIdKey, $data)) {
@@ -428,10 +423,7 @@ class ModuleUsersGroupsController extends BaseController
                     }
                     $newRule->group_id = $data['id'];
                     $newRule->rule_id  = $rule_id;
-                    if ($newRule->save() === false) {
-                        $errors = $newRule->getMessages();
-                        $this->flash->error(implode('<br>', $errors));
-
+                    if ($this->saveEntity($newRule) === false) {
                         return false;
                     }
                 }
@@ -468,13 +460,11 @@ class ModuleUsersGroupsController extends BaseController
                 ],
             ];
             $oldMembers = GroupMembers::find($parameters);
-            if ($oldMembers->delete() === false) {
-                $errors = $oldMembers->getMessages();
-                $this->flash->error(implode('<br>', $errors));
-
-                return false;
+            foreach ($oldMembers as $oldMember) {
+                if ($this->deleteEntity($oldMember) === false) {
+                    return false;
+                }
             }
-
             return true;
         }
 
@@ -529,10 +519,7 @@ class ModuleUsersGroupsController extends BaseController
                 unset($membersForDelete[$key]);
             }
 
-            if ($groupMember->save() === false) {
-                $errors = $groupMember->getMessages();
-                $this->flash->error(implode('<br>', $errors));
-
+            if ($this->saveEntity($groupMember) === false) {
                 return false;
             }
         }
@@ -540,10 +527,7 @@ class ModuleUsersGroupsController extends BaseController
         // 4. Delete all old links to users related to this group
         foreach ($membersForDelete as $member) {
             $groupMember = GroupMembers::findFirstById($member['id']);
-            if ($groupMember !== null && $groupMember->delete() === false) {
-                $errors = $groupMember->getMessages();
-                $this->flash->error(implode('<br>', $errors));
-
+            if ($groupMember !== null && $this->deleteEntity($groupMember) === false) {
                 return false;
             }
         }
@@ -572,14 +556,7 @@ class ModuleUsersGroupsController extends BaseController
             $groupMember->user_id = $data['user_id'];
         }
         $groupMember->group_id = $data['group_id'];
-        if ($groupMember->save() === false) {
-            $errors = $groupMember->getMessages();
-            $this->flash->error(implode('<br>', $errors));
-            $this->view->success = false;
-        } else {
-            $this->flash->success($this->translation->_('ms_SuccessfulSaved'));
-            $this->view->success = true;
-        }
+        $this->saveEntity($groupMember);
     }
 
     /**
@@ -590,15 +567,9 @@ class ModuleUsersGroupsController extends BaseController
     public function deleteAction(string $groupId): void
     {
         $group = UsersGroups::findFirstById($groupId);
-        if ($group !== null && ! $group->delete()) {
-            $errors = $group->getMessages();
-            $this->flash->error(implode('<br>', $errors));
-            $this->view->success = false;
-        } else {
-            $this->view->success = true;
+        if ($group !== null) {
+            $this->deleteEntity($group,'module-users-groups/index');
         }
-
-        $this->forward('module-users-groups/index');
     }
 
 }

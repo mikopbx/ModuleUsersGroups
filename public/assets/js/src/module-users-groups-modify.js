@@ -1,20 +1,40 @@
 /*
- * Copyright (C) MIKO LLC - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- * Written by Nikolay Beketov, 11 2019
+ * MikoPBX - free phone system for small business
+ * Copyright © 2017-2023 Alexey Portnov and Nikolay Beketov
  *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program.
+ * If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* global globalRootUrl,globalTranslate, Form, Extensions */
 
-
+/**
+ * Call groups module configuration.
+ * @namespace moduleUsersGroups
+ */
 const moduleUsersGroups = {
+	/**
+	 * jQuery object representing the module's form.
+	 * @type {jQuery}
+	 */
 	$formObj: $('#module-users-groups-form'),
 	$rulesCheckBoxes: $('#outbound-rules-table .checkbox'),
 	$selectUsersDropDown: $('.select-extension-field'),
-	$dirrtyField: $('#dirrty'),
+	$showOnlyOnIsolateGroup: $('.show-only-on-isolate-group'),
 	$statusToggle: $('#module-status-toggle'),
+	$isolateCheckBox: $('#isolate').parent('.checkbox'),
+	$isolatePickupCheckBox: $('#isolatePickUp').parent('.checkbox'),
+
 	defaultExtension: '',
 	validateRules: {
 		name: {
@@ -27,6 +47,11 @@ const moduleUsersGroups = {
 			],
 		},
 	},
+
+	/**
+	 * Initializes the module.
+	 * @memberof moduleUsersGroups
+	 */
 	initialize() {
 		moduleUsersGroups.checkStatusToggle();
 		window.addEventListener('ModuleStatusChanged', moduleUsersGroups.checkStatusToggle);
@@ -40,8 +65,7 @@ const moduleUsersGroups = {
 
 		moduleUsersGroups.$rulesCheckBoxes.checkbox({
 			onChange() {
-				moduleUsersGroups.$dirrtyField.val(Math.random());
-				moduleUsersGroups.$dirrtyField.trigger('change');
+				Form.dataChanged();
 			},
 			onChecked() {
 				const number = $(this).attr('data-value');
@@ -55,38 +79,49 @@ const moduleUsersGroups = {
 
 		moduleUsersGroups.initializeUsersDropDown();
 
+		moduleUsersGroups.$cdrFilterToggles.checkbox();
+
 		$('body').on('click', 'div.delete-user-row', (e) => {
 			e.preventDefault();
 			moduleUsersGroups.deleteMemberFromTable(e.target);
 		});
 
-		$('#isolate').parent().checkbox({
-			onChange: moduleUsersGroups.changeIsolate
+		moduleUsersGroups.$isolateCheckBox.checkbox({
+			onChange: moduleUsersGroups.cbAfterChangeIsolate
 		});
-		moduleUsersGroups.changeIsolate();
+		moduleUsersGroups.cbAfterChangeIsolate();
 	},
 
-	changeIsolate(){
-		if($('#isolate').parent().checkbox('is checked')){
-			$("#isolatePickUp").parent().hide();
+	/**
+	 * Handle isolation change.
+	 * @memberof moduleUsersGroups
+	 */
+	cbAfterChangeIsolate(){
+		if(moduleUsersGroups.$isolateCheckBox.checkbox('is checked')){
+			moduleUsersGroups.$isolatePickupCheckBox.hide();
+			moduleUsersGroups.$showOnlyOnIsolateGroup.show();
 		}else{
-			$("#isolatePickUp").parent().show();
+			moduleUsersGroups.$isolatePickupCheckBox.show();
+			moduleUsersGroups.$showOnlyOnIsolateGroup.hide();
 		}
 	},
+
 	/**
-	 * Delete Group member from list
-	 * @param target - link to pushed button
+	 * Delete Group member from list.
+	 * @memberof moduleUsersGroups
+	 * @param {HTMLElement} target - Link to the pushed button.
 	 */
 	deleteMemberFromTable(target) {
 		const id = $(target).closest('div').attr('data-value');
 		$(`#${id}`)
 			.removeClass('selected-member')
 			.hide();
-		moduleUsersGroups.$dirrtyField.val(Math.random());
-		moduleUsersGroups.$dirrtyField.trigger('change');
+		Form.dataChanged();
 	},
+
 	/**
-	 * Настройка выпадающего списка пользователей
+	 * Initializes the dropdown for selecting users.
+	 * @memberof moduleUsersGroups
 	 */
 	initializeUsersDropDown() {
 		const dropdownParams = Extensions.getDropdownSettingsOnlyInternalWithoutEmpty();
@@ -94,11 +129,13 @@ const moduleUsersGroups = {
 		dropdownParams.templates = { menu: moduleUsersGroups.customDropdownMenu };
 		moduleUsersGroups.$selectUsersDropDown.dropdown(dropdownParams);
 	},
+
 	/**
-	 * Change custom menu visualisation
-	 * @param response
-	 * @param fields
-	 * @returns {string}
+	 * Customizes the dropdown menu.
+	 * @memberof moduleUsersGroups
+	 * @param {Object} response - Response data.
+	 * @param {Object} fields - Field properties.
+	 * @returns {string} The HTML for the custom dropdown menu.
 	 */
 	customDropdownMenu(response, fields) {
 		const values = response[fields.values] || {};
@@ -121,9 +158,13 @@ const moduleUsersGroups = {
 		});
 		return html;
 	},
+
 	/**
-	 * Колбек после выбора пользователя в группу
-	 * @param value
+	 * Callback after selecting a user in the group.
+	 * @memberof moduleUsersGroups
+	 * @param {string} text - Selected user's text.
+	 * @param {string} value - Selected user's value.
+	 * @param {jQuery} $element - The jQuery element representing the selected user.
 	 */
 	cbAfterUsersSelect(text, value, $element) {
 		$(`#ext-${value}`)
@@ -131,11 +172,12 @@ const moduleUsersGroups = {
 			.addClass('selected-member')
 			.show();
 		$($element).addClass('disabled');
-		moduleUsersGroups.$dirrtyField.val(Math.random());
-		moduleUsersGroups.$dirrtyField.trigger('change');
+		Form.dataChanged();
 	},
+
 	/**
-	 * Изменение статуса кнопок при изменении статуса модуля
+	 * Checks and updates button status when the module status changes.
+	 * @memberof moduleUsersGroups
 	 */
 	checkStatusToggle() {
 		if (moduleUsersGroups.$statusToggle.checkbox('is checked')) {
@@ -148,6 +190,13 @@ const moduleUsersGroups = {
 			$('[data-tab = "users"] .disability').addClass('disabled');
 		}
 	},
+
+	/**
+	 * Callback before sending the form.
+	 * @memberof moduleUsersGroups
+	 * @param {Object} settings - Ajax request settings.
+	 * @returns {Object} The modified Ajax request settings.
+	 */
 	cbBeforeSendForm(settings) {
 		const result = settings;
 		result.data = moduleUsersGroups.$formObj.form('get values');
@@ -161,9 +210,19 @@ const moduleUsersGroups = {
 		result.data.members = JSON.stringify(arrMembers);
 		return result;
 	},
+
+	/**
+	 * Callback after sending the form.
+	 * @memberof moduleUsersGroups
+	 */
 	cbAfterSendForm() {
 
 	},
+
+	/**
+	 * Initializes the form.
+	 * @memberof moduleUsersGroups
+	 */
 	initializeForm() {
 		Form.$formObj = moduleUsersGroups.$formObj;
 		Form.url = `${globalRootUrl}module-users-groups/save`;

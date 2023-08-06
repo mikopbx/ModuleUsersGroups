@@ -131,7 +131,6 @@ class PbxExtensionSetup extends PbxExtensionSetupBase
     public function addToSidebar(): bool
     {
         $menuSettingsKey           = "AdditionalMenuItem{$this->moduleUniqueID}";
-        $unCamelizedControllerName = Text::uncamelize($this->moduleUniqueID, '-');
         $menuSettings              = PbxSettings::findFirstByKey($menuSettingsKey);
         if ($menuSettings === null) {
             $menuSettings      = new PbxSettings();
@@ -139,7 +138,6 @@ class PbxExtensionSetup extends PbxExtensionSetupBase
         }
         $value               = [
             'uniqid'        => $this->moduleUniqueID,
-            'href'          => "/admin-cabinet/$unCamelizedControllerName",
             'group'         => 'routing',
             'iconClass'     => 'users',
             'caption'       => "Breadcrumb$this->moduleUniqueID",

@@ -19,15 +19,13 @@
 
 namespace Modules\ModuleUsersGroups\App\Forms;
 
+use MikoPBX\AdminCabinet\Forms\BaseForm;
 use Phalcon\Forms\Element\Check;
 use Phalcon\Forms\Element\Hidden;
 use Phalcon\Forms\Element\Select;
 use Phalcon\Forms\Element\Text;
-use Phalcon\Forms\Element\TextArea;
-use Phalcon\Forms\Form;
 
-
-class ModuleUsersGroupsForm extends Form
+class ModuleUsersGroupsForm extends BaseForm
 {
 
     public function initialize($entity = null, $options = null): void
@@ -39,9 +37,14 @@ class ModuleUsersGroupsForm extends Form
         $this->add(new Text('name'));
 
         // Description
-        $rows = max(round(strlen($entity->description) / 95), 2);
-        $this->add(new TextArea('description', ['rows' => $rows]));
-        $this->add(new TextArea('patterns',    ['rows' => 6]));
+        $this->addTextArea('description',$entity->description??'',90);
+
+        // Patterns
+        $patternsPlaceholder = '';
+        for ($i = 1; $i < 7; $i++) {
+            $patternsPlaceholder .= $this->translation->_("mod_usrgr_PatternsInstructions$i").PHP_EOL;
+        }
+        $this->addTextArea('patterns',$entity->patterns??'',90, ['placeholder' => $patternsPlaceholder]);
 
         // select-extension-field
         $extension = new Select(

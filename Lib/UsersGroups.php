@@ -148,7 +148,7 @@ class UsersGroups extends PbxExtensionBase
      * @param array $groupMembers The array of group members
      * @return array The group ID and extension number
      */
-    private function initGroupID($extensionData, array $groupMembers): array{
+    private function initGroupID(array $extensionData, array $groupMembers): array{
         // Find the group to which the employee belongs
         $groupId = null;
         $number = $extensionData['number'];

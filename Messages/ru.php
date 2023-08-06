@@ -17,36 +17,21 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- * Copyright (C) MIKO LLC - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- * Written by Nikolay Beketov, 11 2019
- *
- */
-
 return [
-    'repModuleUsersGroups'         => 'Модуль группы пользователей - %repesent%',
-    'mo_ModuleModuleUsersGroups'   => 'Модуль группы пользователей',
-    'BreadcrumbModuleUsersGroups'  => 'Группы пользователей',
-    'SubHeaderModuleUsersGroups'   => 'Настройка прав для исходящих маршрутов',
-    'mod_usrgr_TextFieldLabel'     => 'Пример текстового поля',
-    'mod_usrgr_TextAreaFieldLabel' => 'Пример многостраничного поля',
-    'mod_usrgr_PasswordFieldLabel' => 'Пример поля с паролем',
-    'mod_usrgr_IntegerFieldLabel'  => 'Пример числового поля',
-    'mod_usrgr_CheckBoxFieldLabel' => 'Чекбокс',
-    'mod_usrgr_ToggleFieldLabel'   => 'Переключатель',
-    'mod_usrgr_DropDownFieldLabel' => 'Выпадающее меню',
-
+    'repModuleUsersGroups'         => 'Модуль телефонные группы - %repesent%',
+    'mo_ModuleModuleUsersGroups'   => 'Управление телефонными группами',
+    'BreadcrumbModuleUsersGroups'  => 'Управление телефонными группами',
+    'BreadcrumbModuleUsersGroupsModify' => 'Настройка телефонной группы',
+    'SubHeaderModuleUsersGroups'   => 'Настройка прав для исходящих вызовов, управление исходящим CallerID, организация групп перехвата вызовов',
     'mod_usrgr_patterns'                 => 'Шаблоны номеров, относящихся к группе. Участник группы сможет звонить только на них',
     'mod_usrgr_Connected'                => 'Модуль подключен',
     'mod_usrgr_Disconnected'             => 'Модуль отключен',
     'mod_usrgr_isolate'                  => 'Изолировать группу сотрудников',
     'mod_usrgr_isolatePickUp'            => 'Изолировать функцию перехвата (Pickup)',
 
-    'mod_usrgr_Groups'                   => 'Группы сотрудников',
+    'mod_usrgr_Groups'                   => 'Список телефонных групп',
     'mod_usrgr_Users'                    => 'Сотрудники',
-    'mod_usrgr_AddNewUsersGroup'         => 'Создать группу сотрудников',
+    'mod_usrgr_AddNewUsersGroup'         => 'Создать телефонную группу',
     'mod_usrgr_ColumnGroupName'          => 'Группа',
     'mod_usrgr_ColumnGroupDescription'   => 'Описание',
     'mod_usrgr_ColumnGroupMembersCount'  => 'Количество в участников',
@@ -57,5 +42,13 @@ return [
     'mod_usrgr_RoutingRules'             => 'Правила исходящей маршрутизации',
     'mod_usrgr_ColumnCallerId'           => 'Caller ID',
     'mod_usrgr_SelectMemberToAddToGroup' => 'Выберите сотрудника',
-    'mod_usrgr_SelectUserGroup'          => 'Выберите группу для сотрудника'
+    'mod_usrgr_SelectUserGroup'          => 'Выберите телефонную группу для сотрудника',
+    'mod_usrgr_PatternsInstructions1'    => 'В шаблонах допускается использовать символ от 1 до 9 и символ X (любая цифра от 1-9)',
+    'mod_usrgr_PatternsInstructions2'    => 'Участник группы сможет набрать только те номера, которые удовлетворяют шаблонам',
+    'mod_usrgr_PatternsInstructions3'    => 'Примеры шаблонов:',
+    'mod_usrgr_PatternsInstructions4'    => '2XX - номера с 200 по 299',
+    'mod_usrgr_PatternsInstructions5'    => '200001 - явно указанный внутренни номер, к примеру номер очереди',
+    'mod_usrgr_PatternsInstructions6'    => '7XXXXXXXXXX - любой 11 значный номер начинающийся с 7',
+    'mod_usrgr_IsolateInstructions1'      => 'Сотрудники группы смогут звонить только на номера своей группы',
+    'mod_usrgr_IsolateInstructions2'      => 'Сотрудники из других групп, не смогут позвонить на изолированную группу',
 ];
