@@ -305,7 +305,7 @@ class UsersGroupsConf extends ConfigClass
         switch ("$controller:$blockName") {
             case 'Extensions:GeneralTabFields':
                 // Add additional tab to the Extension edit page
-                $result = "Modules/ModuleUsersGroups/App/Views/Extensions/modify";
+                $result = "Modules/ModuleUsersGroups/Extensions/modify";
                 break;
             default:
                 // Default case when no specific action is required

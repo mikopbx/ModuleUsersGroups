@@ -59,12 +59,15 @@ class ModuleUsersGroupsForm extends BaseForm
         );
         $this->add($extension);
 
+        // isolate
         $isolate = ['value' => null];
         if ($entity->isolate === '1') {
             $isolate = ['checked' => 'checked', 'value' => null];
         }
         $this->add(new Check('isolate', $isolate));
 
+
+        // isolatePickUp
         $isolatePickUp = ['value' => null];
         if ($entity->isolatePickUp === '1') {
             $isolatePickUp = ['checked' => 'checked', 'value' => null];

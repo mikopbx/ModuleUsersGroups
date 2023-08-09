@@ -35,7 +35,6 @@ const moduleUsersGroups = {
 	$isolateCheckBox: $('#isolate').parent('.checkbox'),
 	$isolatePickupCheckBox: $('#isolatePickUp').parent('.checkbox'),
 
-	defaultExtension: '',
 	validateRules: {
 		name: {
 			identifier: 'name',
@@ -78,8 +77,6 @@ const moduleUsersGroups = {
 		});
 
 		moduleUsersGroups.initializeUsersDropDown();
-
-		moduleUsersGroups.$cdrFilterToggles.checkbox();
 
 		$('body').on('click', 'div.delete-user-row', (e) => {
 			e.preventDefault();
@@ -225,7 +222,7 @@ const moduleUsersGroups = {
 	 */
 	initializeForm() {
 		Form.$formObj = moduleUsersGroups.$formObj;
-		Form.url = `${globalRootUrl}module-users-groups/save`;
+		Form.url = `${globalRootUrl}module-users-groups/module-users-groups/save`;
 		Form.validateRules = moduleUsersGroups.validateRules;
 		Form.cbBeforeSendForm = moduleUsersGroups.cbBeforeSendForm;
 		Form.cbAfterSendForm = moduleUsersGroups.cbAfterSendForm;

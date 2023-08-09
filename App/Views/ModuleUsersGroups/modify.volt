@@ -1,4 +1,4 @@
-{{ form('module-users-groups/save', 'role': 'form', 'class': 'ui large form','id':'module-users-groups-form') }}
+{{ form('module-users-groups/module-users-groups/save', 'role': 'form', 'class': 'ui large form','id':'module-users-groups-form') }}
 <div class="ui top attached tabular menu" id="module-users-group-modify-menu">
     {% if id is null %}
         <a class="item active" data-tab="general">{{ t._('mod_usrgr__GeneralSettings') }}</a>
@@ -13,19 +13,19 @@
 
 {% if id is null %}
     <div class="ui bottom attached tab segment active" data-tab="general">
-        {{ partial("Modules/ModuleUsersGroups/Modify/tabGeneralSimple") }}
+        {{ partial("Modules/ModuleUsersGroups/ModuleUsersGroups/ModifyTabs/tabGeneralSimple") }}
     </div>
 {% else %}
     <div class="ui bottom attached tab segment" data-tab="general">
-        {{ partial("Modules/ModuleUsersGroups/Modify/tabGeneralFull") }}
+        {{ partial("Modules/ModuleUsersGroups/ModuleUsersGroups/ModifyTabs/tabGeneralFull") }}
     </div>
     <div class="ui bottom attached tab segment active" data-tab="users">
-        {{ partial("Modules/ModuleUsersGroups/Modify/tabUsers") }}
+        {{ partial("Modules/ModuleUsersGroups/ModuleUsersGroups/ModifyTabs/tabUsers") }}
     </div>
     <div class="ui bottom attached tab segment" data-tab="rules">
-        {{ partial("Modules/ModuleUsersGroups/Modify/tabRules") }}
+        {{ partial("Modules/ModuleUsersGroups/ModuleUsersGroups/ModifyTabs/tabRules") }}
     </div>
 {% endif %}
 
-{{ partial("partials/submitbutton",['indexurl':'module-users-groups/index/']) }}
+{{ partial("partials/submitbutton",['indexurl':'module-users-groups/module-users-groups/index/']) }}
 {{ endform() }}

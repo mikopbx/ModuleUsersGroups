@@ -18,25 +18,68 @@
 
 /* global SemanticLocalization, globalRootUrl */
 
+/**
+ * Module for managing call groups and related functionality.
+ * @namespace
+ */
 const ModuleUsersGroups = {
-	$formObj: $('#module-user-groups-form'),
-	$disabilityFields: $('#module-user-groups-form  .disability'),
+	/**
+	 * jQuery object for the status toggle.
+	 * @type {jQuery}
+	 */
 	$statusToggle: $('#module-status-toggle'),
+
+	/**
+	 * jQuery object for the users table.
+	 * @type {jQuery}
+	 */
 	$usersTable: $('#users-table'),
+
+	/**
+	 * jQuery object for select group elements.
+	 * @type {jQuery}
+	 */
+	$selectGroup: $('.select-group'),
+
+	/**
+	 * jQuery object for select default group elements.
+	 * @type {jQuery}
+	 */
+	$selectDefaultGroup: $('.select-default-group'),
+
+	/**
+	 * Initializes the module.
+	 */
 	initialize() {
+		// Initialize tab menu
 		$('#main-users-groups-tab-menu .item').tab();
+
+		// Check status toggle initially
 		ModuleUsersGroups.checkStatusToggle();
+		// Add event listener for status changes
 		window.addEventListener('ModuleStatusChanged', ModuleUsersGroups.checkStatusToggle);
+		// Initialize data table
 		ModuleUsersGroups.initializeDataTable();
-		$('.select-group').each((index, obj) => {
+
+		// Initialize dropdowns for select group elements
+		ModuleUsersGroups.$selectGroup.each((index, obj) => {
 			$(obj).dropdown({
 				values: ModuleUsersGroups.makeDropdownList($(obj).attr('data-value')),
 			});
 		});
-		$('.select-group').dropdown({
+
+		// Initialize dropdown for select group
+		ModuleUsersGroups.$selectGroup.dropdown({
 			onChange: ModuleUsersGroups.changeGroupInList,
 		});
+
+		// Initialize dropdown for select default group
+		ModuleUsersGroups.$selectDefaultGroup.dropdown();
 	},
+
+	/**
+	 * Initializes the DataTable for users table.
+	 */
 	initializeDataTable() {
 		ModuleUsersGroups.$usersTable.DataTable({
 			// destroy: true,
@@ -53,8 +96,9 @@ const ModuleUsersGroups = {
 			language: SemanticLocalization.dataTableLocalisation,
 		});
 	},
+
 	/**
-	 * Изменение статуса кнопок при изменении статуса модуля
+	 * Checks and updates button status based on module status.
 	 */
 	checkStatusToggle() {
 		if (ModuleUsersGroups.$statusToggle.checkbox('is checked')) {
@@ -63,10 +107,11 @@ const ModuleUsersGroups = {
 			ModuleUsersGroups.$disabilityFields.addClass('disabled');
 		}
 	},
+
 	/**
-	 * Подготавливает список выбора пользователей
-	 * @param selected
-	 * @returns {[]}
+	 * Prepares a dropdown list for user selection.
+	 * @param {string} selected - The selected value.
+	 * @returns {Array} - The prepared dropdown list.
 	 */
 	makeDropdownList(selected) {
 		const values = [];
@@ -86,12 +131,16 @@ const ModuleUsersGroups = {
 		});
 		return values;
 	},
+
 	/**
-	 * Обработка изменения группы в списке
+	 * Handles group change in the list.
+	 * @param {string} value - The new group value.
+	 * @param {string} text - The new group text.
+	 * @param {jQuery} $choice - The selected choice.
 	 */
 	changeGroupInList(value, text, $choice) {
 		$.api({
-			url: `${globalRootUrl}module-users-groups/changeUserGroup/`,
+			url: `${globalRootUrl}module-users-groups/module-users-groups/change-user-group/`,
 			on: 'now',
 			method: 'POST',
 			data: {
@@ -109,6 +158,9 @@ const ModuleUsersGroups = {
 	},
 };
 
+/**
+ * Initialize the module when the document is ready.
+ */
 $(document).ready(() => {
 	ModuleUsersGroups.initialize();
 });

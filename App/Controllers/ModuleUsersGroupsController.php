@@ -29,6 +29,7 @@ use Modules\ModuleUsersGroups\Models\{
 };
 use MikoPBX\AdminCabinet\Controllers\BaseController;
 use MikoPBX\Modules\PbxExtensionUtils;
+use Modules\ModuleUsersGroups\App\Forms\DefaultGroupForm;
 use Modules\ModuleUsersGroups\App\Forms\ModuleUsersGroupsForm;
 use function MikoPBX\Common\Config\appPath;
 
@@ -42,9 +43,9 @@ class ModuleUsersGroupsController extends BaseController
      */
     public function initialize(): void
     {
-        $this->moduleDir           = PbxExtensionUtils::getModuleDir($this->moduleUniqueID);
+        $this->moduleDir = PbxExtensionUtils::getModuleDir($this->moduleUniqueID);
         $this->view->logoImagePath = "{$this->url->get()}assets/img/cache/{$this->moduleUniqueID}/logo.png";
-        $this->view->submitMode    = null;
+        $this->view->submitMode = null;
         parent::initialize();
     }
 
@@ -68,22 +69,22 @@ class ModuleUsersGroupsController extends BaseController
 
         // Get the list of users for display in the filter
         $parameters = [
-            'models'     => [
+            'models' => [
                 'Extensions' => Extensions::class,
             ],
             'conditions' => 'Extensions.is_general_user_number = 1',
-            'columns'    => [
-                'id'       => 'Extensions.id',
+            'columns' => [
+                'id' => 'Extensions.id',
                 'username' => 'Users.username',
-                'number'   => 'Extensions.number',
-                'email'    => 'Users.email',
-                'userid'   => 'Users.id',
-                'type'     => 'Extensions.type',
-                'avatar'   => 'Users.avatar',
+                'number' => 'Extensions.number',
+                'email' => 'Users.email',
+                'userid' => 'Users.id',
+                'type' => 'Extensions.type',
+                'avatar' => 'Users.avatar',
 
             ],
-            'order'      => 'number',
-            'joins'      => [
+            'order' => 'number',
+            'joins' => [
                 'Users' => [
                     0 => Users::class,
                     1 => 'Users.id = Extensions.userid',
@@ -92,20 +93,20 @@ class ModuleUsersGroupsController extends BaseController
                 ],
             ],
         ];
-        $query      = $this->di->get('modelsManager')->createBuilder($parameters)->getQuery();
+        $query = $this->di->get('modelsManager')->createBuilder($parameters)->getQuery();
         $extensions = $query->execute();
 
         // Get the mapping of employees and groups since join across different databases is not possible
-        $parameters      = [
-            'models'     => [
+        $parameters = [
+            'models' => [
                 'GroupMembers' => GroupMembers::class,
             ],
             'columns' => [
                 'user_id' => 'GroupMembers.user_id',
-                'group'   => 'UsersGroups.name',
+                'group' => 'UsersGroups.name',
 
             ],
-            'joins'   => [
+            'joins' => [
                 'UsersGroups' => [
                     0 => UsersGroups::class,
                     1 => 'UsersGroups.id = GroupMembers.group_id',
@@ -114,21 +115,21 @@ class ModuleUsersGroupsController extends BaseController
                 ],
             ],
         ];
-        $query      = $this->di->get('modelsManager')->createBuilder($parameters)->getQuery();
+        $query = $this->di->get('modelsManager')->createBuilder($parameters)->getQuery();
         $groupMembers = $query->execute()->toArray();
 
         $groupMembersIds = array_column($groupMembers, 'user_id');
-        $extensionTable  = [];
+        $extensionTable = [];
         foreach ($extensions as $extension) {
             switch ($extension->type) {
                 case 'SIP':
-                    $extensionTable[$extension->userid]['userid']   = $extension->userid;
-                    $extensionTable[$extension->userid]['number']   = $extension->number;
-                    $extensionTable[$extension->userid]['id']       = $extension->id;
+                    $extensionTable[$extension->userid]['userid'] = $extension->userid;
+                    $extensionTable[$extension->userid]['number'] = $extension->number;
+                    $extensionTable[$extension->userid]['id'] = $extension->id;
                     $extensionTable[$extension->userid]['username'] = $extension->username;
-                    $extensionTable[$extension->userid]['group']    = null;
-                    $extensionTable[$extension->userid]['email']    = $extension->email;
-                    $key                                            = array_search(
+                    $extensionTable[$extension->userid]['group'] = null;
+                    $extensionTable[$extension->userid]['email'] = $extension->email;
+                    $key = array_search(
                         $extension->userid,
                         $groupMembersIds,
                         true
@@ -137,7 +138,7 @@ class ModuleUsersGroupsController extends BaseController
                         $extensionTable[$extension->userid]['group'] = $groupMembers[$key]['group'];
                     }
 
-                    if ( ! array_key_exists('mobile', $extensionTable[$extension->userid])) {
+                    if (!array_key_exists('mobile', $extensionTable[$extension->userid])) {
                         $extensionTable[$extension->userid]['mobile'] = '';
                     }
 
@@ -145,7 +146,7 @@ class ModuleUsersGroupsController extends BaseController
                     if ($extension->avatar) {
                         $filename = md5($extension->avatar);
                         $imgCacheDir = appPath('sites/admin-cabinet/assets/img/cache');
-                        $imgFile  = "{$imgCacheDir}/{$filename}.jpg";
+                        $imgFile = "{$imgCacheDir}/{$filename}.jpg";
                         if (file_exists($imgFile)) {
                             $extensionTable[$extension->userid]['avatar'] = "{$this->url->get()}assets/img/cache/{$filename}.jpg";
                         }
@@ -158,6 +159,8 @@ class ModuleUsersGroupsController extends BaseController
             }
         }
         $this->view->members = $extensionTable;
+
+        $this->view->form = new DefaultGroupForm();
     }
 
     /**
@@ -178,22 +181,22 @@ class ModuleUsersGroupsController extends BaseController
         } else {
             // Get the list of users for display in the filter
             $parameters = [
-                'models'     => [
+                'models' => [
                     'Extensions' => Extensions::class,
                 ],
                 'conditions' => 'Extensions.is_general_user_number = 1',
-                'columns'    => [
-                    'id'       => 'Extensions.id',
+                'columns' => [
+                    'id' => 'Extensions.id',
                     'username' => 'Users.username',
-                    'number'   => 'Extensions.number',
-                    'email'    => 'Users.email',
-                    'userid'   => 'Extensions.userid',
-                    'type'     => 'Extensions.type',
-                    'avatar'   => 'Users.avatar',
+                    'number' => 'Extensions.number',
+                    'email' => 'Users.email',
+                    'userid' => 'Extensions.userid',
+                    'type' => 'Extensions.type',
+                    'avatar' => 'Users.avatar',
 
                 ],
-                'order'      => 'number',
-                'joins'      => [
+                'order' => 'number',
+                'joins' => [
                     'Users' => [
                         0 => Users::class,
                         1 => 'Users.id = Extensions.userid',
@@ -203,21 +206,21 @@ class ModuleUsersGroupsController extends BaseController
                 ],
             ];
 
-            $query      = $this->di->get('modelsManager')->createBuilder($parameters)->getQuery();
+            $query = $this->di->get('modelsManager')->createBuilder($parameters)->getQuery();
             $extensions = $query->execute();
 
 
             // Get the mapping of employees and groups since join across different databases is not possible
-            $parameters      = [
-                'models'     => [
+            $parameters = [
+                'models' => [
                     'GroupMembers' => GroupMembers::class,
                 ],
                 'columns' => [
-                    'user_id'  => 'GroupMembers.user_id',
+                    'user_id' => 'GroupMembers.user_id',
                     'group_id' => 'UsersGroups.id',
 
                 ],
-                'joins'   => [
+                'joins' => [
                     'UsersGroups' => [
                         0 => UsersGroups::class,
                         1 => 'UsersGroups.id = GroupMembers.group_id',
@@ -226,27 +229,27 @@ class ModuleUsersGroupsController extends BaseController
                     ],
                 ],
             ];
-            $query      = $this->di->get('modelsManager')->createBuilder($parameters)->getQuery();
+            $query = $this->di->get('modelsManager')->createBuilder($parameters)->getQuery();
             $groupMembers = $query->execute()->toArray();
             $groupMembersIds = array_column($groupMembers, 'user_id');
-            $extensionTable  = [];
+            $extensionTable = [];
             foreach ($extensions as $extension) {
                 switch ($extension->type) {
                     case 'SIP':
-                        $extensionTable[$extension->userid]['userid']   = $extension->userid;
-                        $extensionTable[$extension->userid]['number']   = $extension->number;
-                        $extensionTable[$extension->userid]['id']       = $extension->id;
+                        $extensionTable[$extension->userid]['userid'] = $extension->userid;
+                        $extensionTable[$extension->userid]['number'] = $extension->number;
+                        $extensionTable[$extension->userid]['id'] = $extension->id;
                         $extensionTable[$extension->userid]['username'] = $extension->username;
-                        $extensionTable[$extension->userid]['hidden']   = true;
-                        $extensionTable[$extension->userid]['email']    = $extension->email;
-                        if ( ! array_key_exists('mobile', $extensionTable[$extension->userid])) {
+                        $extensionTable[$extension->userid]['hidden'] = true;
+                        $extensionTable[$extension->userid]['email'] = $extension->email;
+                        if (!array_key_exists('mobile', $extensionTable[$extension->userid])) {
                             $extensionTable[$extension->userid]['mobile'] = '';
                         }
                         $extensionTable[$extension->userid]['avatar'] = "{$this->url->get()}assets/img/unknownPerson.jpg";
                         if ($extension->avatar) {
                             $filename = md5($extension->avatar);
                             $imgCacheDir = appPath('sites/admin-cabinet/assets/img/cache');
-                            $imgFile  = "{$imgCacheDir}/$filename.jpg";
+                            $imgFile = "{$imgCacheDir}/$filename.jpg";
                             if (file_exists($imgFile)) {
                                 $extensionTable[$extension->userid]['avatar'] = "{$this->url->get()}assets/img/cache/{$filename}.jpg";
                             }
@@ -266,63 +269,63 @@ class ModuleUsersGroupsController extends BaseController
             $this->view->members = $extensionTable;
 
             // Get the list of links to allowed outbound rules in this group
-            $parameters      = [
-                'columns'    => 'rule_id, caller_id',
+            $parameters = [
+                'columns' => 'rule_id, caller_id',
                 'conditions' => 'group_id=:groupId:',
-                'bind'       => [
+                'bind' => [
                     'groupId' => $id,
                 ],
             ];
-            $allowedRules    = AllowedOutboundRules::find($parameters)->toArray();
+            $allowedRules = AllowedOutboundRules::find($parameters)->toArray();
             $allowedRulesIds = array_column($allowedRules, 'rule_id');
 
             // Get the list of outbound routing rules
-            $rules        = OutgoingRoutingTable::find(['order' => 'priority']);
+            $rules = OutgoingRoutingTable::find(['order' => 'priority']);
             $routingTable = [];
             foreach ($rules as $rule) {
                 $provider = $rule->Providers;
                 $callerId = '';
-                $key      = array_search($rule->id, $allowedRulesIds, true);
+                $key = array_search($rule->id, $allowedRulesIds, true);
                 if ($key !== false) {
                     $callerId = $allowedRules[$key]['caller_id'];
                 }
 
                 if ($provider) {
                     $routingTable[] = [
-                        'id'               => $rule->id,
-                        'priority'         => $rule->priority,
-                        'provider'         => $provider->getRepresent(),
+                        'id' => $rule->id,
+                        'priority' => $rule->priority,
+                        'provider' => $provider->getRepresent(),
                         'numberbeginswith' => $rule->numberbeginswith,
-                        'restnumbers'      => $rule->restnumbers,
-                        'trimfrombegin'    => $rule->trimfrombegin,
-                        'prepend'          => $rule->prepend,
-                        'note'             => $rule->note,
-                        'rulename'         => $rule->getRepresent(),
-                        'status'           => in_array($rule->id, $allowedRulesIds, true) ? '' : 'disabled',
-                        'callerid'         => $callerId,
+                        'restnumbers' => $rule->restnumbers,
+                        'trimfrombegin' => $rule->trimfrombegin,
+                        'prepend' => $rule->prepend,
+                        'note' => $rule->note,
+                        'rulename' => $rule->getRepresent(),
+                        'status' => in_array($rule->id, $allowedRulesIds, true) ? '' : 'disabled',
+                        'callerid' => $callerId,
                     ];
                 } else {
                     $routingTable[] = [
-                        'id'               => $rule->id,
-                        'priority'         => $rule->priority,
-                        'provider'         => null,
+                        'id' => $rule->id,
+                        'priority' => $rule->priority,
+                        'provider' => null,
                         'numberbeginswith' => $rule->numberbeginswith,
-                        'restnumbers'      => $rule->restnumbers,
-                        'trimfrombegin'    => $rule->trimfrombegin,
-                        'prepend'          => $rule->prepend,
-                        'note'             => $rule->note,
-                        'rulename'         => '<i class="icon attention"></i> ' . $rule->getRepresent(),
-                        'status'           => in_array($rule->id, $allowedRulesIds, true) ? '' : 'disabled',
-                        'callerid'         => $callerId,
+                        'restnumbers' => $rule->restnumbers,
+                        'trimfrombegin' => $rule->trimfrombegin,
+                        'prepend' => $rule->prepend,
+                        'note' => $rule->note,
+                        'rulename' => '<i class="icon attention"></i> ' . $rule->getRepresent(),
+                        'status' => in_array($rule->id, $allowedRulesIds, true) ? '' : 'disabled',
+                        'callerid' => $callerId,
                     ];
                 }
             }
             $this->view->rules = $routingTable;
         }
 
-        $this->view->form      = new ModuleUsersGroupsForm($record);
+        $this->view->form = new ModuleUsersGroupsForm($record);
         $this->view->represent = $record->getRepresent();
-        $this->view->id        = $id;
+        $this->view->id = $id;
     }
 
     /**
@@ -330,10 +333,10 @@ class ModuleUsersGroupsController extends BaseController
      */
     public function saveAction(): void
     {
-        if ( ! $this->request->isPost()) {
+        if (!$this->request->isPost()) {
             return;
         }
-        $data   = $this->request->getPost();
+        $data = $this->request->getPost();
         $record = UsersGroups::findFirstById($data['id']);
         if ($record === null) {
             $record = new UsersGroups();
@@ -365,12 +368,12 @@ class ModuleUsersGroupsController extends BaseController
             $error = true;
         }
 
-        if ( ! $error) {
-            $error = ! $this->saveAllowedOutboundRules($data);
+        if (!$error) {
+            $error = !$this->saveAllowedOutboundRules($data);
         }
 
-        if ( ! $error) {
-            $error = ! $this->saveUsersGroups($data);
+        if (!$error) {
+            $error = !$this->saveUsersGroups($data);
         }
 
         if ($error) {
@@ -383,7 +386,7 @@ class ModuleUsersGroupsController extends BaseController
 
             // If it was a new record, reload the page with the specified ID
             if (empty($data['id'])) {
-                $this->view->reload = "module-users-groups/modify/{$record->id}";
+                $this->view->reload = "module-users-groups/module-users-groups/modify/{$record->id}";
             }
         }
     }
@@ -400,29 +403,29 @@ class ModuleUsersGroupsController extends BaseController
         // 1. Delete all old references to rules related to this group
         $parameters = [
             'conditions' => 'group_id=:groupId:',
-            'bind'       => [
+            'bind' => [
                 'groupId' => $data['id'],
             ],
         ];
-        $oldRules   = AllowedOutboundRules::find($parameters);
-       foreach ($oldRules as $oldRule) {
-           if ($this->deleteEntity($oldRule)===false){
-               return false;
-           }
-       }
+        $oldRules = AllowedOutboundRules::find($parameters);
+        foreach ($oldRules as $oldRule) {
+            if ($this->deleteEntity($oldRule) === false) {
+                return false;
+            }
+        }
 
         // 2. Save the allowed outbound rules
         foreach ($data as $key => $value) {
             if (substr_count($key, 'rule-') > 0) {
                 $rule_id = explode('rule-', $key)[1];
                 if ($value === 'on') {
-                    $newRule     = new AllowedOutboundRules();
+                    $newRule = new AllowedOutboundRules();
                     $callerIdKey = "caller_id-$rule_id";
                     if (array_key_exists($callerIdKey, $data)) {
                         $newRule->caller_id = $data[$callerIdKey];
                     }
                     $newRule->group_id = $data['id'];
-                    $newRule->rule_id  = $rule_id;
+                    $newRule->rule_id = $rule_id;
                     if ($this->saveEntity($newRule) === false) {
                         return false;
                     }
@@ -444,7 +447,7 @@ class ModuleUsersGroupsController extends BaseController
     {
         // 1. Collect new users
         $savedExtensions = [];
-        $arrMembers      = json_decode($data['members'], true);
+        $arrMembers = json_decode($data['members'], true);
         foreach ($arrMembers as $key => $value) {
             if (substr_count($value, 'ext-') > 0) {
                 $savedExtensions[] = explode('ext-', $value)[1];
@@ -455,7 +458,7 @@ class ModuleUsersGroupsController extends BaseController
         if (count($savedExtensions) === 0) {
             $parameters = [
                 'conditions' => 'group_id=:groupId:',
-                'bind'       => [
+                'bind' => [
                     'groupId' => $data['id'],
                 ],
             ];
@@ -469,26 +472,26 @@ class ModuleUsersGroupsController extends BaseController
         }
 
         // Remember current users before update
-        $parameters       = [
+        $parameters = [
             'conditions' => 'group_id=:groupId:',
-            'bind'       => [
+            'bind' => [
                 'groupId' => $data['id'],
             ],
         ];
         $membersForDelete = GroupMembers::find($parameters)->toArray();
 
         $parameters = [
-            'models'     => [
+            'models' => [
                 'Users' => Users::class,
             ],
-            'columns'    => [
+            'columns' => [
                 'id' => 'Users.id',
             ],
             'conditions' => 'Extensions.number IN ({ext:array})',
-            'bind'       => [
+            'bind' => [
                 'ext' => $savedExtensions,
             ],
-            'joins'      => [
+            'joins' => [
                 'Extensions' => [
                     0 => Extensions::class,
                     1 => 'Extensions.userid = Users.id',
@@ -497,24 +500,24 @@ class ModuleUsersGroupsController extends BaseController
                 ],
             ],
         ];
-        $query      = $this->di->get('modelsManager')->createBuilder($parameters)->getQuery();
+        $query = $this->di->get('modelsManager')->createBuilder($parameters)->getQuery();
         $newMembers = $query->execute();
 
         // 3. Move selected users from other groups and create new links for current group members
         foreach ($newMembers as $member) {
-            $parameters  = [
+            $parameters = [
                 'conditions' => 'user_id=:userID:',
-                'bind'       => [
+                'bind' => [
                     'userID' => $member->id,
                 ],
             ];
             $groupMember = GroupMembers::findFirst($parameters);
             if ($groupMember === null) {
-                $groupMember          = new GroupMembers();
+                $groupMember = new GroupMembers();
                 $groupMember->user_id = $member->id;
             }
             $groupMember->group_id = $data['id'];
-            $key                   = array_search($groupMember->toArray(), $membersForDelete, true);
+            $key = array_search($groupMember->toArray(), $membersForDelete, true);
             if ($key !== false) {
                 unset($membersForDelete[$key]);
             }
@@ -540,19 +543,19 @@ class ModuleUsersGroupsController extends BaseController
      */
     public function changeUserGroupAction(): void
     {
-        if ( ! $this->request->isPost()) {
+        if (!$this->request->isPost()) {
             return;
         }
-        $data        = $this->request->getPost();
-        $parameters  = [
+        $data = $this->request->getPost();
+        $parameters = [
             'conditions' => 'user_id=:userID:',
-            'bind'       => [
+            'bind' => [
                 'userID' => $data['user_id'],
             ],
         ];
         $groupMember = GroupMembers::findFirst($parameters);
         if ($groupMember === null) {
-            $groupMember          = new GroupMembers();
+            $groupMember = new GroupMembers();
             $groupMember->user_id = $data['user_id'];
         }
         $groupMember->group_id = $data['group_id'];
@@ -567,8 +570,57 @@ class ModuleUsersGroupsController extends BaseController
     public function deleteAction(string $groupId): void
     {
         $group = UsersGroups::findFirstById($groupId);
+        if ($group->defaultGroup === '1') {
+            $this->view->success = false;
+            $this->flash->error($this->translation->_('mod_usrgr_ErrorOnDeleteDefaultGroup'));
+            return;
+        }
         if ($group !== null) {
-            $this->deleteEntity($group,'module-users-groups/index');
+            $this->deleteEntity($group, 'module-users-groups/module-users-groups/index');
+        }
+    }
+
+    /**
+     * Changes the default user group action.
+     *
+     * @return void
+     */
+    public function changeDefaultAction(): void
+    {
+        if (!$this->request->isPost()) {
+            return;
+        }
+
+        // Get the POST data
+        $data = $this->request->getPost();
+
+        // Find all user groups
+        $groups = UsersGroups::find();
+        foreach ($groups as $group) {
+            // Check if the current group is the selected default group
+            if ($group->defaultGroup === '1' and $group->id !== $data['defaultGroup']) {
+                $group->defaultGroup = '0';
+                $this->saveEntity($group);
+            }
+            if ($group->defaultGroup === '0' and $group->id === $data['defaultGroup']) {
+                $group->defaultGroup = '1';
+                $this->saveEntity($group);
+            }
+        }
+
+        // Get current user group memberships
+        $currentUsersGroups = GroupMembers::find()->toArray();
+        $users = Users::find();
+        foreach ($users as $user) {
+            // Check if the user is not already in a group
+            $key = array_search($user->id, array_column($currentUsersGroups, 'user_id'));
+            if (!$key) {
+                // Create a new group membership record
+                $record = new  GroupMembers();
+                $record->group_id = $data['defaultGroup'];
+                $record->user_id = $user->id;
+                $this->saveEntity($record);
+            }
         }
     }
 

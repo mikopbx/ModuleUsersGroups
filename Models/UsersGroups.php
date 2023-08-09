@@ -56,16 +56,23 @@ class UsersGroups extends ModulesModelsBase
     /**
      * Group isolate
      *
-     * @Column(type="integer", nullable=true)
+     * @Column(type="string", nullable=true)
      */
     public $isolate;
 
     /**
      * Group isolatePickUp
      *
-     * @Column(type="integer", nullable=true)
+     * @Column(type="string", nullable=true)
      */
     public $isolatePickUp;
+
+    /**
+     * There is default group
+     *
+     * @Column(type="string", nullable=true)
+     */
+    public $defaultGroup;
 
     public function initialize(): void
     {
