@@ -19,10 +19,10 @@
 /* global globalRootUrl,globalTranslate, Form, Extensions */
 
 /**
- * Call groups module configuration.
- * @namespace moduleUsersGroups
+ * Call groups module modify configuration.
+ * @namespace ModuleCGModify
  */
-const moduleUsersGroups = {
+const ModuleCGModify = {
 	/**
 	 * jQuery object representing the module's form.
 	 * @type {jQuery}
@@ -31,6 +31,7 @@ const moduleUsersGroups = {
 	$rulesCheckBoxes: $('#outbound-rules-table .checkbox'),
 	$selectUsersDropDown: $('.select-extension-field'),
 	$showOnlyOnIsolateGroup: $('.show-only-on-isolate-group'),
+	$rulesTable: $('#outbound-rules-table'),
 	$statusToggle: $('#module-status-toggle'),
 	$isolateCheckBox: $('#isolate').parent('.checkbox'),
 	$isolatePickupCheckBox: $('#isolatePickUp').parent('.checkbox'),
@@ -49,12 +50,13 @@ const moduleUsersGroups = {
 
 	/**
 	 * Initializes the module.
-	 * @memberof moduleUsersGroups
+	 * @memberof ModuleCGModify
 	 */
 	initialize() {
-		moduleUsersGroups.checkStatusToggle();
-		window.addEventListener('ModuleStatusChanged', moduleUsersGroups.checkStatusToggle);
-		moduleUsersGroups.initializeForm();
+		ModuleCGModify.$formObj.parent('.ui.grey.segment').removeClass('segment');
+
+		ModuleCGModify.checkStatusToggle();
+		window.addEventListener('ModuleStatusChanged', ModuleCGModify.checkStatusToggle);
 		$('.avatar').each(() => {
 			if ($(this).attr('src') === '') {
 				$(this).attr('src', `${globalRootUrl}assets/img/unknownPerson.jpg`);
@@ -62,7 +64,7 @@ const moduleUsersGroups = {
 		});
 		$('#module-users-group-modify-menu .item').tab();
 
-		moduleUsersGroups.$rulesCheckBoxes.checkbox({
+		ModuleCGModify.$rulesCheckBoxes.checkbox({
 			onChange() {
 				Form.dataChanged();
 			},
@@ -76,36 +78,60 @@ const moduleUsersGroups = {
 			},
 		});
 
-		moduleUsersGroups.initializeUsersDropDown();
+		ModuleCGModify.initializeUsersDropDown();
 
 		$('body').on('click', 'div.delete-user-row', (e) => {
 			e.preventDefault();
-			moduleUsersGroups.deleteMemberFromTable(e.target);
+			ModuleCGModify.deleteMemberFromTable(e.target);
 		});
 
-		moduleUsersGroups.$isolateCheckBox.checkbox({
-			onChange: moduleUsersGroups.cbAfterChangeIsolate
+		ModuleCGModify.$isolateCheckBox.checkbox({
+			onChange: ModuleCGModify.cbAfterChangeIsolate
 		});
-		moduleUsersGroups.cbAfterChangeIsolate();
+		ModuleCGModify.cbAfterChangeIsolate();
+
+		ModuleCGModify.initializeRulesDataTable();
+
+		ModuleCGModify.initializeForm();
+	},
+
+	/**
+	 * Initializes the DataTable for rules table.
+	 */
+	initializeRulesDataTable() {
+		ModuleCGModify.$rulesTable.DataTable({
+			// destroy: true,
+			lengthChange: false,
+			paging: false,
+			columns: [
+				{orderable: false, searchable: false},
+				null,
+				null,
+				null,
+				{orderable: false, searchable: false},
+			],
+			order: [1, 'asc'],
+			language: SemanticLocalization.dataTableLocalisation,
+		});
 	},
 
 	/**
 	 * Handle isolation change.
-	 * @memberof moduleUsersGroups
+	 * @memberof ModuleCGModify
 	 */
 	cbAfterChangeIsolate(){
-		if(moduleUsersGroups.$isolateCheckBox.checkbox('is checked')){
-			moduleUsersGroups.$isolatePickupCheckBox.hide();
-			moduleUsersGroups.$showOnlyOnIsolateGroup.show();
+		if(ModuleCGModify.$isolateCheckBox.checkbox('is checked')){
+			ModuleCGModify.$isolatePickupCheckBox.hide();
+			ModuleCGModify.$showOnlyOnIsolateGroup.show();
 		}else{
-			moduleUsersGroups.$isolatePickupCheckBox.show();
-			moduleUsersGroups.$showOnlyOnIsolateGroup.hide();
+			ModuleCGModify.$isolatePickupCheckBox.show();
+			ModuleCGModify.$showOnlyOnIsolateGroup.hide();
 		}
 	},
 
 	/**
 	 * Delete Group member from list.
-	 * @memberof moduleUsersGroups
+	 * @memberof ModuleCGModify
 	 * @param {HTMLElement} target - Link to the pushed button.
 	 */
 	deleteMemberFromTable(target) {
@@ -118,18 +144,18 @@ const moduleUsersGroups = {
 
 	/**
 	 * Initializes the dropdown for selecting users.
-	 * @memberof moduleUsersGroups
+	 * @memberof ModuleCGModify
 	 */
 	initializeUsersDropDown() {
 		const dropdownParams = Extensions.getDropdownSettingsOnlyInternalWithoutEmpty();
-		dropdownParams.action = moduleUsersGroups.cbAfterUsersSelect;
-		dropdownParams.templates = { menu: moduleUsersGroups.customDropdownMenu };
-		moduleUsersGroups.$selectUsersDropDown.dropdown(dropdownParams);
+		dropdownParams.action = ModuleCGModify.cbAfterUsersSelect;
+		dropdownParams.templates = { menu: ModuleCGModify.customDropdownMenu };
+		ModuleCGModify.$selectUsersDropDown.dropdown(dropdownParams);
 	},
 
 	/**
 	 * Customizes the dropdown menu.
-	 * @memberof moduleUsersGroups
+	 * @memberof ModuleCGModify
 	 * @param {Object} response - Response data.
 	 * @param {Object} fields - Field properties.
 	 * @returns {string} The HTML for the custom dropdown menu.
@@ -158,7 +184,7 @@ const moduleUsersGroups = {
 
 	/**
 	 * Callback after selecting a user in the group.
-	 * @memberof moduleUsersGroups
+	 * @memberof ModuleCGModify
 	 * @param {string} text - Selected user's text.
 	 * @param {string} value - Selected user's value.
 	 * @param {jQuery} $element - The jQuery element representing the selected user.
@@ -174,10 +200,10 @@ const moduleUsersGroups = {
 
 	/**
 	 * Checks and updates button status when the module status changes.
-	 * @memberof moduleUsersGroups
+	 * @memberof ModuleCGModify
 	 */
 	checkStatusToggle() {
-		if (moduleUsersGroups.$statusToggle.checkbox('is checked')) {
+		if (ModuleCGModify.$statusToggle.checkbox('is checked')) {
 			$('[data-tab = "general"] .disability').removeClass('disabled');
 			$('[data-tab="rules"] .checkbox').removeClass('disabled');
 			$('[data-tab = "users"] .disability').removeClass('disabled');
@@ -190,13 +216,13 @@ const moduleUsersGroups = {
 
 	/**
 	 * Callback before sending the form.
-	 * @memberof moduleUsersGroups
+	 * @memberof ModuleCGModify
 	 * @param {Object} settings - Ajax request settings.
 	 * @returns {Object} The modified Ajax request settings.
 	 */
 	cbBeforeSendForm(settings) {
 		const result = settings;
-		result.data = moduleUsersGroups.$formObj.form('get values');
+		result.data = ModuleCGModify.$formObj.form('get values');
 		const arrMembers = [];
 		$('tr.selected-member').each((index, obj) => {
 			if ($(obj).attr('id')) {
@@ -210,7 +236,7 @@ const moduleUsersGroups = {
 
 	/**
 	 * Callback after sending the form.
-	 * @memberof moduleUsersGroups
+	 * @memberof ModuleCGModify
 	 */
 	cbAfterSendForm() {
 
@@ -218,19 +244,19 @@ const moduleUsersGroups = {
 
 	/**
 	 * Initializes the form.
-	 * @memberof moduleUsersGroups
+	 * @memberof ModuleCGModify
 	 */
 	initializeForm() {
-		Form.$formObj = moduleUsersGroups.$formObj;
+		Form.$formObj = ModuleCGModify.$formObj;
 		Form.url = `${globalRootUrl}module-users-groups/module-users-groups/save`;
-		Form.validateRules = moduleUsersGroups.validateRules;
-		Form.cbBeforeSendForm = moduleUsersGroups.cbBeforeSendForm;
-		Form.cbAfterSendForm = moduleUsersGroups.cbAfterSendForm;
+		Form.validateRules = ModuleCGModify.validateRules;
+		Form.cbBeforeSendForm = ModuleCGModify.cbBeforeSendForm;
+		Form.cbAfterSendForm = ModuleCGModify.cbAfterSendForm;
 		Form.initialize();
 	},
 };
 
 $(document).ready(() => {
-	moduleUsersGroups.initialize();
+	ModuleCGModify.initialize();
 });
 

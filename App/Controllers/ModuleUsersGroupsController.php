@@ -19,6 +19,7 @@
 
 namespace Modules\ModuleUsersGroups\App\Controllers;
 
+use MikoPBX\AdminCabinet\Providers\AssetProvider;
 use MikoPBX\Common\Models\OutgoingRoutingTable;
 use MikoPBX\Common\Models\Extensions;
 use MikoPBX\Common\Models\Users;
@@ -56,13 +57,13 @@ class ModuleUsersGroupsController extends BaseController
      */
     public function indexAction(): void
     {
-        $footerCollection = $this->assets->collection('footerJS');
+        $footerCollection = $this->assets->collection(AssetProvider::FOOTER_JS);
         $footerCollection->addJs('js/vendor/datatable/dataTables.semanticui.js', true);
         $footerCollection->addJs('js/cache/' . $this->moduleUniqueID . '/module-users-groups-index.js', true);
         $footerCollection->addJs('js/pbx/main/form.js', true);
         $footerCollection->addJs('js/cache/' . $this->moduleUniqueID . '/module-users-groups-default-form.js', true);
 
-        $headerCollectionCSS = $this->assets->collection('headerCSS');
+        $headerCollectionCSS = $this->assets->collection(AssetProvider::HEADER_CSS);
         $headerCollectionCSS
             ->addCss('css/vendor/datatable/dataTables.semanticui.min.css', true)
             ->addCss('css/cache/' . $this->moduleUniqueID . '/module-users-groups.css', true);
@@ -85,7 +86,6 @@ class ModuleUsersGroupsController extends BaseController
                 'avatar' => 'Users.avatar',
 
             ],
-            'order' => 'number',
             'joins' => [
                 'Users' => [
                     0 => Users::class,
@@ -174,9 +174,15 @@ class ModuleUsersGroupsController extends BaseController
      */
     public function modifyAction(string $id = null): void
     {
-        $footerCollection = $this->assets->collection('footerJS');
+        $footerCollection = $this->assets->collection(AssetProvider::FOOTER_JS);
+        $footerCollection->addJs('js/vendor/datatable/dataTables.semanticui.js', true);
         $footerCollection->addJs('js/pbx/main/form.js', true);
         $footerCollection->addJs('js/cache/' . $this->moduleUniqueID . '/module-users-groups-modify.js', true);
+
+        $headerCollectionCSS = $this->assets->collection(AssetProvider::HEADER_CSS);
+        $headerCollectionCSS
+            ->addCss('css/vendor/datatable/dataTables.semanticui.min.css', true);
+
         $record = UsersGroups::findFirstById($id);
         if ($record === null) {
             $record = new UsersGroups();
@@ -268,6 +274,9 @@ class ModuleUsersGroupsController extends BaseController
                     default:
                 }
             }
+            usort($extensionTable, function($a, $b) {
+                return $a['username'] > $b['username'];
+            });
             $this->view->members = $extensionTable;
 
             // Get the list of links to allowed outbound rules in this group

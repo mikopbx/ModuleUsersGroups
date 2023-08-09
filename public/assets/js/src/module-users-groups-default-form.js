@@ -20,9 +20,9 @@
 
 /**
  * Call groups change default group configuration.
- * @namespace changeDefaultGroup
+ * @namespace ModuleCGChangeDefaultGroup
  */
-const changeDefaultGroup = {
+const ModuleCGChangeDefaultGroup = {
     /**
      * jQuery object representing the form.
      * @type {jQuery}
@@ -37,39 +37,36 @@ const changeDefaultGroup = {
 
     /**
      * Initializes the module.
-     * @memberof changeDefaultGroup
      */
     initialize() {
 
-        changeDefaultGroup.$selectDefaultDropdown.dropdown({
-            onChange: changeDefaultGroup.cbOnChangeDefaultGroup
+        ModuleCGChangeDefaultGroup.$selectDefaultDropdown.dropdown({
+            onChange: ModuleCGChangeDefaultGroup.cbOnModuleCGChangeDefaultGroup
         });
 
-        changeDefaultGroup.initializeForm();
+        ModuleCGChangeDefaultGroup.initializeForm();
     },
 
     /**
      * Callback on change dropdown for default call group.
      */
-    cbOnChangeDefaultGroup(){
+    cbOnModuleCGChangeDefaultGroup(){
         Form.submitForm()
     },
 
     /**
      * Callback before sending the form.
-     * @memberof changeDefaultGroup
      * @param {Object} settings - Ajax request settings.
      * @returns {Object} The modified Ajax request settings.
      */
     cbBeforeSendForm(settings) {
         const result = settings;
-        result.data = changeDefaultGroup.$formObj.form('get values');
+        result.data = ModuleCGChangeDefaultGroup.$formObj.form('get values');
         return result;
     },
 
     /**
      * Callback after sending the form.
-     * @memberof changeDefaultGroup
      */
     cbAfterSendForm() {
         window.location = `${globalRootUrl}module-users-groups/module-users-groups/index`;
@@ -77,18 +74,17 @@ const changeDefaultGroup = {
 
     /**
      * Initializes the form.
-     * @memberof changeDefaultGroup
      */
     initializeForm() {
-        Form.$formObj = changeDefaultGroup.$formObj;
+        Form.$formObj = ModuleCGChangeDefaultGroup.$formObj;
         Form.url = `${globalRootUrl}module-users-groups/module-users-groups/change-default`;
-        Form.cbBeforeSendForm = changeDefaultGroup.cbBeforeSendForm;
-        Form.cbAfterSendForm = changeDefaultGroup.cbAfterSendForm;
+        Form.cbBeforeSendForm = ModuleCGChangeDefaultGroup.cbBeforeSendForm;
+        Form.cbAfterSendForm = ModuleCGChangeDefaultGroup.cbAfterSendForm;
         Form.initialize();
     },
 };
 
 $(document).ready(() => {
-    changeDefaultGroup.initialize();
+    ModuleCGChangeDefaultGroup.initialize();
 });
 

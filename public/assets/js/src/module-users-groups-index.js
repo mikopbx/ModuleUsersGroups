@@ -22,7 +22,7 @@
  * Module for managing call groups and related functionality.
  * @namespace
  */
-const ModuleUsersGroups = {
+const ModuleCGIndex = {
 	/**
 	 * jQuery object for the status toggle.
 	 * @type {jQuery}
@@ -54,22 +54,23 @@ const ModuleUsersGroups = {
 		$('#main-users-groups-tab-menu .item').tab();
 
 		// Check status toggle initially
-		ModuleUsersGroups.checkStatusToggle();
+		ModuleCGIndex.checkStatusToggle();
 		// Add event listener for status changes
-		window.addEventListener('ModuleStatusChanged', ModuleUsersGroups.checkStatusToggle);
-		// Initialize data table
-		ModuleUsersGroups.initializeDataTable();
+		window.addEventListener('ModuleStatusChanged', ModuleCGIndex.checkStatusToggle);
+
+		// Initialize users data table
+		ModuleCGIndex.initializeUsersDataTable();
 
 		// Initialize dropdowns for select group elements
-		ModuleUsersGroups.$selectGroup.each((index, obj) => {
+		ModuleCGIndex.$selectGroup.each((index, obj) => {
 			$(obj).dropdown({
-				values: ModuleUsersGroups.makeDropdownList($(obj).attr('data-value')),
+				values: ModuleCGIndex.makeDropdownList($(obj).attr('data-value')),
 			});
 		});
 
 		// Initialize dropdown for select group
-		ModuleUsersGroups.$selectGroup.dropdown({
-			onChange: ModuleUsersGroups.changeGroupInList,
+		ModuleCGIndex.$selectGroup.dropdown({
+			onChange: ModuleCGIndex.changeGroupInList,
 		});
 
 	},
@@ -77,8 +78,8 @@ const ModuleUsersGroups = {
 	/**
 	 * Initializes the DataTable for users table.
 	 */
-	initializeDataTable() {
-		ModuleUsersGroups.$usersTable.DataTable({
+	initializeUsersDataTable() {
+		ModuleCGIndex.$usersTable.DataTable({
 			// destroy: true,
 			lengthChange: false,
 			paging: false,
@@ -98,10 +99,10 @@ const ModuleUsersGroups = {
 	 * Checks and updates button status based on module status.
 	 */
 	checkStatusToggle() {
-		if (ModuleUsersGroups.$statusToggle.checkbox('is checked')) {
-			ModuleUsersGroups.$disabilityFields.removeClass('disabled');
+		if (ModuleCGIndex.$statusToggle.checkbox('is checked')) {
+			ModuleCGIndex.$disabilityFields.removeClass('disabled');
 		} else {
-			ModuleUsersGroups.$disabilityFields.addClass('disabled');
+			ModuleCGIndex.$disabilityFields.addClass('disabled');
 		}
 	},
 
@@ -145,7 +146,7 @@ const ModuleUsersGroups = {
 				group_id: value,
 			},
 			onSuccess() {
-				//	ModuleUsersGroups.initializeDataTable();
+				//	ModuleCGIndex.initializeDataTable();
 				//	console.log('updated');
 			},
 			onError(response) {
@@ -159,6 +160,6 @@ const ModuleUsersGroups = {
  * Initialize the module when the document is ready.
  */
 $(document).ready(() => {
-	ModuleUsersGroups.initialize();
+	ModuleCGIndex.initialize();
 });
 

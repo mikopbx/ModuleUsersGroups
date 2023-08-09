@@ -32,8 +32,9 @@
             {% endif %}
         </td>
         <td class="disability {{ rule['status'] }}">{{ rule['provider'] }}</td>
-        <td class="disability {{ rule['status'] }}"><input name="caller_id-{{ rule['id'] }}"
-                                                           value="{{ rule['callerid'] }}"/></td>
+        <td class="disability {{ rule['status'] }}">
+            <input name="caller_id-{{ rule['id'] }}" value="{{ rule['callerid'] }}" style="width: 75%"/>
+        </td>
     </tr>
     {% if loop.last %}
         </tbody>
