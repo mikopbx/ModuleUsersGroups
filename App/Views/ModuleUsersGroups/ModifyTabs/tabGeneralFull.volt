@@ -10,12 +10,6 @@
 </div>
 <div class="field">
     <div class="ui toggle checkbox ">
-        {{ form.render('defaultGroup') }}
-        <label for="defaultGroup">{{ t._('mod_usrgr_DefaultGroup') }}</label>
-    </div>
-</div>
-<div class="field">
-    <div class="ui toggle checkbox ">
         {{ form.render('isolate') }}
         <label for="isolate">{{ t._('mod_usrgr_isolate') }}</label>
     </div>

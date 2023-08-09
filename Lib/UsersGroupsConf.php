@@ -360,16 +360,14 @@ class UsersGroupsConf extends ConfigClass
 
             // Find the existing group membership based on user ID
             $curUserGroup = GroupMembers::findFirst($parameters);
+
             // Update or create the group membership
-            if ($curUserGroup !== null) {
-                // Update the group ID with the selected user group
-                $curUserGroup->group_id = $userGroup;
-            } else {
+            if ($curUserGroup === null) {
                 // Create a new group membership
                 $curUserGroup = new GroupMembers();
                 $curUserGroup->user_id = $userId;
-                $curUserGroup->group_id = $userGroup;
             }
+            $curUserGroup->group_id = $userGroup;
             // Save the changes to the database
             $curUserGroup->save();
         }

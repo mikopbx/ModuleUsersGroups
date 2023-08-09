@@ -56,6 +56,12 @@ class ExtensionEditAdditionalForm extends BaseForm
           if ($curUserGroup !== null) {
               // Get the group ID from the existing group membership
               $userGroupId = $curUserGroup->group_id;
+          } else {
+              // Get the group ID from the default group
+              $defaultGroup = ModelUsersGroups::findFirst('defaultGroup=1');
+              if ($defaultGroup){
+                  $userGroupId = $defaultGroup->id;
+              }
           }
       }
 

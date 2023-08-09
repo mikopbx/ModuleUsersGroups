@@ -32,10 +32,7 @@ class DefaultGroupForm extends BaseForm
         $defaultGroupValue = null;
         $usersGroups = UsersGroups::find();
         foreach ($usersGroups as $usersGroup) {
-            $variants[] = [
-                'id' => $usersGroup->id,
-                'name' => $usersGroup->name,
-            ];
+            $variants[$usersGroup->id] =  $usersGroup->name;
             if ($usersGroup->defaultGroup === '1') {
                 $defaultGroupValue = $usersGroup->id;
             }

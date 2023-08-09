@@ -1,17 +1,11 @@
-
 {{ form('module-users-groups/module-users-groups/save-default', 'role': 'form', 'class': 'ui grey segment form', 'id':'default-group-form') }}
 <h3 class="ui header">{{ t._("mod_usrgr_DefaultGroup") }}</h3>
-<div class="two fields">
-    <div class="inline field">
-        <label for="defaultGroup">{{ t._('mod_usrgr_SelectDefaultGroup') }}</label>
-        {{ form.render('defaultGroup') }}
-    </div>
+
+<div class="inline field">
+    <label for="defaultGroup">{{ t._('mod_usrgr_SelectDefaultGroup') }}</label>
+    {{ form.render('defaultGroup') }}
 </div>
-
-{{ partial("partials/submitbutton",['indexurl':'']) }}
-<div class="ui clearing hidden divider"></div>
 {{ end_form() }}
-
 
 
 {% for record in groups %}
@@ -19,7 +13,6 @@
         <table class="ui selectable compact table" id="users-groups-table">
         <thead>
         <tr>
-            <th>{{ t._('mod_usrgr_ColumnDefaultGroup') }}</th>
             <th>{{ t._('mod_usrgr_ColumnGroupName') }}</th>
             <th class="center aligned">{{ t._('mod_usrgr_ColumnGroupMembersCount') }}</th>
             <th>{{ t._('mod_usrgr_ColumnGroupDescription') }}</th>
@@ -45,8 +38,7 @@
                 'id': record.id,
                 'edit' : 'module-users-groups/module-users-groups/modify/',
                 'delete': 'module-users-groups/module-users-groups/delete/'
-            ])
-        }}
+            ]) }}
     </tr>
 
     {% if loop.last %}

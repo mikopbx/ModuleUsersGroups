@@ -42,11 +42,10 @@ const ModuleUsersGroups = {
 	$selectGroup: $('.select-group'),
 
 	/**
-	 * jQuery object for select default group elements.
+	 * jQuery object for current form disability fields
 	 * @type {jQuery}
 	 */
-	$selectDefaultGroup: $('.select-default-group'),
-
+	$disabilityFields: $('#module-users-groups'),
 	/**
 	 * Initializes the module.
 	 */
@@ -73,8 +72,6 @@ const ModuleUsersGroups = {
 			onChange: ModuleUsersGroups.changeGroupInList,
 		});
 
-		// Initialize dropdown for select default group
-		ModuleUsersGroups.$selectDefaultGroup.dropdown();
 	},
 
 	/**

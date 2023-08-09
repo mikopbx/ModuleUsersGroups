@@ -44,7 +44,7 @@ class ModuleUsersGroupsController extends BaseController
     public function initialize(): void
     {
         $this->moduleDir = PbxExtensionUtils::getModuleDir($this->moduleUniqueID);
-        $this->view->logoImagePath = "{$this->url->get()}assets/img/cache/{$this->moduleUniqueID}/logo.png";
+        $this->view->logoImagePath = $this->url->get() . 'assets/img/cache/' . $this->moduleUniqueID . '/logo.png';
         $this->view->submitMode = null;
         parent::initialize();
     }
@@ -58,12 +58,14 @@ class ModuleUsersGroupsController extends BaseController
     {
         $footerCollection = $this->assets->collection('footerJS');
         $footerCollection->addJs('js/vendor/datatable/dataTables.semanticui.js', true);
-        $footerCollection->addJs("js/cache/{$this->moduleUniqueID}/module-users-groups-index.js", true);
+        $footerCollection->addJs('js/cache/' . $this->moduleUniqueID . '/module-users-groups-index.js', true);
+        $footerCollection->addJs('js/pbx/main/form.js', true);
+        $footerCollection->addJs('js/cache/' . $this->moduleUniqueID . '/module-users-groups-default-form.js', true);
 
         $headerCollectionCSS = $this->assets->collection('headerCSS');
         $headerCollectionCSS
             ->addCss('css/vendor/datatable/dataTables.semanticui.min.css', true)
-            ->addCss("css/cache/{$this->moduleUniqueID}/module-users-groups.css", true);
+            ->addCss('css/cache/' . $this->moduleUniqueID . '/module-users-groups.css', true);
 
         $this->view->groups = UsersGroups::find();
 
@@ -142,13 +144,13 @@ class ModuleUsersGroupsController extends BaseController
                         $extensionTable[$extension->userid]['mobile'] = '';
                     }
 
-                    $extensionTable[$extension->userid]['avatar'] = "{$this->url->get()}assets/img/unknownPerson.jpg";
+                    $extensionTable[$extension->userid]['avatar'] = $this->url->get() . 'assets/img/unknownPerson.jpg';
                     if ($extension->avatar) {
                         $filename = md5($extension->avatar);
                         $imgCacheDir = appPath('sites/admin-cabinet/assets/img/cache');
                         $imgFile = "{$imgCacheDir}/{$filename}.jpg";
                         if (file_exists($imgFile)) {
-                            $extensionTable[$extension->userid]['avatar'] = "{$this->url->get()}assets/img/cache/{$filename}.jpg";
+                            $extensionTable[$extension->userid]['avatar'] = $this->url->get() . "assets/img/cache/{$filename}.jpg";
                         }
                     }
                     break;
@@ -174,7 +176,7 @@ class ModuleUsersGroupsController extends BaseController
     {
         $footerCollection = $this->assets->collection('footerJS');
         $footerCollection->addJs('js/pbx/main/form.js', true);
-        $footerCollection->addJs("js/cache/{$this->moduleUniqueID}/module-users-groups-modify.js", true);
+        $footerCollection->addJs('js/cache/' . $this->moduleUniqueID . '/module-users-groups-modify.js', true);
         $record = UsersGroups::findFirstById($id);
         if ($record === null) {
             $record = new UsersGroups();
@@ -245,13 +247,13 @@ class ModuleUsersGroupsController extends BaseController
                         if (!array_key_exists('mobile', $extensionTable[$extension->userid])) {
                             $extensionTable[$extension->userid]['mobile'] = '';
                         }
-                        $extensionTable[$extension->userid]['avatar'] = "{$this->url->get()}assets/img/unknownPerson.jpg";
+                        $extensionTable[$extension->userid]['avatar'] = $this->url->get() . 'assets/img/unknownPerson.jpg';
                         if ($extension->avatar) {
                             $filename = md5($extension->avatar);
                             $imgCacheDir = appPath('sites/admin-cabinet/assets/img/cache');
                             $imgFile = "{$imgCacheDir}/$filename.jpg";
                             if (file_exists($imgFile)) {
-                                $extensionTable[$extension->userid]['avatar'] = "{$this->url->get()}assets/img/cache/{$filename}.jpg";
+                                $extensionTable[$extension->userid]['avatar'] = $this->url->get() . "assets/img/cache/{$filename}.jpg";
                             }
                         }
                         $key = array_search($extension->userid, $groupMembersIds, true);
@@ -345,6 +347,7 @@ class ModuleUsersGroupsController extends BaseController
         foreach ($record as $key => $value) {
             switch ($key) {
                 case 'id':
+                case 'defaultGroup':
                     break;
                 case 'isolatePickUp':
                 case 'isolate':
@@ -527,7 +530,25 @@ class ModuleUsersGroupsController extends BaseController
             }
         }
 
-        // 4. Delete all old links to users related to this group
+        // 4. Move users to default group if was it set
+        $defaultGroup = UsersGroups::findFirst('defaultGroup=1');
+        if ($defaultGroup) {
+            foreach ($membersForDelete as $member) {
+                $groupMember = GroupMembers::findFirstById($member['id']);
+                if ($groupMember !== null) {
+                    $key = array_search($groupMember->toArray(), $membersForDelete, true);
+                    if ($key !== false) {
+                        unset($membersForDelete[$key]);
+                    }
+                    $groupMember->group_id = $defaultGroup->id;
+                    if (!$this->saveEntity($groupMember)) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        // 5. Delete all old links to users related to this group
         foreach ($membersForDelete as $member) {
             $groupMember = GroupMembers::findFirstById($member['id']);
             if ($groupMember !== null && $this->deleteEntity($groupMember) === false) {
@@ -563,21 +584,46 @@ class ModuleUsersGroupsController extends BaseController
     }
 
     /**
-     * Delete a group.
+     * Deletes a user group.
      *
      * @param string $groupId The ID of the group to be deleted.
+     * @return void
      */
     public function deleteAction(string $groupId): void
     {
+        // Find the user group by its ID
         $group = UsersGroups::findFirstById($groupId);
+
+        // Check if the group exists
+        if ($group === null) {
+            return;
+        }
+
+        // Check if the group is a default group
         if ($group->defaultGroup === '1') {
             $this->view->success = false;
             $this->flash->error($this->translation->_('mod_usrgr_ErrorOnDeleteDefaultGroup'));
+            $this->forward('module-users-groups/module-users-groups/index');
             return;
+        } else {
+            // Find the default group
+            $defaultGroup = UsersGroups::findFirst('defaultGroup=1');
+
+            // Find users belonging to the current group
+            $usersOfCurrentGroup = GroupMembers::find('group_id=' . $group->id);
+            if ($defaultGroup) {
+                foreach ($usersOfCurrentGroup as $groupMember) {
+                    // Change the group membership to the default group
+                    $groupMember->group_id = $defaultGroup->id;
+                    if (!$this->saveEntity($groupMember)) {
+                        return;
+                    }
+                }
+            }
         }
-        if ($group !== null) {
-            $this->deleteEntity($group, 'module-users-groups/module-users-groups/index');
-        }
+
+        // Delete the user group
+        $this->deleteEntity($group, 'module-users-groups/module-users-groups/index');
     }
 
     /**
@@ -602,7 +648,7 @@ class ModuleUsersGroupsController extends BaseController
                 $group->defaultGroup = '0';
                 $this->saveEntity($group);
             }
-            if ($group->defaultGroup === '0' and $group->id === $data['defaultGroup']) {
+            if ($group->defaultGroup !== '1' and $group->id === $data['defaultGroup']) {
                 $group->defaultGroup = '1';
                 $this->saveEntity($group);
             }

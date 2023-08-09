@@ -16,7 +16,7 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* global globalRootUrl,globalTranslate, Form, Extensions */
+/* global globalRootUrl, globalTranslate, Form */
 
 /**
  * Call groups change default group configuration.
@@ -30,12 +30,31 @@ const changeDefaultGroup = {
     $formObj: $('#default-group-form'),
 
     /**
+     * jQuery object for dropdown menu.
+     * @type {jQuery}
+     */
+    $selectDefaultDropdown: $('.select-default-group'),
+
+    /**
      * Initializes the module.
      * @memberof changeDefaultGroup
      */
     initialize() {
+
+        changeDefaultGroup.$selectDefaultDropdown.dropdown({
+            onChange: changeDefaultGroup.cbOnChangeDefaultGroup
+        });
+
         changeDefaultGroup.initializeForm();
     },
+
+    /**
+     * Callback on change dropdown for default call group.
+     */
+    cbOnChangeDefaultGroup(){
+        Form.submitForm()
+    },
+
     /**
      * Callback before sending the form.
      * @memberof changeDefaultGroup
