@@ -9,7 +9,7 @@
             "Modules\\ModuleUsersGroups\\": "/"
         }
     },
-    "type": "application",
+    "type": "library",
     "keywords": [
         "pbx",
         "asterisk",

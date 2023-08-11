@@ -1,9 +1,20 @@
 <?php
-/**
- * Copyright © MIKO LLC - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- * Written by Alexey Portnov, 11 2019
+/*
+ * MikoPBX - free phone system for small business
+ * Copyright © 2017-2023 Alexey Portnov and Nikolay Beketov
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program.
+ * If not, see <https://www.gnu.org/licenses/>.
  */
 
 namespace Modules\ModuleUsersGroups\Setup;
@@ -17,13 +28,11 @@ class PbxExtensionSetup extends PbxExtensionSetupBase
 {
 
     /**
-     * Создает структуру для хранения настроек модуля в своей модели
-     * и заполняет настройки по-умолчанию если таблицы не было в системе
-     * см (unInstallDB)
+     * Performs the main module installation process called by PBXCoreRest after unzipping module files.
+     * It invokes private functions and sets up error messages in the message variable.
+     * @see https://docs.mikopbx.com/mikopbx-development/module-developement/module-installer#installmodule
      *
-     * Регистрирует модуль в PbxExtensionModules
-     *
-     * @return bool результат установки
+     * @return bool The result of the installation process.
      */
     public function installDB(): bool
     {
@@ -114,14 +123,14 @@ class PbxExtensionSetup extends PbxExtensionSetupBase
     }
 
     /**
-     * Добавляет модуль в боковое меню
+     * Adds the module to the sidebar menu.
+     * @see https://docs.mikopbx.com/mikopbx-development/module-developement/module-installer#addtosidebar
      *
-     * @return bool
+     * @return bool The result of the addition process.
      */
     public function addToSidebar(): bool
     {
         $menuSettingsKey           = "AdditionalMenuItem{$this->moduleUniqueID}";
-        $unCamelizedControllerName = Text::uncamelize($this->moduleUniqueID, '-');
         $menuSettings              = PbxSettings::findFirstByKey($menuSettingsKey);
         if ($menuSettings === null) {
             $menuSettings      = new PbxSettings();
@@ -129,7 +138,6 @@ class PbxExtensionSetup extends PbxExtensionSetupBase
         }
         $value               = [
             'uniqid'        => $this->moduleUniqueID,
-            'href'          => "/admin-cabinet/$unCamelizedControllerName",
             'group'         => 'routing',
             'iconClass'     => 'users',
             'caption'       => "Breadcrumb$this->moduleUniqueID",
