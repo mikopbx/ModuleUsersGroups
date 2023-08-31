@@ -3,7 +3,7 @@
   "moduleUniqueID":"ModuleUsersGroups",
   "support_email": "help@miko.ru",
   "version": "%ModuleVersion%",
-  "min_pbx_version": "2023.2.126",
+  "min_pbx_version": "2023.2.179",
   "wiki_links": {
     "ru": {"https://wiki.mikopbx.com/module-users-groups": "https://docs.mikopbx.com/mikopbx/modules/miko/module-users-groups"},
     "en": {"https://wiki.mikopbx.com/module-users-groups": "https://docs.mikopbx.com/mikopbx/v/english/modules/miko/module-users-groups"}
