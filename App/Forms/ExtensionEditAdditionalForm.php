@@ -21,8 +21,6 @@ namespace Modules\ModuleUsersGroups\App\Forms;
 
 use MikoPBX\AdminCabinet\Forms\BaseForm;
 use MikoPBX\AdminCabinet\Forms\ExtensionEditForm;
-use MikoPBX\Common\Models\Extensions;
-use MikoPBX\PBXCoreREST\Lib\Extensions\DataStructure;
 use Modules\ModuleUsersGroups\Models\GroupMembers;
 use Modules\ModuleUsersGroups\Models\UsersGroups as ModelUsersGroups;
 use Phalcon\Forms\Element\Select;

@@ -20,9 +20,7 @@
 namespace Modules\ModuleUsersGroups\Lib;
 
 use MikoPBX\AdminCabinet\Forms\ExtensionEditForm;
-use MikoPBX\AdminCabinet\Providers\SecurityPluginProvider;
 use MikoPBX\Modules\Config\ConfigClass;
-use Modules\ModuleUsersGroups\App\Controllers\ModuleUsersGroupsController;
 use Modules\ModuleUsersGroups\Models\AllowedOutboundRules;
 use Modules\ModuleUsersGroups\Models\GroupMembers;
 use Modules\ModuleUsersGroups\Models\UsersGroups as ModelUsersGroups;
