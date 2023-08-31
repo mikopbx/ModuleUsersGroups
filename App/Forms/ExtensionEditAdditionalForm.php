@@ -22,6 +22,7 @@ namespace Modules\ModuleUsersGroups\App\Forms;
 use MikoPBX\AdminCabinet\Forms\BaseForm;
 use MikoPBX\AdminCabinet\Forms\ExtensionEditForm;
 use MikoPBX\Common\Models\Extensions;
+use MikoPBX\PBXCoreREST\Lib\Extensions\DataStructure;
 use Modules\ModuleUsersGroups\Models\GroupMembers;
 use Modules\ModuleUsersGroups\Models\UsersGroups as ModelUsersGroups;
 use Phalcon\Forms\Element\Select;
@@ -29,7 +30,7 @@ use Phalcon\Forms\Element\Select;
 
 class ExtensionEditAdditionalForm extends BaseForm
 {
-  public static function prepareAdditionalFields(ExtensionEditForm $form, Extensions $entity, array $options = []){
+  public static function prepareAdditionalFields(ExtensionEditForm $form, \stdClass $entity, array $options = []){
 
       // Prepare groups for select
       $parameters = [
@@ -46,10 +47,10 @@ class ExtensionEditAdditionalForm extends BaseForm
 
       // Find current value
       $userGroupId = null;
-      if (isset($entity->userid)) {
+      if (isset($entity->user_id)) {
           $parameters = [
               'conditions' => 'user_id = :user_id:',
-              'bind' => ['user_id' => $entity->userid]
+              'bind' => ['user_id' => $entity->user_id]
           ];
 
           $curUserGroup = GroupMembers::findFirst($parameters);

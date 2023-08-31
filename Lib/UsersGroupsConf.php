@@ -347,8 +347,8 @@ class UsersGroupsConf extends ConfigClass
         if ($calledUrl!=='/api/extensions/saveRecord') {
             return;
         }
-        $isAllowed = $this->di->get(SecurityPluginProvider::SERVICE_NAME, [ModuleUsersGroupsController::class,'changeUserGroupAction']);
-        if ($isAllowed) {
+        $response = json_decode($app->response->getContent());
+        if (!empty($response->result) and $response->result===true){
             // Intercept the form submission of Extensions with fields mod_usrgr_select_group and user_id
             $userGroup = $app->request->getPost('mod_usrgr_select_group');
             $userId = $app->request->getPost('user_id');
