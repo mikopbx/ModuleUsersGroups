@@ -41,7 +41,7 @@ class ModuleUsersGroupsForm extends BaseForm
 
         // Patterns
         $patternsPlaceholder = '';
-        for ($i = 1; $i < 7; $i++) {
+        for ($i = 1; $i < 8; $i++) {
             $patternsPlaceholder .= $this->translation->_("mod_usrgr_PatternsInstructions$i").PHP_EOL;
         }
         $this->addTextArea('patterns',$entity->patterns??'',90, ['placeholder' => $patternsPlaceholder]);

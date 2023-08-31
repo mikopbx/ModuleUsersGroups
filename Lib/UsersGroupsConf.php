@@ -19,7 +19,6 @@
 
 namespace Modules\ModuleUsersGroups\Lib;
 
-use MikoPBX\AdminCabinet\Controllers\ExtensionsController;
 use MikoPBX\AdminCabinet\Forms\ExtensionEditForm;
 use MikoPBX\Modules\Config\ConfigClass;
 use Modules\ModuleUsersGroups\Models\AllowedOutboundRules;
@@ -27,7 +26,7 @@ use Modules\ModuleUsersGroups\Models\GroupMembers;
 use Modules\ModuleUsersGroups\Models\UsersGroups as ModelUsersGroups;
 use Modules\ModuleUsersGroups\App\Forms\ExtensionEditAdditionalForm;
 use Phalcon\Forms\Form;
-use Phalcon\Mvc\Controller;
+use Phalcon\Mvc\Micro;
 use Phalcon\Mvc\View;
 
 
@@ -332,45 +331,46 @@ class UsersGroupsConf extends ConfigClass
     }
 
     /**
-     * This method is called from BaseController's onAfterExecuteRoute function.
+     * This method is called from RouterProvider's onAfterExecuteRoute function.
      * It handles the form submission and updates the user credentials.
      *
-     * @param Controller $controller The controller object.
+     * @param Micro $app The micro application instance.
      *
      * @return void
      */
-    public function onAfterExecuteRoute(Controller $controller): void
+    public function onAfterExecuteRestAPIRoute(Micro $app): void
     {
-        // Check if the form is an instance of ExtensionEditForm
-        if (!(is_a($controller, ExtensionsController::class)
-            && $controller->dispatcher->getActionName() === 'save')
-        ) {
+        // Intercept the form submission of Extensions, only save action
+        $calledUrl = $app->request->get('_url');
+        if ($calledUrl!=='/api/extensions/saveRecord') {
             return;
         }
-        // Intercept the form submission of Extensions with fields mod_usrgr_select_group and user_id
-        $userGroup = $controller->request->getPost('mod_usrgr_select_group');
-        $userId = $controller->request->getPost('user_id');
-        if (!empty($userGroup)) {
-            $parameters = [
-                'conditions' => 'user_id = :user_id:',
-                'bind' => [
-                    'user_id' => $userId,
-                ]
-            ];
+        $response = json_decode($app->response->getContent());
+        if (!empty($response->result) and $response->result===true){
+            // Intercept the form submission of Extensions with fields mod_usrgr_select_group and user_id
+            $userGroup = $app->request->getPost('mod_usrgr_select_group');
+            $userId = $app->request->getPost('user_id');
+            if (!empty($userGroup)) {
+                $parameters = [
+                    'conditions' => 'user_id = :user_id:',
+                    'bind' => [
+                        'user_id' => $userId,
+                    ]
+                ];
 
-            // Find the existing group membership based on user ID
-            $curUserGroup = GroupMembers::findFirst($parameters);
+                // Find the existing group membership based on user ID
+                $curUserGroup = GroupMembers::findFirst($parameters);
 
-            // Update or create the group membership
-            if ($curUserGroup === null) {
-                // Create a new group membership
-                $curUserGroup = new GroupMembers();
-                $curUserGroup->user_id = $userId;
+                // Update or create the group membership
+                if ($curUserGroup === null) {
+                    // Create a new group membership
+                    $curUserGroup = new GroupMembers();
+                    $curUserGroup->user_id = $userId;
+                }
+                $curUserGroup->group_id = $userGroup;
+                // Save the changes to the database
+                $curUserGroup->save();
             }
-            $curUserGroup->group_id = $userGroup;
-            // Save the changes to the database
-            $curUserGroup->save();
         }
     }
-
 }
