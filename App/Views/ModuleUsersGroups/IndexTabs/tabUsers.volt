@@ -12,7 +12,6 @@
             <th>{{ t._('ex_Name') }}</th>
             <th class="center aligned">{{ t._('ex_Extension') }}</th>
             <th class="center aligned">{{ t._('ex_Mobile') }}</th>
-            <th class="center aligned">{{ t._('ex_Email') }}</th>
             <th class="center aligned">{{ t._('mod_usrgr_ColumnGroup') }}</th>
         </tr>
         </thead>
@@ -26,7 +25,6 @@
         </td>
         <td class="center aligned">{{ member['number'] }}</td>
         <td class="center aligned">{{ member['mobile'] }}</td>
-        <td class="center aligned">{{ member['email'] }}</td>
         <td class="left aligned">
             <div class="ui dropdown select-group" data-value="{{ member['group'] }}">
                 <div class="text">{{ member['group'] }}</div>

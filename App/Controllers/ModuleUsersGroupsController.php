@@ -80,7 +80,6 @@ class ModuleUsersGroupsController extends BaseController
                 'id' => 'Extensions.id',
                 'username' => 'Users.username',
                 'number' => 'Extensions.number',
-                'email' => 'Users.email',
                 'userid' => 'Users.id',
                 'type' => 'Extensions.type',
                 'avatar' => 'Users.avatar',
@@ -130,7 +129,6 @@ class ModuleUsersGroupsController extends BaseController
                     $extensionTable[$extension->userid]['id'] = $extension->id;
                     $extensionTable[$extension->userid]['username'] = $extension->username;
                     $extensionTable[$extension->userid]['group'] = null;
-                    $extensionTable[$extension->userid]['email'] = $extension->email;
                     $key = array_search(
                         $extension->userid,
                         $groupMembersIds,

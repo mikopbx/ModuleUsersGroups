@@ -88,7 +88,6 @@ const ModuleCGIndex = {
 				null,
 				null,
 				null,
-				null,
 			],
 			order: [1, 'asc'],
 			language: SemanticLocalization.dataTableLocalisation,
