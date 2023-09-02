@@ -113,7 +113,7 @@ const ModuleCGIndex = {
 	makeDropdownList(selected) {
 		const values = [];
 		$('#users-groups-list option').each((index, obj) => {
-			if (selected === obj.text) {
+			if (selected === obj.value) {
 				values.push({
 					name: obj.text,
 					value: obj.value,

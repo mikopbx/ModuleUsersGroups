@@ -26,8 +26,8 @@
         <td class="center aligned">{{ member['number'] }}</td>
         <td class="center aligned">{{ member['mobile'] }}</td>
         <td class="left aligned">
-            <div class="ui dropdown select-group" data-value="{{ member['group'] }}">
-                <div class="text">{{ member['group'] }}</div>
+            <div class="ui dropdown select-group" data-value="{{ member['group_id'] }}">
+                <div class="text">{{ member['group_name'] }}</div>
                 <i class="dropdown icon"></i>
             </div>
         </td>
