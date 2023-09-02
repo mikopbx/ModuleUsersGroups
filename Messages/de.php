@@ -15,7 +15,6 @@ return [
     'mod_usrgr_Groups' => 'Liste der Wählgruppen',
     'mod_usrgr_Disconnected' => 'Modul deaktiviert',
     'mod_usrgr_Connected' => 'Modul angeschlossen',
-    'mod_usrgr_IntegerFieldLabel' => 'Beispiel für ein numerisches Feld',
     'SubHeaderModuleUsersGroups' => 'Rechte für ausgehende Anrufe festlegen, ausgehende Anrufer-ID verwalten, Anrufübernahmegruppen organisieren',
     'BreadcrumbModuleUsersGroups' => 'Wählgruppenverwaltung',
     'mo_ModuleModuleUsersGroups' => 'Wählgruppenverwaltung',

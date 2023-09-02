@@ -11,7 +11,6 @@ return [
     'mo_ModuleModuleUsersGroups' => 'Gestion des groupes de numérotation',
     'BreadcrumbModuleUsersGroups' => 'Gestion des groupes de numérotation',
     'SubHeaderModuleUsersGroups' => 'Définition des droits pour les appels sortants, gestion de l\'identification de l\'appelant sortant, organisation de groupes de prise d\'appels',
-    'mod_usrgr_IntegerFieldLabel' => 'Exemple de champ numérique',
     'mod_usrgr_Connected' => 'Module connecté',
     'mod_usrgr_Disconnected' => 'Module désactivé',
     'mod_usrgr_Groups' => 'Liste des groupes de numérotation',

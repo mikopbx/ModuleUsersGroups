@@ -11,7 +11,6 @@ return [
     'mo_ModuleModuleUsersGroups' => '拨号组管理',
     'BreadcrumbModuleUsersGroups' => '拨号组管理',
     'SubHeaderModuleUsersGroups' => '设置拨出电话权限、管理拨出 CallerID、组织呼叫代答组',
-    'mod_usrgr_IntegerFieldLabel' => '数字字段示例',
     'mod_usrgr_Connected' => '模块已连接',
     'mod_usrgr_Disconnected' => '模块禁用',
     'mod_usrgr_Groups' => '拨号组列表',

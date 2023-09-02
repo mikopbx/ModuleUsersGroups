@@ -11,7 +11,6 @@ return [
     'mo_ModuleModuleUsersGroups' => 'Dial gruppe ledelse',
     'BreadcrumbModuleUsersGroups' => 'Dial gruppe ledelse',
     'SubHeaderModuleUsersGroups' => 'Indstilling af rettigheder til udgående opkald, håndtering af udgående nummervisning, organisering af opkaldsgrupper',
-    'mod_usrgr_IntegerFieldLabel' => 'Eksempel på numerisk felt',
     'mod_usrgr_Connected' => 'Modul tilsluttet',
     'mod_usrgr_Disconnected' => 'Modul deaktiveret',
     'mod_usrgr_Groups' => 'Ring gruppeliste',

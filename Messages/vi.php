@@ -11,7 +11,6 @@ return [
     'mo_ModuleModuleUsersGroups' => 'Quản lý nhóm quay số',
     'BreadcrumbModuleUsersGroups' => 'Quản lý nhóm quay số',
     'SubHeaderModuleUsersGroups' => 'Thiết lập quyền cho cuộc gọi đi, quản lý CallerID đi, tổ chức nhóm nhận cuộc gọi',
-    'mod_usrgr_IntegerFieldLabel' => 'Ví dụ về trường số',
     'mod_usrgr_Connected' => 'Mô-đun được kết nối',
     'mod_usrgr_Disconnected' => 'Mô-đun bị vô hiệu hóa',
     'mod_usrgr_Groups' => 'Danh sách nhóm quay số',

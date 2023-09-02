@@ -11,7 +11,6 @@ return [
     'mo_ModuleModuleUsersGroups' => 'Zarządzanie grupą połączeń',
     'BreadcrumbModuleUsersGroups' => 'Zarządzanie grupą połączeń',
     'SubHeaderModuleUsersGroups' => 'Ustawianie uprawnień do połączeń wychodzących, zarządzanie CallerID wychodzących, organizowanie grup przejmowania połączeń',
-    'mod_usrgr_IntegerFieldLabel' => 'Przykład pola liczbowego',
     'mod_usrgr_Connected' => 'Moduł podłączony',
     'mod_usrgr_Disconnected' => 'Moduł wyłączony',
     'mod_usrgr_Groups' => 'Lista grup wybierania',

@@ -11,7 +11,6 @@ return [
     'mo_ModuleModuleUsersGroups' => 'Arama grubu yönetimi',
     'BreadcrumbModuleUsersGroups' => 'Arama grubu yönetimi',
     'SubHeaderModuleUsersGroups' => 'Giden çağrılara ilişkin hakları ayarlama, giden Arayan Kimliğini yönetme, çağrı alma gruplarını organize etme',
-    'mod_usrgr_IntegerFieldLabel' => 'Sayısal alan örneği',
     'mod_usrgr_Connected' => 'Modül bağlı',
     'mod_usrgr_Disconnected' => 'Modül devre dışı',
     'mod_usrgr_Groups' => 'Grup listesini çevir',

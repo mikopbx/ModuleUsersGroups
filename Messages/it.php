@@ -11,7 +11,6 @@ return [
     'mo_ModuleModuleUsersGroups' => 'Gestione dei gruppi di chiamate',
     'BreadcrumbModuleUsersGroups' => 'Gestione dei gruppi di chiamate',
     'SubHeaderModuleUsersGroups' => 'Impostazione dei diritti per le chiamate in uscita, gestione dell\'ID chiamante in uscita, organizzazione dei gruppi di risposta alle chiamate',
-    'mod_usrgr_IntegerFieldLabel' => 'Esempio di campo numerico',
     'mod_usrgr_Connected' => 'Modulo connesso',
     'mod_usrgr_Disconnected' => 'Modulo disabilitato',
     'mod_usrgr_Groups' => 'Elenco dei gruppi di composizione',

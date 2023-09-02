@@ -11,7 +11,6 @@ return [
     'mo_ModuleModuleUsersGroups' => 'აკრიფეთ ჯგუფის მართვა',
     'BreadcrumbModuleUsersGroups' => 'აკრიფეთ ჯგუფის მართვა',
     'SubHeaderModuleUsersGroups' => 'გამავალი ზარების უფლებების დაყენება, გამავალი CallerID-ის მართვა, ზარის აღების ჯგუფების ორგანიზება',
-    'mod_usrgr_IntegerFieldLabel' => 'რიცხვითი ველის მაგალითი',
     'mod_usrgr_Connected' => 'მოდული დაკავშირებულია',
     'mod_usrgr_Disconnected' => 'მოდული გამორთულია',
     'mod_usrgr_Groups' => 'აკრიფეთ ჯგუფის სია',

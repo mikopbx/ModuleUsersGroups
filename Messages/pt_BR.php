@@ -11,7 +11,6 @@ return [
     'mo_ModuleModuleUsersGroups' => 'Gerenciamento de grupo de discagem',
     'BreadcrumbModuleUsersGroups' => 'Gerenciamento de grupo de discagem',
     'SubHeaderModuleUsersGroups' => 'Definir direitos para chamadas de saída, gerenciar CallerID de saída, organizar grupos de captura de chamadas',
-    'mod_usrgr_IntegerFieldLabel' => 'Exemplo de campo numérico',
     'mod_usrgr_Connected' => 'Módulo conectado',
     'mod_usrgr_Disconnected' => 'Módulo desabilitado',
     'mod_usrgr_Groups' => 'Lista de grupos de discagem',

@@ -11,7 +11,6 @@ return [
     'mo_ModuleModuleUsersGroups' => 'Ring grupphantering',
     'BreadcrumbModuleUsersGroups' => 'Ring grupphantering',
     'SubHeaderModuleUsersGroups' => 'Ställa in rättigheter för utgående samtal, hantera utgående nummerpresentation, organisera samtalsupptagningsgrupper',
-    'mod_usrgr_IntegerFieldLabel' => 'Exempel på numeriskt fält',
     'mod_usrgr_Connected' => 'Modul ansluten',
     'mod_usrgr_Disconnected' => 'Modul inaktiverad',
     'mod_usrgr_Groups' => 'Slå grupplista',

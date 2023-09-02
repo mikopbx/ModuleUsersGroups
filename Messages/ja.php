@@ -11,7 +11,6 @@ return [
     'mo_ModuleModuleUsersGroups' => 'ダイヤルグループ管理',
     'BreadcrumbModuleUsersGroups' => 'ダイヤルグループ管理',
     'SubHeaderModuleUsersGroups' => '発信通話の権限の設定、発信 CallerID の管理、コール ピックアップ グループの整理',
-    'mod_usrgr_IntegerFieldLabel' => '数値フィールドの例',
     'mod_usrgr_Connected' => 'モジュールが接続されています',
     'mod_usrgr_Disconnected' => 'モジュールが無効になっています',
     'mod_usrgr_Groups' => 'ダイヤルグループリスト',

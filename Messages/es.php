@@ -11,7 +11,6 @@ return [
     'mo_ModuleModuleUsersGroups' => 'Gestión de grupos de marcación',
     'BreadcrumbModuleUsersGroups' => 'Gestión de grupos de marcación',
     'SubHeaderModuleUsersGroups' => 'Establecer derechos para llamadas salientes, administrar el identificador de llamadas salientes, organizar grupos de atención de llamadas',
-    'mod_usrgr_IntegerFieldLabel' => 'Ejemplo de campo numérico',
     'mod_usrgr_Connected' => 'Módulo conectado',
     'mod_usrgr_Disconnected' => 'Módulo deshabilitado',
     'mod_usrgr_Groups' => 'Lista de grupos de marcación',

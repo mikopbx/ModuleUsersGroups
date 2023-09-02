@@ -15,7 +15,6 @@ return [
     'mod_usrgr_Groups' => 'Λίστα ομάδας κλήσης',
     'mod_usrgr_Disconnected' => 'Η μονάδα απενεργοποιήθηκε',
     'mod_usrgr_Connected' => 'Η μονάδα είναι συνδεδεμένη',
-    'mod_usrgr_IntegerFieldLabel' => 'Παράδειγμα αριθμητικού πεδίου',
     'SubHeaderModuleUsersGroups' => 'Ρύθμιση δικαιωμάτων για εξερχόμενες κλήσεις, διαχείριση εξερχόμενων αναγνωριστικών κλήσεων, οργάνωση ομάδων παραλαβής κλήσεων',
     'BreadcrumbModuleUsersGroups' => 'Διαχείριση ομάδας κλήσης',
     'mo_ModuleModuleUsersGroups' => 'Διαχείριση ομάδας κλήσης',

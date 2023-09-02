@@ -11,7 +11,6 @@ return [
     'mo_ModuleModuleUsersGroups' => 'Správa skupin vytáčení',
     'BreadcrumbModuleUsersGroups' => 'Správa skupin vytáčení',
     'SubHeaderModuleUsersGroups' => 'Nastavení práv pro odchozí hovory, správa odchozího CallerID, organizace skupin pro vyzvednutí hovoru',
-    'mod_usrgr_IntegerFieldLabel' => 'Příklad číselného pole',
     'mod_usrgr_Connected' => 'Modul připojen',
     'mod_usrgr_Disconnected' => 'Modul je deaktivován',
     'mod_usrgr_Groups' => 'Vytáčení seznamu skupin',

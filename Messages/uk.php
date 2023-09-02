@@ -11,7 +11,6 @@ return [
     'mo_ModuleModuleUsersGroups' => 'Управління телефонними групами',
     'BreadcrumbModuleUsersGroups' => 'Управління телефонними групами',
     'SubHeaderModuleUsersGroups' => 'Налаштування прав для вихідних дзвінків, керування вихідними CallerID, організація груп перехоплення дзвінків',
-    'mod_usrgr_IntegerFieldLabel' => 'Приклад числового поля',
     'mod_usrgr_Connected' => 'Модуль підключено',
     'mod_usrgr_Disconnected' => 'Модуль відключений',
     'mod_usrgr_Groups' => 'Список телефонних груп',
