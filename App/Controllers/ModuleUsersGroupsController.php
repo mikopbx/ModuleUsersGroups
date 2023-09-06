@@ -80,7 +80,6 @@ class ModuleUsersGroupsController extends BaseController
                 'id' => 'Extensions.id',
                 'username' => 'Users.username',
                 'number' => 'Extensions.number',
-                'email' => 'Users.email',
                 'userid' => 'Users.id',
                 'type' => 'Extensions.type',
                 'avatar' => 'Users.avatar',
@@ -105,7 +104,8 @@ class ModuleUsersGroupsController extends BaseController
             ],
             'columns' => [
                 'user_id' => 'GroupMembers.user_id',
-                'group' => 'UsersGroups.name',
+                'group_name' => 'UsersGroups.name',
+                'group_id' => 'UsersGroups.id',
 
             ],
             'joins' => [
@@ -129,15 +129,16 @@ class ModuleUsersGroupsController extends BaseController
                     $extensionTable[$extension->userid]['number'] = $extension->number;
                     $extensionTable[$extension->userid]['id'] = $extension->id;
                     $extensionTable[$extension->userid]['username'] = $extension->username;
-                    $extensionTable[$extension->userid]['group'] = null;
-                    $extensionTable[$extension->userid]['email'] = $extension->email;
+                    $extensionTable[$extension->userid]['group_name'] = null;
+                    $extensionTable[$extension->userid]['group_id'] = null;
                     $key = array_search(
                         $extension->userid,
                         $groupMembersIds,
                         true
                     );
                     if ($key !== false) {
-                        $extensionTable[$extension->userid]['group'] = $groupMembers[$key]['group'];
+                        $extensionTable[$extension->userid]['group_name'] =  $groupMembers[$key]['group_name'];
+                        $extensionTable[$extension->userid]['group_id'] =  $groupMembers[$key]['group_id'];
                     }
 
                     if (!array_key_exists('mobile', $extensionTable[$extension->userid])) {
