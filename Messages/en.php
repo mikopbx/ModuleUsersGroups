@@ -11,7 +11,6 @@ return [
     'mo_ModuleModuleUsersGroups' => 'Dial group management',
     'BreadcrumbModuleUsersGroups' => 'Dial group management',
     'SubHeaderModuleUsersGroups' => 'Setting rights for outgoing calls, managing outgoing CallerID, organizing call pickup groups',
-    'mod_usrgr_ValidateValueIsEmpty' => 'Check the field, it looks like empty',
     'mod_usrgr_Connected' => 'Module connected',
     'mod_usrgr_Disconnected' => 'Module disabled',
     'mod_usrgr_SelectMemberToAddToGroup' => 'Select an employee',
