@@ -36,7 +36,7 @@ return [
     'mod_usrgr_PatternsInstructions1' => 'У шаблонах можна використовувати символ від 1 до 9 і символ X (будь-яка цифра від 1-9)',
     'mod_usrgr_PatternsInstructions3' => ' ',
     'mod_usrgr_IsolateInstructions1' => 'Співробітники групи зможуть дзвонити лише на номери своєї групи.',
-    'mod_usrgr_PatternsInstructions2' => 'Учасник групи зможе набрати лише ті номери, які відповідають шаблонам.',
+    'mod_usrgr_PatternsInstructions2' => 'Учасник групи зможе набрати лише ті номери, які відповідають шаблонам',
     'mod_usrgr_PatternsInstructions4' => 'Приклади шаблонів:',
     'mod_usrgr_PatternsInstructions5' => '2XX - номери з 200 до 299',
     'mod_usrgr_PatternsInstructions6' => '200001 - явно вказаний внутрішній номер, наприклад номер черги',
