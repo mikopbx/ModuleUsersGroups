@@ -294,7 +294,7 @@ class UsersGroups extends PbxExtensionBase
         $curUserGroup->group_id = $userGroup;
         // Save the changes to the database
         if (!$curUserGroup->save()) {
-            Util::sysLogMsg(__METHOD__, $curUserGroup->getMessages(), LOG_ERR);
+            Util::sysLogMsg(__METHOD__, implode($curUserGroup->getMessages()), LOG_ERR);
         }
     }
 }
