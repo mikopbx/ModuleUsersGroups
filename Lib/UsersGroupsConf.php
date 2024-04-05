@@ -20,6 +20,8 @@
 namespace Modules\ModuleUsersGroups\Lib;
 
 use MikoPBX\AdminCabinet\Forms\ExtensionEditForm;
+use MikoPBX\Common\Models\Users;
+use MikoPBX\Common\Models\Extensions;
 use MikoPBX\Modules\Config\ConfigClass;
 use Modules\ModuleUsersGroups\Models\AllowedOutboundRules;
 use Modules\ModuleUsersGroups\Models\GroupMembers;
@@ -348,29 +350,8 @@ class UsersGroupsConf extends ConfigClass
         $response = json_decode($app->response->getContent());
         if (!empty($response->result) and $response->result===true){
             // Intercept the form submission of Extensions with fields mod_usrgr_select_group and user_id
-            $userGroup = $app->request->getPost('mod_usrgr_select_group');
-            $userId = $app->request->getPost('user_id');
-            if (!empty($userGroup)) {
-                $parameters = [
-                    'conditions' => 'user_id = :user_id:',
-                    'bind' => [
-                        'user_id' => $userId,
-                    ]
-                ];
-
-                // Find the existing group membership based on user ID
-                $curUserGroup = GroupMembers::findFirst($parameters);
-
-                // Update or create the group membership
-                if ($curUserGroup === null) {
-                    // Create a new group membership
-                    $curUserGroup = new GroupMembers();
-                    $curUserGroup->user_id = $userId;
-                }
-                $curUserGroup->group_id = $userGroup;
-                // Save the changes to the database
-                $curUserGroup->save();
-            }
+            $postData = $app->request->getPost();
+            UsersGroups::updateUserGroup($postData);
         }
     }
 }
