@@ -104,14 +104,25 @@ const ModuleCGModify = {
 			lengthChange: false,
 			paging: false,
 			columns: [
-				{orderable: false, searchable: false},
-				null,
+				{
+					orderable: true,  // This column is not orderable
+					searchable: false,  // This column is not searchable
+					orderDataType: 'dom-checkbox'  // Use the custom sorting
+				},
 				null,
 				null,
 				{orderable: false, searchable: false},
 			],
-			order: [1, 'asc'],
+			order: [0, 'asc'],
 			language: SemanticLocalization.dataTableLocalisation,
+			/**
+			 * Constructs the Extensions row.
+			 * @param {HTMLElement} row - The row element.
+			 * @param {Array} data - The row data.
+			 */
+			createdRow(row, data) {
+				$('td', row).eq(3).style('min-width:45px;');
+			},
 		});
 	},
 
@@ -257,6 +268,14 @@ const ModuleCGModify = {
 };
 
 $(document).ready(() => {
+	// Custom sorting for checkbox states
+	$.fn.dataTable.ext.order['dom-checkbox'] = function  ( settings, col )
+	{
+		return this.api().column( col, {order:'index'} ).nodes().map( function ( td, i ) {
+			return $('input', td).prop('checked') ? '1' : '0';
+		} );
+	};
+
 	ModuleCGModify.initialize();
 });
 
