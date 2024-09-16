@@ -73,9 +73,9 @@ class UsersGroupsConf extends ConfigClass
     public function extensionGenAllPeersContext(): string
     {
         // Check if the dialed number belongs to an employee group.
-        $conf = 'same => n,NoOp( --- group: ${CHANNEL(callgroup)} | src: ${CALLERID(num)} | dst: ${EXTEN}---)' . PHP_EOL;
-        $conf .= 'same => n,Set(srcIsolate=${DIALPLAN_EXISTS(users-group-isolate-${CHANNEL(callgroup)},s,1)})' . PHP_EOL;
-        $conf .= 'same => n,Set(dstIsolateGroup=${DIALPLAN_EXISTS(users-group-dst-${CHANNEL(callgroup)},${EXTEN},1)})' . PHP_EOL;
+        $conf = 'same => n,NoOp( --- group: ${CHANNEL(namedcallgroup)} | src: ${CALLERID(num)} | dst: ${EXTEN}---)' . PHP_EOL;
+        $conf .= 'same => n,Set(srcIsolate=${DIALPLAN_EXISTS(users-group-isolate-${CHANNEL(namedcallgroup)},s,1)})' . PHP_EOL;
+        $conf .= 'same => n,Set(dstIsolateGroup=${DIALPLAN_EXISTS(users-group-dst-${CHANNEL(namedcallgroup)},${EXTEN},1)})' . PHP_EOL;
         $conf .= 'same => n,Set(dstIsolate=${DIALPLAN_EXISTS(users-group-isolate,${EXTEN},1)})' . PHP_EOL;
 
         // Check and set isolation flags based on conditions.
