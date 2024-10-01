@@ -1,4 +1,4 @@
-{{ form('module-users-groups/module-users-groups/save', 'role': 'form', 'class': 'ui large form','id':'module-users-groups-form') }}
+<form method="post" action="module-users-groups/module-users-groups/save" role="form" class="ui large form" id="module-users-groups-form">
 <div class="ui top attached tabular menu" id="module-users-group-modify-menu">
     {% if id is null %}
         <a class="item active" data-tab="general">{{ t._('mod_usrgr__GeneralSettings') }}</a>
@@ -28,4 +28,4 @@
 {% endif %}
 
 {{ partial("partials/submitbutton",['indexurl':'module-users-groups/module-users-groups/index/']) }}
-{{ endform() }}
+</form>

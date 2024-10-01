@@ -22,7 +22,6 @@ namespace Modules\ModuleUsersGroups\Setup;
 use MikoPBX\Common\Models\PbxSettings;
 use MikoPBX\Modules\Setup\PbxExtensionSetupBase;
 use Modules\ModuleUsersGroups\Models\{AllowedOutboundRules, GroupMembers, UsersGroups};
-use Phalcon\Text;
 
 class PbxExtensionSetup extends PbxExtensionSetupBase
 {

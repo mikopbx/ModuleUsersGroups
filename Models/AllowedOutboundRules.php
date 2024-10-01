@@ -20,7 +20,6 @@
 namespace Modules\ModuleUsersGroups\Models;
 
 use MikoPBX\Common\Models\OutgoingRoutingTable;
-use MikoPBX\Common\Models\Providers;
 use MikoPBX\Modules\Models\ModulesModelsBase;
 use Phalcon\Mvc\Model\Relation;
 

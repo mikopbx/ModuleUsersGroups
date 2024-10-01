@@ -20,8 +20,6 @@
 namespace Modules\ModuleUsersGroups\Lib;
 
 use MikoPBX\AdminCabinet\Forms\ExtensionEditForm;
-use MikoPBX\Common\Models\Users;
-use MikoPBX\Common\Models\Extensions;
 use MikoPBX\Modules\Config\ConfigClass;
 use Modules\ModuleUsersGroups\Models\AllowedOutboundRules;
 use Modules\ModuleUsersGroups\Models\GroupMembers;
@@ -209,7 +207,7 @@ class UsersGroupsConf extends ConfigClass
      *
      * @return void
      */
-    public function modelsEventChangeData($data): void
+    public function modelsEventChangeData(mixed $data): void
     {
         $called_class = $data['model'] ?? '';
         switch ($called_class) {
@@ -325,7 +323,7 @@ class UsersGroupsConf extends ConfigClass
      *
      * @return void
      */
-    public function onBeforeFormInitialize(Form $form, $entity, $options): void
+    public function onBeforeFormInitialize(Form $form, mixed $entity, mixed $options): void
     {
         if (is_a($form, ExtensionEditForm::class)) {
             ExtensionEditAdditionalForm::prepareAdditionalFields($form, $entity, $options);

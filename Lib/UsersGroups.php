@@ -29,7 +29,6 @@ use MikoPBX\Modules\PbxExtensionBase;
 use MikoPBX\Modules\PbxExtensionUtils;
 use Modules\ModuleUsersGroups\Models\AllowedOutboundRules;
 use Modules\ModuleUsersGroups\Models\GroupMembers;
-use Phalcon\Di;
 
 class UsersGroups extends PbxExtensionBase
 {
@@ -233,7 +232,7 @@ class UsersGroups extends PbxExtensionBase
     {
         $userId = null;
         // New user we have to wait until it will be created
-        $di = DI::getDefault();
+        $di = MikoPBXVersion::getDefaultDi();
         $parameters = [
             'models' => [
                 'Users' => Users::class,
