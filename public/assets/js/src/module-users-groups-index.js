@@ -16,7 +16,7 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* global SemanticLocalization, globalRootUrl */
+/* global SemanticLocalization, globalRootUrl, Datatable */
 
 /**
  * Module for managing call groups and related functionality.
@@ -34,6 +34,12 @@ const ModuleCGIndex = {
 	 * @type {jQuery}
 	 */
 	$usersTable: $('#users-table'),
+
+	/**
+	 * User data table.
+	 * @type {Datatable}
+	 */
+	userDataTable: null,
 
 	/**
 	 * jQuery object for select group elements.
@@ -79,10 +85,22 @@ const ModuleCGIndex = {
 	 * Initializes the DataTable for users table.
 	 */
 	initializeUsersDataTable() {
-		ModuleCGIndex.$usersTable.DataTable({
+
+		$('#main-users-groups-tab-menu .item').tab({
+			onVisible(){
+				if ($(this).data('tab')==='users' && ModuleCGIndex.userDataTable!==null){
+					const newPageLength = ModuleCGIndex.calculatePageLength();
+					ModuleCGIndex.userDataTable.page.len(newPageLength).draw(false);
+				}
+			}
+		});
+
+		ModuleCGIndex.userDataTable = ModuleCGIndex.$usersTable.DataTable({
 			// destroy: true,
 			lengthChange: false,
-			paging: false,
+			paging: true,
+			pageLength: ModuleCGIndex.calculatePageLength(),
+			scrollCollapse: true,
 			columns: [
 				null,
 				null,
@@ -152,6 +170,22 @@ const ModuleCGIndex = {
 				console.log(response);
 			},
 		});
+	},
+
+	/**
+	 * Calculate data table page length
+	 *
+	 * @returns {number}
+	 */
+	calculatePageLength() {
+		// Calculate row height
+		let rowHeight = ModuleCGIndex.$usersTable.find('tr').first().outerHeight();
+		// Calculate window height and available space for table
+		const windowHeight = window.innerHeight;
+		const headerFooterHeight = 500; // Estimate height for header, footer, and other elements
+
+		// Calculate new page length
+		return Math.max(Math.floor((windowHeight - headerFooterHeight) / rowHeight), 10);
 	},
 };
 

@@ -36,14 +36,14 @@ class GroupMembers extends ModulesModelsBase
     /**
      * Link to the groups table
      *
-     * @Column(type="integer", nullable=false)
+     * @Column(type="string", nullable=false)
      */
     public $group_id;
 
     /**
      * Link to the users table
      *
-     * @Column(type="integer", nullable=false)
+     * @Column(type="string", nullable=false)
      */
     public $user_id;
 

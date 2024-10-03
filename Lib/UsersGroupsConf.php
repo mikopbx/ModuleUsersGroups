@@ -71,9 +71,9 @@ class UsersGroupsConf extends ConfigClass
     public function extensionGenAllPeersContext(): string
     {
         // Check if the dialed number belongs to an employee group.
-        $conf = 'same => n,NoOp( --- group: ${CHANNEL(callgroup)} | src: ${CALLERID(num)} | dst: ${EXTEN}---)' . PHP_EOL;
-        $conf .= 'same => n,Set(srcIsolate=${DIALPLAN_EXISTS(users-group-isolate-${CHANNEL(callgroup)},s,1)})' . PHP_EOL;
-        $conf .= 'same => n,Set(dstIsolateGroup=${DIALPLAN_EXISTS(users-group-dst-${CHANNEL(callgroup)},${EXTEN},1)})' . PHP_EOL;
+        $conf = 'same => n,NoOp( --- group: ${CHANNEL(namedcallgroup)} | src: ${CALLERID(num)} | dst: ${EXTEN}---)' . PHP_EOL;
+        $conf .= 'same => n,Set(srcIsolate=${DIALPLAN_EXISTS(users-group-isolate-${CHANNEL(namedcallgroup)},s,1)})' . PHP_EOL;
+        $conf .= 'same => n,Set(dstIsolateGroup=${DIALPLAN_EXISTS(users-group-dst-${CHANNEL(namedcallgroup)},${EXTEN},1)})' . PHP_EOL;
         $conf .= 'same => n,Set(dstIsolate=${DIALPLAN_EXISTS(users-group-isolate,${EXTEN},1)})' . PHP_EOL;
 
         // Check and set isolation flags based on conditions.
@@ -207,7 +207,7 @@ class UsersGroupsConf extends ConfigClass
      *
      * @return void
      */
-    public function modelsEventChangeData($data): void
+    public function modelsEventChangeData(mixed $data): void
     {
         $called_class = $data['model'] ?? '';
         switch ($called_class) {
@@ -323,7 +323,7 @@ class UsersGroupsConf extends ConfigClass
      *
      * @return void
      */
-    public function onBeforeFormInitialize(Form $form, $entity, $options): void
+    public function onBeforeFormInitialize(Form $form, mixed $entity, mixed $options): void
     {
         if (is_a($form, ExtensionEditForm::class)) {
             ExtensionEditAdditionalForm::prepareAdditionalFields($form, $entity, $options);
@@ -348,29 +348,8 @@ class UsersGroupsConf extends ConfigClass
         $response = json_decode($app->response->getContent());
         if (!empty($response->result) and $response->result===true){
             // Intercept the form submission of Extensions with fields mod_usrgr_select_group and user_id
-            $userGroup = $app->request->getPost('mod_usrgr_select_group');
-            $userId = $app->request->getPost('user_id');
-            if (!empty($userGroup)) {
-                $parameters = [
-                    'conditions' => 'user_id = :user_id:',
-                    'bind' => [
-                        'user_id' => $userId,
-                    ]
-                ];
-
-                // Find the existing group membership based on user ID
-                $curUserGroup = GroupMembers::findFirst($parameters);
-
-                // Update or create the group membership
-                if ($curUserGroup === null) {
-                    // Create a new group membership
-                    $curUserGroup = new GroupMembers();
-                    $curUserGroup->user_id = $userId;
-                }
-                $curUserGroup->group_id = $userGroup;
-                // Save the changes to the database
-                $curUserGroup->save();
-            }
+            $postData = $app->request->getPost();
+            UsersGroups::updateUserGroup($postData);
         }
     }
 }

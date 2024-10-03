@@ -1,11 +1,11 @@
-{{ form('module-users-groups/module-users-groups/save-default', 'role': 'form', 'class': 'ui grey segment form', 'id':'default-group-form') }}
+<form method="post" action="module-users-groups/module-users-groups/save-default" role="form" class="ui grey segment form" id="default-group-form">
 <h3 class="ui header">{{ t._("mod_usrgr_DefaultGroup") }}</h3>
 
 <div class="inline field">
     <label for="defaultGroup">{{ t._('mod_usrgr_SelectDefaultGroup') }}</label>
     {{ form.render('defaultGroup') }}
 </div>
-{{ end_form() }}
+</form>
 
 
 {% for record in groups %}

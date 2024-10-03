@@ -40,8 +40,8 @@ return [
     'mod_usrgr_PatternsInstructions2' => 'Um membro do grupo só poderá discar números que correspondam aos padrões',
     'mod_usrgr_PatternsInstructions3' => ' ',
     'mod_usrgr_PatternsInstructions4' => 'Exemplos de modelos:',
-    'mod_usrgr_ColumnDefaultGroup' => 'grupo padrão',
+    'mod_usrgr_ColumnDefaultGroup' => 'Grupo padrão',
     'mod_usrgr_ErrorOnDeleteDefaultGroup' => 'Não é possível excluir o grupo padrão',
     'mod_usrgr_SelectDefaultGroup' => 'Escolha um grupo',
-    'mod_usrgr_DefaultGroup' => 'grupo padrão',
+    'mod_usrgr_DefaultGroup' => 'Grupo padrão',
 ];
