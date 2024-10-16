@@ -1,4 +1,5 @@
 <?php
+
 /*
  * MikoPBX - free phone system for small business
  * Copyright © 2017-2023 Alexey Portnov and Nikolay Beketov
@@ -27,7 +28,6 @@ use Phalcon\Forms\Element\Text;
 
 class ModuleUsersGroupsForm extends BaseForm
 {
-
     public function initialize($entity = null, $options = null): void
     {
         // id
@@ -37,41 +37,52 @@ class ModuleUsersGroupsForm extends BaseForm
         $this->add(new Text('name'));
 
         // Description
-        $this->addTextArea('description',$entity->description??'',90);
+        $this->addTextArea('description', $entity->description ?? '', 90);
 
         // Patterns
         $patternsPlaceholder = '';
         for ($i = 1; $i < 8; $i++) {
-            $patternsPlaceholder .= $this->translation->_("mod_usrgr_PatternsInstructions$i").PHP_EOL;
+            $patternsPlaceholder .= $this->translation->_("mod_usrgr_PatternsInstructions$i") . PHP_EOL;
         }
-        $this->addTextArea('patterns',$entity->patterns??'',90, ['placeholder' => $patternsPlaceholder]);
+        $this->addTextArea('patterns', $entity->patterns ?? '', 90, ['placeholder' => $patternsPlaceholder]);
 
         // select-extension-field
         $extension = new Select(
-            'select-extension-field', [], [
+            'select-extension-field',
+            [],
+            [
             'using'    => [
                 'id',
                 'name',
             ],
             'useEmpty' => true,
             'class'    => 'ui selection dropdown search select-extension-field',
-        ]
+            ]
         );
         $this->add($extension);
 
         // isolate
-        $isolate = ['value' => null];
-        if ($entity->isolate === '1') {
-            $isolate = ['checked' => 'checked', 'value' => null];
-        }
-        $this->add(new Check('isolate', $isolate));
-
+        $this->addCheckBox('isolate', intval($entity->isolate) === 1);
 
         // isolatePickUp
-        $isolatePickUp = ['value' => null];
-        if ($entity->isolatePickUp === '1') {
-            $isolatePickUp = ['checked' => 'checked', 'value' => null];
+        $this->addCheckBox('isolatePickUp', intval($entity->isolatePickUp) === 1);
+    }
+
+    /**
+     * Adds a checkbox to the form field with the given name.
+     * Can be deleted if the module depends on MikoPBX later than 2024.3.0
+     *
+     * @param string $fieldName The name of the form field.
+     * @param bool $checked Indicates whether the checkbox is checked by default.
+     * @param string $checkedValue The value assigned to the checkbox when it is checked.
+     * @return void
+     */
+    public function addCheckBox(string $fieldName, bool $checked, string $checkedValue = 'on'): void
+    {
+        $checkAr = ['value' => null];
+        if ($checked) {
+            $checkAr = ['checked' => $checkedValue,'value' => $checkedValue];
         }
-        $this->add(new Check('isolatePickUp', $isolatePickUp));
+        $this->add(new Check($fieldName, $checkAr));
     }
 }
