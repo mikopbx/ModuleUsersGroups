@@ -2,7 +2,7 @@
     "name": "mikopbx/moduleusersgroups",
     "description": "ModuleUsersGroups",
     "require": {
-        "php": "^7.4 || ^8.0",
+        "php": "^7.4",
         "mikopbx/core": ">=2021.1.55"
     },
     "autoload": {
@@ -55,7 +55,7 @@
     "config": {
         "sort-packages": true,
         "platform": {
-            "php": "^7.4 || ^8.0"
+            "php": "7.4.0"
         }
     }
 }
