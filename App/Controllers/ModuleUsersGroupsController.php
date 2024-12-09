@@ -1,4 +1,5 @@
 <?php
+
 /*
  * MikoPBX - free phone system for small business
  * Copyright © 2017-2023 Alexey Portnov and Nikolay Beketov
@@ -32,6 +33,7 @@ use MikoPBX\AdminCabinet\Controllers\BaseController;
 use MikoPBX\Modules\PbxExtensionUtils;
 use Modules\ModuleUsersGroups\App\Forms\DefaultGroupForm;
 use Modules\ModuleUsersGroups\App\Forms\ModuleUsersGroupsForm;
+
 use function MikoPBX\Common\Config\appPath;
 
 class ModuleUsersGroupsController extends BaseController
@@ -275,8 +277,8 @@ class ModuleUsersGroupsController extends BaseController
                     default:
                 }
             }
-            usort($extensionTable, function($a, $b) {
-                return $a['username'] > $b['username'];
+            usort($extensionTable, function ($a, $b) {
+                return strcmp($a['username'], $b['username']);
             });
             $this->view->members = $extensionTable;
 
@@ -679,5 +681,4 @@ class ModuleUsersGroupsController extends BaseController
             }
         }
     }
-
 }

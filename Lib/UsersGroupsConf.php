@@ -207,7 +207,7 @@ class UsersGroupsConf extends ConfigClass
      *
      * @return void
      */
-    public function modelsEventChangeData(mixed $data): void
+    public function modelsEventChangeData($data): void
     {
         $called_class = $data['model'] ?? '';
         switch ($called_class) {
@@ -323,7 +323,7 @@ class UsersGroupsConf extends ConfigClass
      *
      * @return void
      */
-    public function onBeforeFormInitialize(Form $form, mixed $entity, mixed $options): void
+    public function onBeforeFormInitialize(Form $form, $entity, $options): void
     {
         if (is_a($form, ExtensionEditForm::class)) {
             ExtensionEditAdditionalForm::prepareAdditionalFields($form, $entity, $options);
