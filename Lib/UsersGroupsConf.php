@@ -348,8 +348,19 @@ class UsersGroupsConf extends ConfigClass
         $response = json_decode($app->response->getContent());
         if (!empty($response->result) and $response->result===true){
             // Intercept the form submission of Extensions with fields mod_usrgr_select_group and user_id
+            // Check if any POST key contains "mod_usrgr_" substring
             $postData = $app->request->getPost();
-            UsersGroups::updateUserGroup($postData);
+            $hasModUsrgrKey = false;
+            foreach ($postData as $key => $value) {
+                if (strpos($key, 'mod_usrgr_') !== false) {
+                    $hasModUsrgrKey = true;
+                    break;
+                }
+            }
+            // Only call updateUserGroup if relevant data exists
+            if ($hasModUsrgrKey) {
+                UsersGroups::updateUserGroup($postData);
+            }
         }
     }
 }
