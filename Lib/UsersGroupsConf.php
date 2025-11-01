@@ -20,6 +20,7 @@
 namespace Modules\ModuleUsersGroups\Lib;
 
 use MikoPBX\AdminCabinet\Forms\ExtensionEditForm;
+use MikoPBX\Common\Models\Users;
 use MikoPBX\Core\System\SystemMessages;
 use MikoPBX\Modules\Config\ConfigClass;
 use MikoPBX\PBXCoreREST\Lib\PBXApiResult;
@@ -238,7 +239,7 @@ class UsersGroupsConf extends ConfigClass
     public function onAfterModuleEnable(): void
     {
         // Clean up orphaned group member records
-        $this->cleanupOrphanedGroupMembers();
+        RestAPI\UsersGroups\CleanupOrphanedMembersAction::main([]);
 
         $this->getSettings();
         UsersGroups::reloadConfigs();
@@ -592,56 +593,43 @@ class UsersGroupsConf extends ConfigClass
      */
     private function cleanupOrphanedGroupMembers(): void
     {
-        // Get all group member records
-        $allGroupMembers = GroupMembers::find();
+        try {
+            // Get valid user IDs using simple find (works cross-database)
+            $validUsers = Users::find(['columns' => 'id']);
 
-        if (count($allGroupMembers) === 0) {
-            return;
-        }
-
-        // Get all valid user IDs from main database
-        $di = \MikoPBX\Common\Providers\MikoPBXVersionProvider::getDefaultDi();
-        $parameters = [
-            'models' => [
-                'Users' => \MikoPBX\Common\Models\Users::class,
-            ],
-            'columns' => [
-                'id' => 'Users.id',
-            ]
-        ];
-        $query = $di->get('modelsManager')->createBuilder($parameters)->getQuery();
-        $validUsers = $query->execute();
-
-        // Create array of valid user IDs for fast lookup
-        $validUserIds = [];
-        foreach ($validUsers as $user) {
-            $validUserIds[$user->id] = true;
-        }
-
-        // Track deletion statistics
-        $deletedCount = 0;
-
-        // Delete orphaned records
-        foreach ($allGroupMembers as $groupMember) {
-            if (!isset($validUserIds[$groupMember->user_id])) {
-                if ($groupMember->delete()) {
-                    $deletedCount++;
-                } else {
-                    SystemMessages::sysLogMsg(
-                        __METHOD__,
-                        "Failed to delete orphaned GroupMember record: user_id={$groupMember->user_id}",
-                        LOG_WARNING
-                    );
-                }
+            if (count($validUsers) === 0) {
+                SystemMessages::sysLogMsg(__METHOD__, 'No users in system, skipping cleanup', LOG_INFO);
+                return;
             }
-        }
 
-        // Log cleanup results
-        if ($deletedCount > 0) {
+            // Build list of valid user IDs
+            $validIds = [];
+            foreach ($validUsers as $user) {
+                $validIds[] = (int)$user->id;
+            }
+
+            // Get module database connection through model
+            $connection = GroupMembers::getReadConnection();
+            $validIdsList = implode(',', $validIds);
+
+            // Use direct SQL DELETE for performance
+            $sql = "DELETE FROM m_ModuleUsersGroups_GroupMembers WHERE user_id NOT IN ({$validIdsList})";
+            $success = $connection->execute($sql);
+            $deletedCount = $success ? $connection->affectedRows() : 0;
+
+            // Log cleanup results
+            if ($deletedCount > 0) {
+                SystemMessages::sysLogMsg(
+                    __METHOD__,
+                    "Cleaned up {$deletedCount} orphaned group member record(s)",
+                    LOG_INFO
+                );
+            }
+        } catch (\Throwable $e) {
             SystemMessages::sysLogMsg(
                 __METHOD__,
-                "Cleaned up {$deletedCount} orphaned group member record(s)",
-                LOG_INFO
+                "Failed to cleanup orphaned members: " . $e->getMessage(),
+                LOG_ERR
             );
         }
     }

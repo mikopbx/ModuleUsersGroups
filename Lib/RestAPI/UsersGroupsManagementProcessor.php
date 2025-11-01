@@ -22,6 +22,8 @@ namespace Modules\ModuleUsersGroups\Lib\RestAPI;
 use Modules\ModuleUsersGroups\Lib\RestAPI\UsersGroups\GetUserGroupAction;
 use Modules\ModuleUsersGroups\Lib\RestAPI\UsersGroups\GetDefaultGroupAction;
 use Modules\ModuleUsersGroups\Lib\RestAPI\UsersGroups\SetDefaultGroupAction;
+use Modules\ModuleUsersGroups\Lib\RestAPI\UsersGroups\GetGroupsStatsAction;
+use Modules\ModuleUsersGroups\Lib\RestAPI\UsersGroups\CleanupOrphanedMembersAction;
 use MikoPBX\PBXCoreREST\Lib\PBXApiResult;
 use Phalcon\Di\Injectable;
 
@@ -31,9 +33,11 @@ use Phalcon\Di\Injectable;
  * Processes users groups management requests
  *
  * API methods:
- * - getUserGroup      -> Get user's group by user_id
- * - getDefaultGroup   -> Get default group
- * - setDefaultGroup   -> Set default group
+ * - getUserGroup             -> Get user's group by user_id
+ * - getDefaultGroup          -> Get default group
+ * - setDefaultGroup          -> Set default group
+ * - getGroupsStats           -> Get member counts for all groups
+ * - cleanupOrphanedMembers   -> Remove group members for deleted users
  *
  * @package Modules\ModuleUsersGroups\Lib\RestAPI
  */
@@ -43,6 +47,8 @@ class UsersGroupsManagementProcessor extends Injectable
     public const ACTION_GET_USER_GROUP = 'getUserGroup';
     public const ACTION_GET_DEFAULT_GROUP = 'getDefaultGroup';
     public const ACTION_SET_DEFAULT_GROUP = 'setDefaultGroup';
+    public const ACTION_GET_GROUPS_STATS = 'getGroupsStats';
+    public const ACTION_CLEANUP_ORPHANED_MEMBERS = 'cleanupOrphanedMembers';
 
     /**
      * Main entry point for processing actions
@@ -63,6 +69,12 @@ class UsersGroupsManagementProcessor extends Injectable
 
             case self::ACTION_SET_DEFAULT_GROUP:
                 return SetDefaultGroupAction::main($parameters);
+
+            case self::ACTION_GET_GROUPS_STATS:
+                return GetGroupsStatsAction::main($parameters);
+
+            case self::ACTION_CLEANUP_ORPHANED_MEMBERS:
+                return CleanupOrphanedMembersAction::main($parameters);
 
             default:
                 $result = new PBXApiResult();

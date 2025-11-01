@@ -20,7 +20,9 @@
 namespace Modules\ModuleUsersGroups\Lib\RestAPI\UsersGroups;
 
 use MikoPBX\PBXCoreREST\Lib\PBXApiResult;
+use MikoPBX\Common\Models\Users;
 use Modules\ModuleUsersGroups\Models\UsersGroups as ModelUsersGroups;
+use Modules\ModuleUsersGroups\Models\GroupMembers;
 
 /**
  * Set default group
@@ -82,19 +84,75 @@ class SetDefaultGroupAction
         // ============ PHASE 5: SET NEW DEFAULT GROUP ============
         // WHY: Mark the new group as default
         $newDefaultGroup->defaultGroup = '1';
-        if ($newDefaultGroup->save()) {
-            $result->success = true;
-            $result->data = [
-                'group_id' => (int)$newDefaultGroup->id
-            ];
-            $result->httpCode = 200;
-        } else {
+        if (!$newDefaultGroup->save()) {
             $result->success = false;
             $result->messages[] = 'Failed to set new default group';
             $result->httpCode = 500;
+            return $result;
         }
 
+        // ============ PHASE 6: AUTO-FILL USERS WITHOUT GROUP ============
+        // WHY: When default group is set, automatically assign users without group
+        $addedCount = self::fillUsersWithoutGroup($newDefaultGroup->id);
+
+        $result->success = true;
+        $result->data = [
+            'group_id' => (int)$newDefaultGroup->id,
+            'users_added' => $addedCount
+        ];
+        $result->httpCode = 200;
+
         return $result;
+    }
+
+    /**
+     * Fill users without group into the default group
+     *
+     * @param int $groupId Default group ID
+     * @return int Number of users added
+     */
+    private static function fillUsersWithoutGroup(int $groupId): int
+    {
+        try {
+            // Get all users
+            $allUsers = Users::find(['columns' => 'id']);
+            if (count($allUsers) === 0) {
+                return 0;
+            }
+
+            // Build list of all user IDs
+            $allUserIds = [];
+            foreach ($allUsers as $user) {
+                $allUserIds[] = (int)$user->id;
+            }
+
+            // Get users who already have group membership
+            $existingMembers = GroupMembers::find(['columns' => 'user_id']);
+            $existingUserIds = [];
+            foreach ($existingMembers as $member) {
+                $existingUserIds[] = (int)$member->user_id;
+            }
+
+            // Find users without group (difference)
+            $usersWithoutGroup = array_diff($allUserIds, $existingUserIds);
+
+            // Add each user without group to default group
+            $addedCount = 0;
+            foreach ($usersWithoutGroup as $userId) {
+                $member = new GroupMembers();
+                $member->user_id = $userId;
+                $member->group_id = $groupId;
+
+                if ($member->save()) {
+                    $addedCount++;
+                }
+            }
+
+            return $addedCount;
+        } catch (\Throwable $e) {
+            // Log error but don't fail the whole operation
+            return 0;
+        }
     }
 
     /**

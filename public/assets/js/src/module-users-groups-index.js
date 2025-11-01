@@ -174,11 +174,40 @@ const ModuleCGIndex = {
 				group_id: value,
 			},
 			onSuccess() {
-				//	ModuleCGIndex.initializeDataTable();
-				//	console.log('updated');
+				// Update group member counters after successful group change
+				ModuleCGIndex.updateGroupCounters();
 			},
 			onError(response) {
 				console.log(response);
+			},
+		});
+	},
+
+	/**
+	 * Update group member counters via API
+	 */
+	updateGroupCounters() {
+		$.ajax({
+			url: '/pbxcore/api/modules/ModuleUsersGroups/getGroupsStats',
+			method: 'GET',
+			dataType: 'json',
+			success(response) {
+				if (response.result === true && response.data && response.data.stats) {
+					const stats = response.data.stats;
+
+					// Update each group's member count in the table
+					Object.keys(stats).forEach((groupId) => {
+						const count = stats[groupId];
+						const $row = $(`#users-groups-table tr#${groupId}`);
+						if ($row.length > 0) {
+							// Find the counter cell (second td with center aligned class)
+							$row.find('td.center.aligned').first().text(count);
+						}
+					});
+				}
+			},
+			error(xhr, status, error) {
+				console.error('ModuleUsersGroups: Failed to update group counters', error);
 			},
 		});
 	},
