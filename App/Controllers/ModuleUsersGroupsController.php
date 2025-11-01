@@ -638,47 +638,4 @@ class ModuleUsersGroupsController extends BaseController
         $this->deleteEntity($group, 'module-users-groups/module-users-groups/index');
     }
 
-    /**
-     * Changes the default user group action.
-     *
-     * @return void
-     */
-    public function changeDefaultAction(): void
-    {
-        if (!$this->request->isPost()) {
-            return;
-        }
-
-        // Get the POST data
-        $data = $this->request->getPost();
-
-        // Find all user groups
-        $groups = UsersGroups::find();
-        foreach ($groups as $group) {
-            // Check if the current group is the selected default group
-            if ($group->defaultGroup === '1' and $group->id !== $data['defaultGroup']) {
-                $group->defaultGroup = '0';
-                $this->saveEntity($group);
-            }
-            if ($group->defaultGroup !== '1' and $group->id === $data['defaultGroup']) {
-                $group->defaultGroup = '1';
-                $this->saveEntity($group);
-            }
-        }
-
-        // Get current user group memberships
-        $currentUsersGroups = GroupMembers::find()->toArray();
-        $users = Users::find();
-        foreach ($users as $user) {
-            // Check if the user is not already in a group
-            $key = array_search($user->id, array_column($currentUsersGroups, 'user_id'));
-            if (!$key) {
-                // Create a new group membership record
-                $record = new  GroupMembers();
-                $record->group_id = $data['defaultGroup'];
-                $record->user_id = $user->id;
-                $this->saveEntity($record);
-            }
-        }
-    }
 }

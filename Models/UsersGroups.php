@@ -107,4 +107,45 @@ class UsersGroups extends ModulesModelsBase
         );
     }
 
+    /**
+     * Get user's group by user_id
+     *
+     * @param int|string $userId User ID from Users table
+     * @return int|null Group ID or null if not found
+     */
+    public static function getUserGroupId($userId): ?int
+    {
+        if (empty($userId)) {
+            return null;
+        }
+
+        // Find user's group membership
+        $groupMember = GroupMembers::findFirst([
+            'conditions' => 'user_id = :user_id:',
+            'bind' => ['user_id' => $userId]
+        ]);
+
+        if ($groupMember !== null) {
+            return (int)$groupMember->group_id;
+        }
+
+        // Return default group if user has no group assigned
+        $defaultGroup = self::findFirst('defaultGroup=1');
+        if ($defaultGroup) {
+            return (int)$defaultGroup->id;
+        }
+
+        return null;
+    }
+
+    /**
+     * Get default group
+     *
+     * @return UsersGroups|null
+     */
+    public static function getDefaultGroup(): ?UsersGroups
+    {
+        return self::findFirst('defaultGroup=1');
+    }
+
 }

@@ -48,6 +48,12 @@ const ModuleCGIndex = {
 	$selectGroup: $('.select-group'),
 
 	/**
+	 * jQuery object for default group dropdown.
+	 * @type {jQuery}
+	 */
+	$defaultGroupDropdown: $('.select-default-group'),
+
+	/**
 	 * jQuery object for current form disability fields
 	 * @type {jQuery}
 	 */
@@ -77,6 +83,11 @@ const ModuleCGIndex = {
 		// Initialize dropdown for select group
 		ModuleCGIndex.$selectGroup.dropdown({
 			onChange: ModuleCGIndex.changeGroupInList,
+		});
+
+		// Initialize default group dropdown
+		ModuleCGIndex.$defaultGroupDropdown.dropdown({
+			onChange: ModuleCGIndex.changeDefaultGroup,
 		});
 
 	},
@@ -168,6 +179,47 @@ const ModuleCGIndex = {
 			},
 			onError(response) {
 				console.log(response);
+			},
+		});
+	},
+
+	/**
+	 * Handles default group change.
+	 * @param {string} value - The new default group value.
+	 * @param {string} text - The new group text.
+	 * @param {jQuery} $choice - The selected choice.
+	 */
+	changeDefaultGroup(value, text, $choice) {
+		if (!value || value === '') {
+			return;
+		}
+
+		// Add loading state to dropdown
+		ModuleCGIndex.$defaultGroupDropdown.addClass('loading');
+
+		$.ajax({
+			url: '/pbxcore/api/modules/ModuleUsersGroups/setDefaultGroup',
+			method: 'POST',
+			dataType: 'json',
+			data: {
+				group_id: value,
+			},
+			success(response) {
+				if (response.result !== true) {
+					// Show error notification only on failure
+					const errorMessage = response.messages && response.messages.length > 0
+						? response.messages.join(', ')
+						: 'Failed to update default group';
+					UserMessage.showError(errorMessage);
+				}
+			},
+			error(xhr, status, error) {
+				console.error('ModuleUsersGroups: Failed to set default group', error);
+				UserMessage.showError('Failed to update default group');
+			},
+			complete() {
+				// Remove loading state from dropdown
+				ModuleCGIndex.$defaultGroupDropdown.removeClass('loading');
 			},
 		});
 	},
