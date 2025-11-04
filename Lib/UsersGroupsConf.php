@@ -20,15 +20,17 @@
 namespace Modules\ModuleUsersGroups\Lib;
 
 use MikoPBX\AdminCabinet\Forms\ExtensionEditForm;
+use MikoPBX\Common\Models\PbxSettings;
 use MikoPBX\Common\Models\Users;
+use MikoPBX\Core\System\Directories;
 use MikoPBX\Core\System\SystemMessages;
 use MikoPBX\Modules\Config\ConfigClass;
 use MikoPBX\PBXCoreREST\Lib\PBXApiResult;
+use Modules\ModuleUsersGroups\App\Forms\ExtensionEditAdditionalForm;
+use Modules\ModuleUsersGroups\Lib\RestAPI\UsersGroups\UpdateUserGroupAction;
 use Modules\ModuleUsersGroups\Models\AllowedOutboundRules;
 use Modules\ModuleUsersGroups\Models\GroupMembers;
 use Modules\ModuleUsersGroups\Models\UsersGroups as ModelUsersGroups;
-use Modules\ModuleUsersGroups\App\Forms\ExtensionEditAdditionalForm;
-use Modules\ModuleUsersGroups\Lib\RestAPI\UsersGroups\UpdateUserGroupAction;
 use Phalcon\Forms\Form;
 use Phalcon\Mvc\Micro;
 use Phalcon\Mvc\View;
@@ -87,8 +89,8 @@ class UsersGroupsConf extends ConfigClass
 
         // Check and set isolation flags based on conditions.
         $conf .= 'same => n,ExecIf($[ ${srcIsolate} && ${dstIsolateGroup} != 1 && dstIsolate != 1 && ${DIALPLAN_EXISTS(internal,${EXTEN},1)} != 1 ]?Set(srcIsolate=0))' . PHP_EOL;
-        $conf .= 'same => n,ExecIf($[ ${srcIsolate} && ${dstIsolateGroup} == 0 ]?Goto(internal-num-undefined,${EXTEN},1))' . PHP_EOL;
-        $conf .= 'same => n,ExecIf($[ ${srcIsolate} == 0 && ${dstIsolate} ]?Goto(internal-num-undefined,${EXTEN},1))' . PHP_EOL;
+        $conf .= 'same => n,ExecIf($[ ${srcIsolate} && ${dstIsolateGroup} == 0 ]?Goto(users-group-forbidden,${EXTEN},1))' . PHP_EOL;
+        $conf .= 'same => n,ExecIf($[ ${srcIsolate} == 0 && ${dstIsolate} ]?Goto(users-group-forbidden,${EXTEN},1))' . PHP_EOL;
         return $conf;
     }
 
@@ -155,7 +157,48 @@ class UsersGroupsConf extends ConfigClass
             $dialplan .= $isolateDialplan;
         }
 
+        // Add context for forbidden calls with voice notification
+        $dialplan .= $this->generateForbiddenCallContext();
+
         return $dialplan;
+    }
+
+    /**
+     * Generate context for handling forbidden calls with voice notification
+     *
+     * This context is triggered when a user tries to call a number that is
+     * forbidden by their group isolation settings. It plays a custom voice
+     * message in the system language and provides a hook for custom implementations.
+     *
+     * Sound file structure:
+     * ModuleUsersGroups/sounds/{lang}/forbidden.mp3
+     * Where {lang} is language code from system settings (ru, en, de, etc.)
+     *
+     * @return string The generated context as a string.
+     */
+    private function generateForbiddenCallContext(): string
+    {
+        $conf = PHP_EOL . '[users-group-forbidden]' . PHP_EOL;
+        $conf .= 'exten => _X.,1,NoOp(--- Call to ${EXTEN} forbidden by UsersGroups module ---)' . PHP_EOL;
+        $conf .= 'same => n,Answer()' . PHP_EOL;
+        $conf .= 'same => n,Wait(1)' . PHP_EOL;
+
+        // Try to play module custom sound file with automatic language selection
+        // Asterisk will use CHANNEL(language) to find: ModuleUsersGroups/sounds/{lang}/forbidden
+        // Supported formats: mp3, wav, gsm (Asterisk auto-selects best available)
+        $conf .= 'same => n,Playback(moduleusersgroups-forbidden)' . PHP_EOL;
+
+        // Fallback to standard Asterisk sound if custom sound not found
+        // ss-noservice = "The number you have dialed is not in service"
+        $conf .= 'same => n,ExecIf($["${PLAYBACKSTATUS}" = "FAILED"]?Playback(ss-noservice))' . PHP_EOL;
+
+        // Allow custom dialplan extension for additional processing
+        $conf .= 'same => n,GosubIf(${DIALPLAN_EXISTS(users-group-forbidden-custom,${EXTEN},1)}?users-group-forbidden-custom,${EXTEN},1)' . PHP_EOL;
+
+        $conf .= 'same => n,Hangup()' . PHP_EOL;
+        $conf .= PHP_EOL;
+
+        return $conf;
     }
 
     /**
