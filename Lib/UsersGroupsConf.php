@@ -213,7 +213,9 @@ class UsersGroupsConf extends ConfigClass
     public function generateOutRoutContext(array $rout): string
     {
         $conf = "\t" . 'same => n,ExecIf($["x${FROM_PEER}" == "x" && "${CHANNEL(channeltype)}" == "PJSIP" ]?Gosub(set_from_peer,s,1))' . " \n\t";
-        $conf .= 'same => n,Set(GR_VARS=${DB(UsersGroups/${FROM_PEER})})' . " \n\t";
+        // If call is forwarded, use the forwarding source peer instead of calling peer for CallerID rules
+        $conf .= 'same => n,Set(EFFECTIVE_FROM_PEER=${IF($["${FW_SOURCE_PEER}x" != "x"]?${FW_SOURCE_PEER}:${FROM_PEER})})' . " \n\t";
+        $conf .= 'same => n,Set(GR_VARS=${DB(UsersGroups/${EFFECTIVE_FROM_PEER})})' . " \n\t";
         $conf .= 'same => n,ExecIf($["${GR_VARS}x" != "x"]?Exec(Set(${GR_VARS})))' . " \n\t";
         $conf .= 'same => n,ExecIf($["${GR_PERM_ENABLE}" == "1" && "${GR_ID_' . $rout['id'] . '}" != "1"]?return)' . " \n\t";
         $conf .= 'same => n,ExecIf($["${GR_PERM_ENABLE}" == "1" && "${GR_CID_' . $rout['id'] . '}x" != "x"]?MSet(GR_OLD_CALLERID=${CALLERID(num)},OUTGOING_CID=${GR_CID_' . $rout['id'] . '}))' . "\n\t";
