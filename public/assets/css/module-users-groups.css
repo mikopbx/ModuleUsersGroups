@@ -19,3 +19,22 @@
 div.show-only-on-isolate-group{
     display: none;
 }
+
+/* Outbound rules table styling */
+#outbound-rules-table {
+    table-layout: fixed;
+}
+
+#outbound-rules-table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#outbound-rules-table td .ui.input {
+    width: 100%;
+}
+
+#outbound-rules-table td .ui.input input {
+    width: 100%;
+}

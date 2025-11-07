@@ -267,7 +267,8 @@ class ModuleUsersGroupsController extends BaseController
                         }
                         $key = array_search($extension->userid, $groupMembersIds, true);
                         if ($key !== false) {
-                            $extensionTable[$extension->userid]['hidden'] = $id !== $groupMembers[$key]['group_id'];
+                            // Use non-strict comparison to handle both string and int types from different MikoPBX versions
+                            $extensionTable[$extension->userid]['hidden'] = $id != $groupMembers[$key]['group_id'];
                         }
 
                         break;
