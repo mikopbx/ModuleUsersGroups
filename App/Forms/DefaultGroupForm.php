@@ -28,26 +28,34 @@ class DefaultGroupForm extends BaseForm
 
     public function initialize($entity = null, $options = null): void
     {
-        $variants = [];
-        $defaultGroupValue = null;
         $usersGroups = UsersGroups::find();
+        $defaultGroupValue = '';
+
+        // Find default group value
         foreach ($usersGroups as $usersGroup) {
-            $variants[$usersGroup->id] =  $usersGroup->name;
             if ($usersGroup->defaultGroup === '1') {
-                $defaultGroupValue = $usersGroup->id;
+                $defaultGroupValue = (string)$usersGroup->id;
+                break;
             }
         }
+
+        // Create select with groups as options
         $defaultGroupSelect = new Select(
-            'defaultGroup', $variants, [
+            'defaultGroup',
+            $usersGroups,
+            [
                 'using' => [
                     'id',
                     'name',
                 ],
                 'useEmpty' => true,
+                'emptyText' => 'Choose...',
+                'emptyValue' => '',
                 'value' => $defaultGroupValue,
                 'class' => 'ui selection dropdown search select-default-group',
             ]
         );
+
         $this->add($defaultGroupSelect);
     }
 }
