@@ -24,7 +24,7 @@ return [
     'mod_usrgr__GeneralSettings' => 'Gruppeindstillinger',
     'mod_usrgr_UsersFilter' => 'Gruppens personale',
     'mod_usrgr_RoutingRules' => 'Regler for udgående routing',
-    'mod_usrgr_ColumnCallerId' => 'Vis nummer',
+    'mod_usrgr_ColumnCallerId' => 'Udgående Caller ID',
     'mod_usrgr_SelectMemberToAddToGroup' => 'Vælg en medarbejder',
     'mod_usrgr_PatternsInstructions7' => '7XXXXXXXXXX - ethvert 11-cifret tal, der starter med 7',
     'mod_usrgr_isolate' => 'Isoler en gruppe medarbejdere',

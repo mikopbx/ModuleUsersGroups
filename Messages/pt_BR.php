@@ -24,7 +24,7 @@ return [
     'mod_usrgr__GeneralSettings' => 'Configurações do grupo',
     'mod_usrgr_UsersFilter' => 'Equipe do grupo',
     'mod_usrgr_RoutingRules' => 'Regras de roteamento de saída',
-    'mod_usrgr_ColumnCallerId' => 'Identificador de chamadas',
+    'mod_usrgr_ColumnCallerId' => 'Caller ID de saída',
     'mod_usrgr_SelectMemberToAddToGroup' => 'Selecione um ramal',
     'mod_usrgr_isolatePickUp' => 'Isolar a função de capturar chamadas (*8)',
     'mod_usrgr_isolate' => 'Isolar um grupo de ramais',

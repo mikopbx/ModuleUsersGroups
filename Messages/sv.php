@@ -24,7 +24,7 @@ return [
     'mod_usrgr__GeneralSettings' => 'Gruppinställningar',
     'mod_usrgr_UsersFilter' => 'Grupppersonal',
     'mod_usrgr_RoutingRules' => 'Regler för utgående routing',
-    'mod_usrgr_ColumnCallerId' => 'Nummer id',
+    'mod_usrgr_ColumnCallerId' => 'Utgående Caller ID',
     'mod_usrgr_SelectMemberToAddToGroup' => 'Välj en anställd',
     'mod_usrgr_PatternsInstructions3' => ' ',
     'mod_usrgr_PatternsInstructions7' => '7XXXXXXXXXX – valfritt 11-siffrigt nummer som börjar med 7',

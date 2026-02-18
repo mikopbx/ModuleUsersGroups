@@ -135,8 +135,7 @@ class ModuleUsersGroupsController extends BaseController
                     $extensionTable[$extension->userid]['group_id'] = null;
                     $key = array_search(
                         $extension->userid,
-                        $groupMembersIds,
-                        true
+                        $groupMembersIds
                     );
                     if ($key !== false) {
                         $extensionTable[$extension->userid]['group_name'] =  $groupMembers[$key]['group_name'];
@@ -149,11 +148,15 @@ class ModuleUsersGroupsController extends BaseController
 
                     $extensionTable[$extension->userid]['avatar'] = $this->url->get() . 'assets/img/unknownPerson.jpg';
                     if ($extension->avatar) {
-                        $filename = md5($extension->avatar);
-                        $imgCacheDir = appPath('sites/admin-cabinet/assets/img/cache');
-                        $imgFile = "{$imgCacheDir}/{$filename}.jpg";
-                        if (file_exists($imgFile)) {
-                            $extensionTable[$extension->userid]['avatar'] = $this->url->get() . "assets/img/cache/{$filename}.jpg";
+                        if (str_starts_with($extension->avatar, '/')) {
+                            $extensionTable[$extension->userid]['avatar'] = $extension->avatar;
+                        } else {
+                            $filename = md5($extension->avatar);
+                            $imgCacheDir = appPath('sites/admin-cabinet/assets/img/cache');
+                            $imgFile = "{$imgCacheDir}/{$filename}.jpg";
+                            if (file_exists($imgFile)) {
+                                $extensionTable[$extension->userid]['avatar'] = $this->url->get() . "assets/img/cache/{$filename}.jpg";
+                            }
                         }
                     }
                     break;
@@ -175,7 +178,7 @@ class ModuleUsersGroupsController extends BaseController
      *
      * @return void
      */
-    public function modifyAction(string $id = null): void
+    public function modifyAction(?string $id): void
     {
         $footerCollection = $this->assets->collection(AssetProvider::FOOTER_JS);
         $footerCollection->addJs('js/vendor/datatable/dataTables.semanticui.js', true);
@@ -258,14 +261,18 @@ class ModuleUsersGroupsController extends BaseController
                         }
                         $extensionTable[$extension->userid]['avatar'] = $this->url->get() . 'assets/img/unknownPerson.jpg';
                         if ($extension->avatar) {
-                            $filename = md5($extension->avatar);
-                            $imgCacheDir = appPath('sites/admin-cabinet/assets/img/cache');
-                            $imgFile = "{$imgCacheDir}/$filename.jpg";
-                            if (file_exists($imgFile)) {
-                                $extensionTable[$extension->userid]['avatar'] = $this->url->get() . "assets/img/cache/{$filename}.jpg";
+                            if (str_starts_with($extension->avatar, '/')) {
+                                $extensionTable[$extension->userid]['avatar'] = $extension->avatar;
+                            } else {
+                                $filename = md5($extension->avatar);
+                                $imgCacheDir = appPath('sites/admin-cabinet/assets/img/cache');
+                                $imgFile = "{$imgCacheDir}/$filename.jpg";
+                                if (file_exists($imgFile)) {
+                                    $extensionTable[$extension->userid]['avatar'] = $this->url->get() . "assets/img/cache/{$filename}.jpg";
+                                }
                             }
                         }
-                        $key = array_search($extension->userid, $groupMembersIds, true);
+                        $key = array_search($extension->userid, $groupMembersIds);
                         if ($key !== false) {
                             // Use non-strict comparison to handle both string and int types from different MikoPBX versions
                             $extensionTable[$extension->userid]['hidden'] = $id != $groupMembers[$key]['group_id'];
@@ -309,13 +316,13 @@ class ModuleUsersGroupsController extends BaseController
                     $routingTable[] = [
                         'id' => $rule->id,
                         'priority' => $rule->priority,
-                        'provider' => $provider->getRepresent(),
+                        'provider' => strip_tags($provider->getRepresent()),
                         'numberbeginswith' => $rule->numberbeginswith,
                         'restnumbers' => $rule->restnumbers,
                         'trimfrombegin' => $rule->trimfrombegin,
                         'prepend' => $rule->prepend,
                         'note' => $rule->note,
-                        'rulename' => $rule->getRepresent(),
+                        'rulename' => strip_tags($rule->getRepresent()),
                         'status' => in_array($rule->id, $allowedRulesIds, true) ? '' : 'disabled',
                         'callerid' => $callerId,
                     ];
@@ -329,7 +336,7 @@ class ModuleUsersGroupsController extends BaseController
                         'trimfrombegin' => $rule->trimfrombegin,
                         'prepend' => $rule->prepend,
                         'note' => $rule->note,
-                        'rulename' => '<i class="icon attention"></i> ' . $rule->getRepresent(),
+                        'rulename' => strip_tags($rule->getRepresent()),
                         'status' => in_array($rule->id, $allowedRulesIds, true) ? '' : 'disabled',
                         'callerid' => $callerId,
                     ];

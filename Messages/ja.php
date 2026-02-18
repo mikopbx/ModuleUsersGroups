@@ -24,7 +24,7 @@ return [
     'mod_usrgr__GeneralSettings' => 'グループ設定',
     'mod_usrgr_UsersFilter' => 'グループスタッフ',
     'mod_usrgr_RoutingRules' => 'アウトバウンドルーティングルール',
-    'mod_usrgr_ColumnCallerId' => '発信者ID',
+    'mod_usrgr_ColumnCallerId' => '発信 Caller ID',
     'mod_usrgr_SelectMemberToAddToGroup' => '従業員を選択する',
     'mod_usrgr_PatternsInstructions7' => '7XXXXXXXXXX - 7で始まる11桁の数字',
     'mod_usrgr_DefaultGroup' => 'デフォルトグループ',

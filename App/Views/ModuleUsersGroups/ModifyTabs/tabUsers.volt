@@ -5,7 +5,7 @@
 
 {% for member in members %}
     {% if loop.first %}
-        <table class="ui very compact table" id="extensions-table" data-page-length='12'>
+        <table class="ui very compact unstackable table" id="group-members-table">
         <thead>
         <tr>
             <th>{{ t._('ex_Name') }}</th>

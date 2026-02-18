@@ -24,7 +24,7 @@ return [
     'mod_usrgr__GeneralSettings' => 'Cài đặt nhóm',
     'mod_usrgr_UsersFilter' => 'Nhân viên nhóm',
     'mod_usrgr_RoutingRules' => 'Quy tắc định tuyến đi',
-    'mod_usrgr_ColumnCallerId' => 'Người gọi ID',
+    'mod_usrgr_ColumnCallerId' => 'Caller ID đi',
     'mod_usrgr_SelectMemberToAddToGroup' => 'Chọn một nhân viên',
     'mod_usrgr_PatternsInstructions7' => '7XXXXXXXXXXXX - bất kỳ số 11 chữ số nào bắt đầu bằng 7',
     'mod_usrgr_IsolateInstructions2' => 'Nhân viên từ các nhóm khác sẽ không thể gọi đến nhóm bị cô lập.',

@@ -24,7 +24,7 @@ return [
     'mod_usrgr__GeneralSettings' => 'Grup ayarları',
     'mod_usrgr_UsersFilter' => 'Grup personeli',
     'mod_usrgr_RoutingRules' => 'Giden Yönlendirme Kuralları',
-    'mod_usrgr_ColumnCallerId' => 'Arayan kimliği',
+    'mod_usrgr_ColumnCallerId' => 'Giden Caller ID',
     'mod_usrgr_SelectMemberToAddToGroup' => 'Bir çalışan seçin',
     'mod_usrgr_PatternsInstructions7' => '7XXXXXXXXXX - 7 ile başlayan 11 haneli herhangi bir sayı',
     'mod_usrgr_patterns' => 'Grupla ilgili sayı kalıpları. Bir grup üyesi yalnızca onları arayabilecek',

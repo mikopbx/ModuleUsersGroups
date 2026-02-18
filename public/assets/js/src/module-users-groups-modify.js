@@ -121,7 +121,6 @@ const ModuleCGModify = {
 			 * @param {Array} data - The row data.
 			 */
 			createdRow(row, data) {
-				$('td', row).eq(3).style('min-width:45px;');
 			},
 		});
 	},
@@ -278,4 +277,3 @@ $(document).ready(() => {
 
 	ModuleCGModify.initialize();
 });
-

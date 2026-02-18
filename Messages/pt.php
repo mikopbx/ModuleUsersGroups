@@ -24,7 +24,7 @@ return [
     'mod_usrgr__GeneralSettings' => 'Configurações do grupo',
     'mod_usrgr_UsersFilter' => 'Equipe do grupo',
     'mod_usrgr_RoutingRules' => 'Regras de roteamento de saída',
-    'mod_usrgr_ColumnCallerId' => 'Identificador de chamadas',
+    'mod_usrgr_ColumnCallerId' => 'Caller ID de saída',
     'mod_usrgr_SelectMemberToAddToGroup' => 'Selecione um funcionário',
     'mod_usrgr_PatternsInstructions7' => '7XXXXXXXXXX - qualquer número de 11 dígitos começando com 7',
     'mod_usrgr_patterns' => 'Padrões de números relacionados ao grupo. Um membro do grupo só poderá ligar para eles',

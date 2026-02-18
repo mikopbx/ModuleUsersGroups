@@ -1,7 +1,7 @@
 <?php
 return [
     'mod_usrgr_SelectMemberToAddToGroup' => 'Επιλέξτε έναν χρήστη',
-    'mod_usrgr_ColumnCallerId' => 'Αναγνωριστικό καλούντος (Caller ID)',
+    'mod_usrgr_ColumnCallerId' => 'Εξερχόμενο Caller ID',
     'mod_usrgr_RoutingRules' => 'Κανόνες εξερχόμενης δρομολόγησης',
     'mod_usrgr_UsersFilter' => 'Εσωτερικά του Ομίλου',
     'mod_usrgr__GeneralSettings' => 'Ρυθμίσεις ομάδας',

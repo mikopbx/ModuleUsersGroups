@@ -24,7 +24,7 @@ return [
     'mod_usrgr__GeneralSettings' => 'Configuración de grupo',
     'mod_usrgr_UsersFilter' => 'Personal del grupo',
     'mod_usrgr_RoutingRules' => 'Reglas de enrutamiento saliente',
-    'mod_usrgr_ColumnCallerId' => 'Identificador de llamadas',
+    'mod_usrgr_ColumnCallerId' => 'Caller ID saliente',
     'mod_usrgr_SelectMemberToAddToGroup' => 'Seleccione un empleado',
     'mod_usrgr_PatternsInstructions7' => '7XXXXXXXXXX: cualquier número de 11 dígitos que comience con 7',
     'mod_usrgr_SelectUserGroup' => 'Seleccione un plan de marcado para el empleado',

@@ -11,7 +11,7 @@ return [
     'mod_usrgr_Users' => 'Angajatii',
     'mod_usrgr_patterns' => 'Modele de numere legate de grup. Un membru al grupului îi va putea suna doar',
     'mod_usrgr_Groups' => 'Apelați lista grupurilor',
-    'mod_usrgr_ColumnCallerId' => 'ID-ul apelantului',
+    'mod_usrgr_ColumnCallerId' => 'Caller ID de ieșire',
     'mod_usrgr_SelectMemberToAddToGroup' => 'Alegeți un angajat',
     'mod_usrgr_SelectUserGroup' => 'Selectați un plan de apelare pentru angajat',
     'BreadcrumbModuleUsersGroupsModify' => 'Configurarea unui plan de apelare',

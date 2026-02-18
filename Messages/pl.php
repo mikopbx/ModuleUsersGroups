@@ -24,7 +24,7 @@ return [
     'mod_usrgr__GeneralSettings' => 'Ustawienia grupy',
     'mod_usrgr_UsersFilter' => 'Personel grupy',
     'mod_usrgr_RoutingRules' => 'Zasady routingu wychodzącego',
-    'mod_usrgr_ColumnCallerId' => 'ID dzwoniącego',
+    'mod_usrgr_ColumnCallerId' => 'Wychodzący Caller ID',
     'mod_usrgr_SelectMemberToAddToGroup' => 'Wybierz pracownika',
     'mod_usrgr_PatternsInstructions7' => '7XXXXXXXXXXXX – dowolny 11-cyfrowy numer zaczynający się od 7',
     'mod_usrgr_patterns' => 'Wzory liczb związane z grupą. Członek grupy będzie mógł tylko do nich zadzwonić',

@@ -44,7 +44,7 @@ return [
     'mod_usrgr_ColumnGroup' => 'Groep',
     'mod_usrgr_UsersFilter' => 'Groep medewerkers',
     'mod_usrgr_RoutingRules' => 'Regels voor uitgaande routering',
-    'mod_usrgr_ColumnCallerId' => 'beller ID',
+    'mod_usrgr_ColumnCallerId' => 'Uitgaand Caller ID',
     'mod_usrgr_PatternsInstructions2' => 'Een groepslid kan alleen nummers bellen die overeenkomen met de patronen',
     'mod_usrgr_PatternsInstructions4' => 'Sjabloonvoorbeelden:',
     'mod_usrgr_PatternsInstructions5' => '2XX - cijfers van 200 tot 299',

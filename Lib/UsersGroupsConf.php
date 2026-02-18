@@ -20,9 +20,6 @@
 namespace Modules\ModuleUsersGroups\Lib;
 
 use MikoPBX\AdminCabinet\Forms\ExtensionEditForm;
-use MikoPBX\Common\Models\PbxSettings;
-use MikoPBX\Common\Models\Users;
-use MikoPBX\Core\System\Directories;
 use MikoPBX\Core\System\SystemMessages;
 use MikoPBX\Modules\Config\ConfigClass;
 use MikoPBX\PBXCoreREST\Lib\PBXApiResult;
@@ -217,7 +214,7 @@ class UsersGroupsConf extends ConfigClass
         $conf .= 'same => n,Set(EFFECTIVE_FROM_PEER=${IF($["${FW_SOURCE_PEER}x" != "x"]?${FW_SOURCE_PEER}:${FROM_PEER})})' . " \n\t";
         $conf .= 'same => n,Set(GR_VARS=${DB(UsersGroups/${EFFECTIVE_FROM_PEER})})' . " \n\t";
         $conf .= 'same => n,ExecIf($["${GR_VARS}x" != "x"]?Exec(Set(${GR_VARS})))' . " \n\t";
-        $conf .= 'same => n,ExecIf($["${GR_PERM_ENABLE}" == "1" && "${GR_ID_' . $rout['id'] . '}" != "1"]?return)' . " \n\t";
+        $conf .= 'same => n,ExecIf($["${GR_PERM_ENABLE}" == "1" && "${GR_ID_' . $rout['id'] . '}" != "1"]?Goto(users-group-forbidden,${EXTEN},1))' . " \n\t";
         $conf .= 'same => n,ExecIf($["${GR_PERM_ENABLE}" == "1" && "${GR_CID_' . $rout['id'] . '}x" != "x"]?MSet(GR_OLD_CALLERID=${CALLERID(num)},OUTGOING_CID=${GR_CID_' . $rout['id'] . '}))' . "\n\t";
         $conf .= 'same => n,ExecIf($["${OUTGOING_CID}x" != "x"]?Set(DOPTIONS=${DOPTIONS}f(${OUTGOING_CID})))' . " \n\t";
         $conf .= 'same => n,GosubIf($["${DIALPLAN_EXISTS(SIP-${CUT(CONTEXT,-,2)}-outgoing-ug-custom,${EXTEN},1)}" == "1"]?SIP-${CUT(CONTEXT,-,2)}-outgoing-ug-custom,${EXTEN},1)';
@@ -627,55 +624,4 @@ class UsersGroupsConf extends ConfigClass
         return is_numeric($groupId);
     }
 
-    /**
-     * Clean up orphaned group member records
-     *
-     * Removes GroupMembers records that reference non-existent users.
-     * This happens after module reinstallation or restore from backup
-     * when employee records no longer exist in the main database.
-     *
-     * @return void
-     */
-    private function cleanupOrphanedGroupMembers(): void
-    {
-        try {
-            // Get valid user IDs using simple find (works cross-database)
-            $validUsers = Users::find(['columns' => 'id']);
-
-            if (count($validUsers) === 0) {
-                SystemMessages::sysLogMsg(__METHOD__, 'No users in system, skipping cleanup', LOG_INFO);
-                return;
-            }
-
-            // Build list of valid user IDs
-            $validIds = [];
-            foreach ($validUsers as $user) {
-                $validIds[] = (int)$user->id;
-            }
-
-            // Get module database connection through model
-            $connection = GroupMembers::getReadConnection();
-            $validIdsList = implode(',', $validIds);
-
-            // Use direct SQL DELETE for performance
-            $sql = "DELETE FROM m_ModuleUsersGroups_GroupMembers WHERE user_id NOT IN ({$validIdsList})";
-            $success = $connection->execute($sql);
-            $deletedCount = $success ? $connection->affectedRows() : 0;
-
-            // Log cleanup results
-            if ($deletedCount > 0) {
-                SystemMessages::sysLogMsg(
-                    __METHOD__,
-                    "Cleaned up {$deletedCount} orphaned group member record(s)",
-                    LOG_INFO
-                );
-            }
-        } catch (\Throwable $e) {
-            SystemMessages::sysLogMsg(
-                __METHOD__,
-                "Failed to cleanup orphaned members: " . $e->getMessage(),
-                LOG_ERR
-            );
-        }
-    }
 }

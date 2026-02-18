@@ -38,7 +38,7 @@ return [
     'mod_usrgr__GeneralSettings' => 'Postavke grupe',
     'mod_usrgr_UsersFilter' => 'Zaposlenici grupe',
     'mod_usrgr_RoutingRules' => 'Pravila odlaznog usmjeravanja',
-    'mod_usrgr_ColumnCallerId' => 'ID pozivatelja',
+    'mod_usrgr_ColumnCallerId' => 'Odlazni Caller ID',
     'mod_usrgr_SelectMemberToAddToGroup' => 'Odaberite zaposlenika',
     'mod_usrgr_SelectUserGroup' => 'Odaberite telefonsku grupu za zaposlenika',
     'mod_usrgr_PatternsInstructions1' => 'Predlošci mogu koristiti simbol od 1 do 9 i simbol X (bilo koji broj od 1-9)',
