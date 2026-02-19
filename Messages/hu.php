@@ -46,7 +46,7 @@ return [
     'mod_usrgr__GeneralSettings' => 'Csoportbeállítások',
     'mod_usrgr_UsersFilter' => 'Csoport alkalmazottai',
     'mod_usrgr_RoutingRules' => 'Kimenő útválasztási szabályok',
-    'mod_usrgr_ColumnCallerId' => 'Hívó azonosító',
+    'mod_usrgr_ColumnCallerId' => 'Kimenő Caller ID',
     'mod_usrgr_SelectMemberToAddToGroup' => 'Válasszon ki egy alkalmazottat',
     'mod_usrgr_SelectUserGroup' => 'Válasszon telefoncsoportot egy alkalmazott számára',
     'mod_usrgr_PatternsInstructions1' => 'A sablonok használhatják az 1-től 9-ig terjedő szimbólumot és az X szimbólumot (bármely szám 1-től 9-ig)',

@@ -40,7 +40,7 @@ return [
     'mod_usrgr__GeneralSettings'         => 'Настройки группы',
     'mod_usrgr_UsersFilter'              => 'Сотрудники группы',
     'mod_usrgr_RoutingRules'             => 'Правила исходящей маршрутизации',
-    'mod_usrgr_ColumnCallerId'           => 'Caller ID',
+    'mod_usrgr_ColumnCallerId'           => 'Исходящий Caller ID',
     'mod_usrgr_SelectMemberToAddToGroup' => 'Выберите сотрудника',
     'mod_usrgr_SelectUserGroup'          => 'Выберите телефонную группу для сотрудника',
     'mod_usrgr_PatternsInstructions1'    => 'В шаблонах допускается использовать символ от 1 до 9 и символ X (любая цифра от 1-9)',

@@ -21,10 +21,8 @@
 namespace Modules\ModuleUsersGroups\Lib;
 
 use MikoPBX\Common\Models\Extensions;
-use MikoPBX\Common\Models\Users;
 use MikoPBX\Core\Asterisk\AstDB;
 use MikoPBX\Core\System\PBX;
-use MikoPBX\Core\System\Util;
 use MikoPBX\Modules\PbxExtensionBase;
 use MikoPBX\Modules\PbxExtensionUtils;
 use Modules\ModuleUsersGroups\Models\AllowedOutboundRules;
@@ -184,116 +182,4 @@ class UsersGroups extends PbxExtensionBase
         return "ARRAY({$varNames})={$varValues}";
     }
 
-    /**
-     * Updates the user group based on the provided post data.
-     *
-     * This method updates the group membership of a user based on the provided post data.
-     * If the user ID is not provided, it attempts to retrieve it based on a given phone number.
-     * If the user group is not provided or the user cannot be found, the function exits without making any changes.
-     *
-     * @param array $postData The post data containing user and group information.
-     *                       Expected keys:
-     *                       - 'mod_usrgr_select_group': The new group ID for the user.
-     *                       - 'user_id': The ID of the user whose group is being updated.
-     *                       - 'number': The phone number of the user, used if the user ID is not provided.
-     * @return void
-     */
-    public static function updateUserGroup(array $postData): void
-    {
-        $userGroup = $postData['mod_usrgr_select_group'] ?? '';
-        $userId = $postData['user_id'] ?? '';
-        if (empty($userGroup)) {
-            return;
-        }
-
-        if (empty($userId)) {
-            $userId = self::getUserIdFromNumber($postData['number'] ?? '');
-        }
-
-        if (empty($userId)) {
-            return;
-        }
-
-        self::updateOrCreateGroupMembership($userId, $userGroup);
-    }
-
-    /**
-     * Retrieves a user ID based on a given phone number.
-     *
-     * Waits and attempts multiple times to retrieve the user ID for a newly created user
-     * based on the provided phone number. This method performs a maximum of 10 attempts
-     * with a 1-second pause between each attempt. It returns the user ID if found,
-     * otherwise null after exhausting all attempts.
-     *
-     * @param string $number The phone number used to lookup the user ID.
-     * @return string|null The user ID if found, otherwise null.
-     */
-    private static function getUserIdFromNumber(string $number): ?string
-    {
-        $userId = null;
-        // New user we have to wait until it will be created
-        $di = MikoPBXVersion::getDefaultDi();
-        $parameters = [
-            'models' => [
-                'Users' => Users::class,
-            ],
-            'conditions' => 'Extensions.number=:number:',
-            'bind' => [
-                'number' => $number
-            ],
-            'joins' => [
-                'Extensions' => [
-                    0 => Extensions::class,
-                    1 => 'Extensions.userid = Users.id',
-                    2 => 'Extensions',
-                    3 => 'INNER',
-                ],
-            ],
-        ];
-        $counter = 0;
-        while (empty($userId) and $counter < 10) {
-            $counter++;
-            sleep(1);
-            $userData = $di->get('modelsManager')->createBuilder($parameters)->getQuery()->execute()->toArray();
-            $userId = $userData[0]['id'] ?? '';
-        }
-        return $userId;
-    }
-
-    /**
-     * Updates or creates a group membership for a user.
-     *
-     * Checks if a group membership exists for the given user ID. If it exists, the method
-     * updates the group ID; if not, it creates a new group membership record with the
-     * provided user ID and group ID. Changes are then saved to the database. Logs an error
-     * message using Util::sysLogMsg() if saving to the database fails.
-     *
-     * @param string $userId The ID of the user whose group membership is being updated or created.
-     * @param string $userGroup The ID of the group to assign to the user.
-     * @return void
-     */
-    private static function updateOrCreateGroupMembership(string $userId, string $userGroup): void
-    {
-        $parameters = [
-            'conditions' => 'user_id = :user_id:',
-            'bind' => [
-                'user_id' => $userId,
-            ]
-        ];
-
-        // Find the existing group membership based on user ID
-        $curUserGroup = GroupMembers::findFirst($parameters);
-
-        // Update or create the group membership
-        if ($curUserGroup === null) {
-            // Create a new group membership
-            $curUserGroup = new GroupMembers();
-            $curUserGroup->user_id = $userId;
-        }
-        $curUserGroup->group_id = $userGroup;
-        // Save the changes to the database
-        if (!$curUserGroup->save()) {
-            Util::sysLogMsg(__METHOD__, implode($curUserGroup->getMessages()), LOG_ERR);
-        }
-    }
 }

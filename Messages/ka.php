@@ -24,7 +24,7 @@ return [
     'mod_usrgr__GeneralSettings' => 'ჯგუფის პარამეტრები',
     'mod_usrgr_UsersFilter' => 'ჯგუფის პერსონალი',
     'mod_usrgr_RoutingRules' => 'გამავალი მარშრუტის წესები',
-    'mod_usrgr_ColumnCallerId' => 'Აბონენტის საიდენტიფიკაციო ნომერი',
+    'mod_usrgr_ColumnCallerId' => 'გამავალი Caller ID',
     'mod_usrgr_SelectMemberToAddToGroup' => 'აირჩიეთ თანამშრომელი',
     'mod_usrgr_PatternsInstructions7' => '7XXXXXXXXXX - ნებისმიერი 11-ნიშნა რიცხვი, რომელიც იწყება 7-ით',
     'mod_usrgr_patterns' => 'ჯგუფთან დაკავშირებული რიცხვების ნიმუშები. ჯგუფის წევრი მხოლოდ მათთან დარეკვას შეძლებს',

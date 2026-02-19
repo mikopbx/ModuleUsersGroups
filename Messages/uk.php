@@ -24,7 +24,7 @@ return [
     'mod_usrgr__GeneralSettings' => 'Налаштування групи',
     'mod_usrgr_UsersFilter' => 'Співробітники групи',
     'mod_usrgr_RoutingRules' => 'Правила вихідної маршрутизації',
-    'mod_usrgr_ColumnCallerId' => 'Caller ID',
+    'mod_usrgr_ColumnCallerId' => 'Вихідний Caller ID',
     'mod_usrgr_SelectMemberToAddToGroup' => 'Виберіть співробітника',
     'mod_usrgr_PatternsInstructions7' => '7XXXXXXXXXX - будь-який 11 значний номер, що починається з 7',
     'mod_usrgr_IsolateInstructions2' => 'Співробітники з інших груп не зможуть зателефонувати на ізольовану групу.',

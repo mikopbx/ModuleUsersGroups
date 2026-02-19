@@ -38,7 +38,7 @@ return [
     'mod_usrgr__GeneralSettings' => 'Ryhmäasetukset',
     'mod_usrgr_UsersFilter' => 'Konsernin työntekijät',
     'mod_usrgr_RoutingRules' => 'Lähtevän liikenteen reitityssäännöt',
-    'mod_usrgr_ColumnCallerId' => 'Soittajan tunnus',
+    'mod_usrgr_ColumnCallerId' => 'Lähtevä Caller ID',
     'mod_usrgr_SelectMemberToAddToGroup' => 'Valitse työntekijä',
     'mod_usrgr_SelectUserGroup' => 'Valitse työntekijälle puhelinryhmä',
     'mod_usrgr_PatternsInstructions1' => 'Malleissa voidaan käyttää symbolia 1-9 ja symbolia X (mitä tahansa numeroa 1-9)',

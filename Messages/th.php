@@ -38,7 +38,7 @@ return [
     'mod_usrgr__GeneralSettings' => 'การตั้งค่ากลุ่ม',
     'mod_usrgr_UsersFilter' => 'เจ้าหน้าที่กลุ่ม',
     'mod_usrgr_RoutingRules' => 'กฎการกำหนดเส้นทางขาออก',
-    'mod_usrgr_ColumnCallerId' => 'หมายเลขผู้โทร',
+    'mod_usrgr_ColumnCallerId' => 'Caller ID ขาออก',
     'mod_usrgr_SelectMemberToAddToGroup' => 'เลือกพนักงาน',
     'mod_usrgr_SelectUserGroup' => 'เลือกกลุ่มโทรศัพท์สำหรับพนักงาน',
     'mod_usrgr_PatternsInstructions1' => 'เทมเพลตสามารถใช้สัญลักษณ์ตั้งแต่ 1 ถึง 9 และสัญลักษณ์ X (ตัวเลขใดก็ได้ตั้งแต่ 1-9)',

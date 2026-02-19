@@ -20,11 +20,14 @@
 namespace Modules\ModuleUsersGroups\Lib;
 
 use MikoPBX\AdminCabinet\Forms\ExtensionEditForm;
+use MikoPBX\Core\System\SystemMessages;
 use MikoPBX\Modules\Config\ConfigClass;
+use MikoPBX\PBXCoreREST\Lib\PBXApiResult;
+use Modules\ModuleUsersGroups\App\Forms\ExtensionEditAdditionalForm;
+use Modules\ModuleUsersGroups\Lib\RestAPI\UsersGroups\UpdateUserGroupAction;
 use Modules\ModuleUsersGroups\Models\AllowedOutboundRules;
 use Modules\ModuleUsersGroups\Models\GroupMembers;
 use Modules\ModuleUsersGroups\Models\UsersGroups as ModelUsersGroups;
-use Modules\ModuleUsersGroups\App\Forms\ExtensionEditAdditionalForm;
 use Phalcon\Forms\Form;
 use Phalcon\Mvc\Micro;
 use Phalcon\Mvc\View;
@@ -32,6 +35,11 @@ use Phalcon\Mvc\View;
 
 class UsersGroupsConf extends ConfigClass
 {
+    // Constants for API endpoints (PHP 7.4 compatible)
+    private const API_V2_EXTENSIONS_SAVE = '/api/extensions/saveRecord';
+    private const API_V3_EMPLOYEES = '/pbxcore/api/v3/employees';
+    private const MODULE_PREFIX = 'mod_usrgr_';
+
     /**
      * [
      *  'extension-1' => 'numberGroup1',
@@ -78,8 +86,8 @@ class UsersGroupsConf extends ConfigClass
 
         // Check and set isolation flags based on conditions.
         $conf .= 'same => n,ExecIf($[ ${srcIsolate} && ${dstIsolateGroup} != 1 && dstIsolate != 1 && ${DIALPLAN_EXISTS(internal,${EXTEN},1)} != 1 ]?Set(srcIsolate=0))' . PHP_EOL;
-        $conf .= 'same => n,ExecIf($[ ${srcIsolate} && ${dstIsolateGroup} == 0 ]?Goto(internal-num-undefined,${EXTEN},1))' . PHP_EOL;
-        $conf .= 'same => n,ExecIf($[ ${srcIsolate} == 0 && ${dstIsolate} ]?Goto(internal-num-undefined,${EXTEN},1))' . PHP_EOL;
+        $conf .= 'same => n,ExecIf($[ ${srcIsolate} && ${dstIsolateGroup} == 0 ]?Goto(users-group-forbidden,${EXTEN},1))' . PHP_EOL;
+        $conf .= 'same => n,ExecIf($[ ${srcIsolate} == 0 && ${dstIsolate} ]?Goto(users-group-forbidden,${EXTEN},1))' . PHP_EOL;
         return $conf;
     }
 
@@ -146,7 +154,48 @@ class UsersGroupsConf extends ConfigClass
             $dialplan .= $isolateDialplan;
         }
 
+        // Add context for forbidden calls with voice notification
+        $dialplan .= $this->generateForbiddenCallContext();
+
         return $dialplan;
+    }
+
+    /**
+     * Generate context for handling forbidden calls with voice notification
+     *
+     * This context is triggered when a user tries to call a number that is
+     * forbidden by their group isolation settings. It plays a custom voice
+     * message in the system language and provides a hook for custom implementations.
+     *
+     * Sound file structure:
+     * ModuleUsersGroups/sounds/{lang}/forbidden.mp3
+     * Where {lang} is language code from system settings (ru, en, de, etc.)
+     *
+     * @return string The generated context as a string.
+     */
+    private function generateForbiddenCallContext(): string
+    {
+        $conf = PHP_EOL . '[users-group-forbidden]' . PHP_EOL;
+        $conf .= 'exten => _X.,1,NoOp(--- Call to ${EXTEN} forbidden by UsersGroups module ---)' . PHP_EOL;
+        $conf .= 'same => n,Answer()' . PHP_EOL;
+        $conf .= 'same => n,Wait(1)' . PHP_EOL;
+
+        // Try to play module custom sound file with automatic language selection
+        // Asterisk will use CHANNEL(language) to find: ModuleUsersGroups/sounds/{lang}/forbidden
+        // Supported formats: mp3, wav, gsm (Asterisk auto-selects best available)
+        $conf .= 'same => n,Playback(moduleusersgroups-forbidden)' . PHP_EOL;
+
+        // Fallback to standard Asterisk sound if custom sound not found
+        // ss-noservice = "The number you have dialed is not in service"
+        $conf .= 'same => n,ExecIf($["${PLAYBACKSTATUS}" = "FAILED"]?Playback(ss-noservice))' . PHP_EOL;
+
+        // Allow custom dialplan extension for additional processing
+        $conf .= 'same => n,GosubIf(${DIALPLAN_EXISTS(users-group-forbidden-custom,${EXTEN},1)}?users-group-forbidden-custom,${EXTEN},1)' . PHP_EOL;
+
+        $conf .= 'same => n,Hangup()' . PHP_EOL;
+        $conf .= PHP_EOL;
+
+        return $conf;
     }
 
     /**
@@ -161,9 +210,11 @@ class UsersGroupsConf extends ConfigClass
     public function generateOutRoutContext(array $rout): string
     {
         $conf = "\t" . 'same => n,ExecIf($["x${FROM_PEER}" == "x" && "${CHANNEL(channeltype)}" == "PJSIP" ]?Gosub(set_from_peer,s,1))' . " \n\t";
-        $conf .= 'same => n,Set(GR_VARS=${DB(UsersGroups/${FROM_PEER})})' . " \n\t";
+        // If call is forwarded, use the forwarding source peer instead of calling peer for CallerID rules
+        $conf .= 'same => n,Set(EFFECTIVE_FROM_PEER=${IF($["${FW_SOURCE_PEER}x" != "x"]?${FW_SOURCE_PEER}:${FROM_PEER})})' . " \n\t";
+        $conf .= 'same => n,Set(GR_VARS=${DB(UsersGroups/${EFFECTIVE_FROM_PEER})})' . " \n\t";
         $conf .= 'same => n,ExecIf($["${GR_VARS}x" != "x"]?Exec(Set(${GR_VARS})))' . " \n\t";
-        $conf .= 'same => n,ExecIf($["${GR_PERM_ENABLE}" == "1" && "${GR_ID_' . $rout['id'] . '}" != "1"]?return)' . " \n\t";
+        $conf .= 'same => n,ExecIf($["${GR_PERM_ENABLE}" == "1" && "${GR_ID_' . $rout['id'] . '}" != "1"]?Goto(users-group-forbidden,${EXTEN},1))' . " \n\t";
         $conf .= 'same => n,ExecIf($["${GR_PERM_ENABLE}" == "1" && "${GR_CID_' . $rout['id'] . '}x" != "x"]?MSet(GR_OLD_CALLERID=${CALLERID(num)},OUTGOING_CID=${GR_CID_' . $rout['id'] . '}))' . "\n\t";
         $conf .= 'same => n,ExecIf($["${OUTGOING_CID}x" != "x"]?Set(DOPTIONS=${DOPTIONS}f(${OUTGOING_CID})))' . " \n\t";
         $conf .= 'same => n,GosubIf($["${DIALPLAN_EXISTS(SIP-${CUT(CONTEXT,-,2)}-outgoing-ug-custom,${EXTEN},1)}" == "1"]?SIP-${CUT(CONTEXT,-,2)}-outgoing-ug-custom,${EXTEN},1)';
@@ -229,6 +280,9 @@ class UsersGroupsConf extends ConfigClass
      */
     public function onAfterModuleEnable(): void
     {
+        // Clean up orphaned group member records
+        RestAPI\UsersGroups\CleanupOrphanedMembersAction::main([]);
+
         $this->getSettings();
         UsersGroups::reloadConfigs();
     }
@@ -314,6 +368,27 @@ class UsersGroupsConf extends ConfigClass
     }
 
     /**
+     * Modifies the system assets.
+     * @see https://docs.mikopbx.com/mikopbx-development/module-developement/module-class#onafterassetsprepared
+     *
+     * @param \Phalcon\Assets\Manager $assets The assets manager for additional modifications from module.
+     * @param \Phalcon\Mvc\Dispatcher $dispatcher The dispatcher instance.
+     *
+     * @return void
+     */
+    public function onAfterAssetsPrepared($assets, $dispatcher): void
+    {
+        $currentController = $dispatcher->getControllerName();
+        $currentAction = $dispatcher->getActionName();
+
+        // Add JS for extension-modify page
+        if ($currentController === 'Extensions' && $currentAction === 'modify') {
+            $assets->collection('footerJS')
+                ->addJs("js/cache/ModuleUsersGroups/module-users-groups-extension-dropdown.js", true);
+        }
+    }
+
+    /**
      * Called from BaseForm before the form is initialized.
      * @see https://docs.mikopbx.com/mikopbx-development/module-developement/module-class#onbeforeforminitialize
      *
@@ -331,25 +406,222 @@ class UsersGroupsConf extends ConfigClass
     }
 
     /**
+     * Process REST API requests
+     * @see https://docs.mikopbx.com/mikopbx-development/module-developement/module-class#modulerestapicallback
+     *
+     * @param array $request The request data
+     *
+     * @return PBXApiResult The response data
+     */
+    public function moduleRestAPICallback(array $request): PBXApiResult
+    {
+        $action = $request['action'] ?? '';
+        $data = $request['data'] ?? [];
+
+        // Use the processor to handle the action
+        $processor = new \Modules\ModuleUsersGroups\Lib\RestAPI\UsersGroupsManagementProcessor();
+        return $processor->callBack($action, $data);
+    }
+
+    /**
      * This method is called from RouterProvider's onAfterExecuteRoute function.
      * It handles the form submission and updates the user credentials.
      *
+     * Supports both:
+     * - Old API v2: /api/extensions/saveRecord
+     * - New REST API v3: API_V3_EMPLOYEES
+     *
      * @param Micro $app The micro application instance.
+     * @phpstan-param Micro<\MikoPBX\PBXCoreREST\Http\Request> $app
      *
      * @return void
      */
     public function onAfterExecuteRestAPIRoute(Micro $app): void
     {
-        // Intercept the form submission of Extensions, only save action
         $calledUrl = $app->request->get('_url');
-        if ($calledUrl!=='/api/extensions/saveRecord') {
+
+        // Handle API v2
+        if ($calledUrl === self::API_V2_EXTENSIONS_SAVE) {
+            $this->handleApiV2Request($app);
             return;
         }
-        $response = json_decode($app->response->getContent());
-        if (!empty($response->result) and $response->result===true){
-            // Intercept the form submission of Extensions with fields mod_usrgr_select_group and user_id
-            $postData = $app->request->getPost();
-            UsersGroups::updateUserGroup($postData);
+
+        // Handle REST API v3
+        $router = $app->getRouter();
+        $matchedRoute = $router->getMatchedRoute();
+        if ($matchedRoute !== null) {
+            $this->handleApiV3Request($app, $matchedRoute);
         }
     }
+
+    /**
+     * Handle API v2 request: /api/extensions/saveRecord
+     *
+     * @param Micro $app The micro application instance.
+     * @return void
+     */
+    private function handleApiV2Request(Micro $app): void
+    {
+        $response = json_decode($app->response->getContent());
+
+        if (!$this->isSuccessfulResponseV2($response)) {
+            return;
+        }
+
+        $postData = $app->request->getPost();
+        if (!$this->hasModuleData($postData)) {
+            return;
+        }
+
+        // Execute update through REST API Action
+        $result = UpdateUserGroupAction::main($postData);
+
+        // Log the result
+        if (!$result->success) {
+            SystemMessages::sysLogMsg(
+                __METHOD__,
+                "REST API v2: Failed to update group: " . implode(', ', $result->messages),
+                LOG_ERR
+            );
+        }
+    }
+
+    /**
+     * Handle REST API v3 request: API_V3_EMPLOYEES
+     *
+     * @param Micro $app The micro application instance.
+     * @param mixed $matchedRoute The matched route object.
+     * @return void
+     */
+    private function handleApiV3Request(Micro $app, $matchedRoute): void
+    {
+        $pattern = $matchedRoute->getPattern();
+        $httpMethod = $app->request->getMethod();
+
+        // Check if this is an employee-related request
+        $isEmployeeRoute = strpos($pattern, self::API_V3_EMPLOYEES) === 0;
+        if (!$isEmployeeRoute) {
+            return;
+        }
+
+        // Handle POST/PUT requests - save group data
+        if (in_array($httpMethod, ['POST', 'PUT'], true)) {
+            /** @var \MikoPBX\PBXCoreREST\Http\Request $request */
+            $request = $app->request;
+            $requestData = $request->getData();
+            $response = json_decode($app->response->getContent(), false);
+
+            $this->processEmployeeGroupUpdate($requestData, $response);
+        }
+    }
+
+    /**
+     * Check if API v2 response is successful
+     *
+     * @param mixed $response The decoded JSON response
+     * @return bool True if successful
+     */
+    private function isSuccessfulResponseV2($response): bool
+    {
+        return !empty($response->result) && $response->result === true;
+    }
+
+    /**
+     * Check if POST data contains module-specific fields
+     * PHP 7.4 compatible - using strpos instead of str_starts_with
+     *
+     * @param array $postData The POST data array
+     * @return bool True if module data exists
+     */
+    private function hasModuleData(array $postData): bool
+    {
+        foreach (array_keys($postData) as $key) {
+            if (strpos($key, self::MODULE_PREFIX) === 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    
+
+    /**
+     * Process employee group update for REST API v3
+     *
+     * @param array $requestData The request data
+     * @param mixed $response The decoded JSON response
+     * @return void
+     */
+    private function processEmployeeGroupUpdate(array $requestData, $response): void
+    {
+        // Extract IDs from request and response
+        $employeeId = $response->data->id ?? null;
+        $groupId = $requestData['mod_usrgr_select_group'] ?? null;
+
+        // Validate employee ID (silent fail)
+        if (!$this->isValidEmployeeId($employeeId)) {
+            return;
+        }
+
+        // Skip if no group data or empty string (silent fail)
+        if ($groupId === null || $groupId === '') {
+            return;
+        }
+
+        // Validate group ID (silent fail)
+        if (!$this->isValidGroupId($groupId)) {
+            return;
+        }
+
+        // Prepare and execute update through REST API Action
+        $postData = [
+            'mod_usrgr_select_group' => $groupId,
+            'user_id' => $employeeId,
+            'number' => $requestData['number'] ?? null
+        ];
+
+        $result = UpdateUserGroupAction::main($postData);
+
+        // Log the result
+        if ($result->success) {
+            SystemMessages::sysLogMsg(
+                __METHOD__,
+                "REST API v3: Updated group for employee #{$employeeId} to group #{$groupId}",
+                LOG_INFO
+            );
+        } else {
+            SystemMessages::sysLogMsg(
+                __METHOD__,
+                "REST API v3: Failed to update group for employee #{$employeeId}: " . implode(', ', $result->messages),
+                LOG_ERR
+            );
+        }
+    }
+
+    /**
+     * Validate employee ID
+     * PHP 7.4 compatible validation
+     *
+     * @param mixed $employeeId The employee ID to validate
+     * @return bool True if valid
+     */
+    private function isValidEmployeeId($employeeId): bool
+    {
+        return $employeeId !== null
+            && $employeeId !== ''
+            && is_numeric($employeeId);
+    }
+
+    /**
+     * Validate group ID
+     * PHP 7.4 compatible validation
+     *
+     * @param mixed $groupId The group ID to validate
+     * @return bool True if valid
+     */
+    private function isValidGroupId($groupId): bool
+    {
+        return is_numeric($groupId);
+    }
+
 }

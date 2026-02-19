@@ -21,63 +21,27 @@ namespace Modules\ModuleUsersGroups\App\Forms;
 
 use MikoPBX\AdminCabinet\Forms\BaseForm;
 use MikoPBX\AdminCabinet\Forms\ExtensionEditForm;
-use Modules\ModuleUsersGroups\Models\GroupMembers;
 use Modules\ModuleUsersGroups\Models\UsersGroups as ModelUsersGroups;
-use Phalcon\Forms\Element\Select;
+use Phalcon\Forms\Element\Hidden;
 
 
 class ExtensionEditAdditionalForm extends BaseForm
 {
-  public static function prepareAdditionalFields(ExtensionEditForm $form, \stdClass $entity, array $options = []){
+    public static function prepareAdditionalFields(ExtensionEditForm $form, \stdClass $entity, array $options = []): void
+    {
+        // Add hidden field for the group ID (value will be set by JavaScript)
+        $form->add(new Hidden('mod_usrgr_select_group', [
+            'value' => '',
+            'id' => 'mod_usrgr_select_group'
+        ]));
 
-      // Prepare groups for select
-      $parameters = [
-          'columns' => [
-              'id',
-              'name'
-          ]
-      ];
-      $arrGroups = ModelUsersGroups::find($parameters);
-      $arrGroupsForSelect = [];
-      foreach ($arrGroups as $group) {
-          $arrGroupsForSelect[$group->id] = $group->name;
-      }
+        // Get all groups for dropdown (will be used in Volt template)
+        $groups = ModelUsersGroups::find([
+            'columns' => ['id', 'name'],
+            'order' => 'name ASC'
+        ]);
 
-      // Find current value
-      $userGroupId = null;
-      if (isset($entity->user_id)) {
-          $parameters = [
-              'conditions' => 'user_id = :user_id:',
-              'bind' => ['user_id' => $entity->user_id]
-          ];
-
-          $curUserGroup = GroupMembers::findFirst($parameters);
-          if ($curUserGroup !== null) {
-              // Get the group ID from the existing group membership
-              $userGroupId = $curUserGroup->group_id;
-          } else {
-              // Get the group ID from the default group
-              $defaultGroup = ModelUsersGroups::findFirst('defaultGroup=1');
-              if ($defaultGroup){
-                  $userGroupId = $defaultGroup->id;
-              }
-          }
-      }
-
-      $groupForSelect = new Select(
-          'mod_usrgr_select_group', $arrGroupsForSelect, [
-              'using' => [
-                  'id',
-                  'name',
-              ],
-              'value' => $userGroupId,
-              'useEmpty' => false,
-              'class' => 'ui selection dropdown search select-group-field',
-          ]
-      );
-
-      // Add the group select field to the form
-      $form->add($groupForSelect);
-  }
-
+        // Store groups data in form for access in Volt template
+        $form->setUserOption('mod_usrgr_groups', $groups);
+    }
 }

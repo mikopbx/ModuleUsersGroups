@@ -14,7 +14,7 @@ return [
     'mod_usrgr_ColumnGroupMembersCount' => 'İştirakçıların sayı',
     'mod_usrgr_ValidateNameIsEmpty' => 'Qrup adı sahəsini yoxlayın',
     'mod_usrgr_RoutingRules' => 'Giden marşrutlaşdırma qaydaları',
-    'mod_usrgr_ColumnCallerId' => 'zəng edənin identifikatoru',
+    'mod_usrgr_ColumnCallerId' => 'Gedən Caller ID',
     'mod_usrgr_SelectMemberToAddToGroup' => 'Bir işçi seçin',
     'mod_usrgr_SelectUserGroup' => 'İşçi üçün zəng planı seçin',
     'mod_usrgr_isolatePickUp' => 'Alma funksiyasını təcrid edin',

@@ -24,7 +24,7 @@ return [
     'mod_usrgr__GeneralSettings' => '群组设置',
     'mod_usrgr_UsersFilter' => '集团员工',
     'mod_usrgr_RoutingRules' => '出站路由规则',
-    'mod_usrgr_ColumnCallerId' => '来电显示',
+    'mod_usrgr_ColumnCallerId' => '外呼主叫号码',
     'mod_usrgr_SelectMemberToAddToGroup' => '选择员工',
     'mod_usrgr_PatternsInstructions7' => '7XXXXXXXXXX - 任何以 7 开头的 11 位数字',
     'mod_usrgr_IsolateInstructions1' => '群组成员只能拨打其群组的号码。',

@@ -24,7 +24,7 @@ return [
     'mod_usrgr__GeneralSettings' => 'Paramètres de groupe',
     'mod_usrgr_UsersFilter' => 'Personnel du groupe',
     'mod_usrgr_RoutingRules' => 'Règles de routage sortant',
-    'mod_usrgr_ColumnCallerId' => 'Identification de l\'appelant',
+    'mod_usrgr_ColumnCallerId' => 'Caller ID sortant',
     'mod_usrgr_SelectMemberToAddToGroup' => 'Sélectionnez un employé',
     'mod_usrgr_PatternsInstructions7' => '7XXXXXXXXXX - n\'importe quel numéro à 11 chiffres commençant par 7',
     'mod_usrgr_patterns' => 'Modèles de nombres liés au groupe. Un membre du groupe pourra uniquement l\'appeler',

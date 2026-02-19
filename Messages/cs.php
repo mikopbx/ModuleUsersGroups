@@ -24,7 +24,7 @@ return [
     'mod_usrgr__GeneralSettings' => 'Nastavení skupiny',
     'mod_usrgr_UsersFilter' => 'Zaměstnanci skupiny',
     'mod_usrgr_RoutingRules' => 'Pravidla odchozího směrování',
-    'mod_usrgr_ColumnCallerId' => 'volajícího ID',
+    'mod_usrgr_ColumnCallerId' => 'Odchozí Caller ID',
     'mod_usrgr_SelectMemberToAddToGroup' => 'Vyberte zaměstnance',
     'mod_usrgr_IsolateInstructions1' => 'Členové skupiny budou moci volat pouze na čísla své skupiny.',
     'mod_usrgr_patterns' => 'Vzory čísel souvisejících se skupinou. Člen skupiny jim bude moci pouze zavolat',

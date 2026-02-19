@@ -14,7 +14,7 @@ return [
     'mod_usrgr_Connected' => 'Module connected',
     'mod_usrgr_Disconnected' => 'Module disabled',
     'mod_usrgr_SelectMemberToAddToGroup' => 'Select an employee',
-    'mod_usrgr_ColumnCallerId' => 'Caller ID',
+    'mod_usrgr_ColumnCallerId' => 'Outbound Caller ID',
     'mod_usrgr_RoutingRules' => 'Outbound routing rules',
     'mod_usrgr_UsersFilter' => 'Group staff',
     'mod_usrgr__GeneralSettings' => 'Group settings',

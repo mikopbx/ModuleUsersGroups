@@ -1,7 +1,7 @@
 <?php
 return [
     'mod_usrgr_SelectMemberToAddToGroup' => 'Wählen Sie einen Mitarbeiter aus',
-    'mod_usrgr_ColumnCallerId' => 'Anruferidentifikation',
+    'mod_usrgr_ColumnCallerId' => 'Ausgehende Caller ID',
     'mod_usrgr_RoutingRules' => 'Ausgehende Routing-Regeln',
     'mod_usrgr_UsersFilter' => 'Gruppenmitarbeiter',
     'mod_usrgr__GeneralSettings' => 'Gruppeneinstellungen',
