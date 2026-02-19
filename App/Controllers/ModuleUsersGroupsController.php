@@ -178,7 +178,7 @@ class ModuleUsersGroupsController extends BaseController
      *
      * @return void
      */
-    public function modifyAction(?string $id): void
+    public function modifyAction(?string $id = null): void
     {
         $footerCollection = $this->assets->collection(AssetProvider::FOOTER_JS);
         $footerCollection->addJs('js/vendor/datatable/dataTables.semanticui.js', true);
