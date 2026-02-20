@@ -102,7 +102,7 @@ class UsersGroups extends PbxExtensionBase
         $db = new AstDB();
         $extension = Extensions::find("type='SIP'")->toArray();
         if ($enabled === false) {
-            $cmd = "ARRAY(GR_PERM_ENABLE)=0)";
+            $cmd = "ARRAY(GR_PERM_ENABLE)=0";
 
             // Loop through each extension and disable group permissions
             foreach ($extension as $extensionData) {
@@ -137,7 +137,7 @@ class UsersGroups extends PbxExtensionBase
         $groupId = null;
         $number = $extensionData['number'];
         foreach ($groupMembers as $memberData) {
-            if ($memberData['user_id'] === $extensionData['userid']) {
+            if (intval($memberData['user_id']) === intval($extensionData['userid'])) {
                 $groupId = $memberData['group_id'];
                 break;
             }
@@ -160,7 +160,7 @@ class UsersGroups extends PbxExtensionBase
 
             // Find all routes allowed in the group
             foreach ($allowedRules as $ruleData) {
-                if ($ruleData['group_id'] !== $group_id) {
+                if (intval($ruleData['group_id']) !== intval($group_id)) {
                     continue;
                 }
 
