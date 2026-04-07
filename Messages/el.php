@@ -10,14 +10,14 @@ return [
     'mod_usrgr_ColumnGroupMembersCount' => 'Αριθμός συμμετεχόντων',
     'mod_usrgr_ColumnGroupDescription' => 'Περιγραφή',
     'mod_usrgr_ColumnGroupName' => 'Ομάδα',
-    'mod_usrgr_AddNewUsersGroup' => 'Δημιουργία σχεδίου κλήσης',
-    'mod_usrgr_Users' => 'Εκχώρηση ρόλων στους χρήστες',
-    'mod_usrgr_Groups' => 'Λίστα ομάδας κλήσης',
+    'mod_usrgr_AddNewUsersGroup' => 'Δημιουργία ομάδας κλήσεων',
+    'mod_usrgr_Users' => 'Υπάλληλοι',
+    'mod_usrgr_Groups' => 'Λίστα ομάδων κλήσεων',
     'mod_usrgr_Disconnected' => 'Η μονάδα απενεργοποιήθηκε',
     'mod_usrgr_Connected' => 'Η μονάδα είναι συνδεδεμένη',
     'SubHeaderModuleUsersGroups' => 'Ρύθμιση δικαιωμάτων για εξερχόμενες κλήσεις, διαχείριση εξερχόμενων αναγνωριστικών κλήσεων, οργάνωση ομάδων παραλαβής κλήσεων',
-    'BreadcrumbModuleUsersGroups' => 'Διαχείριση ομάδας κλήσης',
-    'mo_ModuleModuleUsersGroups' => 'Διαχείριση ομάδας κλήσης',
+    'BreadcrumbModuleUsersGroups' => 'Διαχείριση ομάδων κλήσεων',
+    'mo_ModuleModuleUsersGroups' => 'Διαχείριση ομάδων κλήσεων',
     /**
  * Copyright (C) MIKO LLC - All Rights Reserved
  * Unauthorized copying of this file, via any medium is strictly prohibited
@@ -27,11 +27,11 @@ return [
  */
     'repModuleUsersGroups' => 'Μονάδα ομάδων κλήσης - %repesent%',
     'mod_usrgr_PatternsInstructions7' => '7XXXXXXXXXX - οποιοσδήποτε 11ψήφιος αριθμός που αρχίζει με 7',
-    'mod_usrgr_DefaultGroup' => 'προεπιλεγμένη ομάδα',
+    'mod_usrgr_DefaultGroup' => 'Προεπιλεγμένη ομάδα',
     'mod_usrgr_isolate' => 'Απομονώστε μια ομάδα εργαζομένων',
-    'mod_usrgr_SelectUserGroup' => 'Επιλέξτε ένα πρόγραμμα κλήσης για τον εργαζόμενο',
+    'mod_usrgr_SelectUserGroup' => 'Επιλέξτε μια ομάδα κλήσεων για τον εργαζόμενο',
     'mod_usrgr_isolatePickUp' => 'Απομονώστε τη λειτουργία παραλαβής',
-    'BreadcrumbModuleUsersGroupsModify' => 'Ρύθμιση σχεδίου κλήσης',
+    'BreadcrumbModuleUsersGroupsModify' => 'Ρυθμίσεις ομάδας κλήσεων',
     'mod_usrgr_PatternsInstructions1' => 'Στα μοτίβα, επιτρέπεται η χρήση χαρακτήρα από 1 έως 9 και χαρακτήρα X (οποιοσδήποτε αριθμός από 1-9)',
     'mod_usrgr_PatternsInstructions4' => 'Παραδείγματα προτύπων:',
     'mod_usrgr_PatternsInstructions2' => 'Ένα μέλος της ομάδας θα μπορεί να καλεί μόνο αριθμούς που ταιριάζουν με τα μοτίβα',
@@ -41,7 +41,7 @@ return [
     'mod_usrgr_IsolateInstructions2' => 'Οι εργαζόμενοι από άλλες ομάδες δεν θα μπορούν να καλούν την απομονωμένη ομάδα.',
     'mod_usrgr_patterns' => 'Μοτίβα αριθμών που σχετίζονται με την ομάδα. Ένα μέλος της ομάδας θα μπορεί μόνο να τους καλέσει',
     'mod_usrgr_PatternsInstructions3' => ' ',
-    'mod_usrgr_ColumnDefaultGroup' => 'προεπιλεγμένη ομάδα',
+    'mod_usrgr_ColumnDefaultGroup' => 'Προεπιλεγμένη ομάδα',
     'mod_usrgr_ErrorOnDeleteDefaultGroup' => 'Δεν είναι δυνατή η διαγραφή της προεπιλεγμένης ομάδας',
     'mod_usrgr_SelectDefaultGroup' => 'Επιλέξτε μια ομάδα',
 ];
