@@ -21,8 +21,8 @@ namespace Modules\ModuleUsersGroups\Lib\RestAPI\UsersGroups;
 
 use MikoPBX\Common\Models\Extensions;
 use MikoPBX\Common\Models\Users;
-use MikoPBX\Common\Providers\MikoPBXVersionProvider as MikoPBXVersion;
 use MikoPBX\Core\System\Util;
+use Modules\ModuleUsersGroups\Lib\MikoPBXVersion;
 use MikoPBX\PBXCoreREST\Lib\PBXApiResult;
 use Modules\ModuleUsersGroups\Models\GroupMembers;
 
