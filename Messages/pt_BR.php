@@ -8,8 +8,8 @@ return [
  *
  */
     'repModuleUsersGroups' => 'Módulo de discagem de grupos - %repesent%',
-    'mo_ModuleModuleUsersGroups' => 'Gerenciamento de grupos de chamadas',
-    'BreadcrumbModuleUsersGroups' => 'Gerenciamento de grupos de chamadas',
+    'mo_ModuleModuleUsersGroups' => 'Grupo de discagem',
+    'BreadcrumbModuleUsersGroups' => 'Grupo de discagem',
     'SubHeaderModuleUsersGroups' => 'Definir direitos para chamadas de saída, gerenciar CallerID de saída, organizar grupos de captura de chamadas',
     'mod_usrgr_Connected' => 'Módulo conectado',
     'mod_usrgr_Disconnected' => 'Módulo desabilitado',
@@ -36,7 +36,7 @@ return [
     'mod_usrgr_PatternsInstructions5' => '2XX - números de 200 a 299',
     'mod_usrgr_PatternsInstructions6' => '200001 - um número interno especificado explicitamente, por exemplo, um número de fila',
     'mod_usrgr_IsolateInstructions1' => 'Os membros do grupo só poderão ligar para os números do seu grupo.',
-    'mod_usrgr_IsolateInstructions2' => 'Funcionários de outros grupos não poderão ligar para o grupo isolado.',
+    'mod_usrgr_IsolateInstructions2' => 'Ramais de outros grupos não poderão ligar para o grupo isolado.',
     'mod_usrgr_PatternsInstructions2' => 'Um membro do grupo só poderá discar números que correspondam aos padrões',
     'mod_usrgr_PatternsInstructions3' => ' ',
     'mod_usrgr_PatternsInstructions4' => 'Exemplos de modelos:',
