@@ -21,7 +21,6 @@ namespace Modules\ModuleUsersGroups\Setup;
 
 use MikoPBX\Common\Models\PbxSettings;
 use MikoPBX\Modules\Setup\PbxExtensionSetupBase;
-use Modules\ModuleUsersGroups\Models\{AllowedOutboundRules, GroupMembers, UsersGroups};
 
 class PbxExtensionSetup extends PbxExtensionSetupBase
 {
@@ -43,82 +42,10 @@ class PbxExtensionSetup extends PbxExtensionSetupBase
             $result = $this->registerNewModule();
         }
 
-        if ($result) {
-            $this->transferOldSettings();
-        }
-
         // Show module on sidebar menu
         $this->addToSidebar();
 
         return $result;
-    }
-
-    /**
-     *  Transfer settings from db to own module database
-     */
-    protected function transferOldSettings(): void
-    {
-        // m_ModuleUsersGroups_UsersGroups
-        if ($this->db->tableExists('m_ModuleUsersGroups_UsersGroups')) {
-            $oldSettings = $this->db->fetchOne(
-                'Select * from m_ModuleUsersGroups_AllowedOutboundRules',
-                \Phalcon\Db\Enum::FETCH_ASSOC
-            );
-
-            $settings = AllowedOutboundRules::findFirst();
-            if ($settings === null) {
-                $settings = new AllowedOutboundRules();
-            }
-            foreach ($settings as $key => $value) {
-                if (isset($oldSettings[$key])) {
-                    $settings->$key = $oldSettings[$key];
-                }
-            }
-            if ($settings->save()) {
-                $this->db->dropTable('m_ModuleUsersGroups_AllowedOutboundRules');
-            } else {
-                $this->messges[] = 'Error on transfer old settings for m_ModuleUsersGroups_AllowedOutboundRules';
-            }
-        }
-        // m_ModuleUsersGroups_GroupMembers
-        if ($this->db->tableExists('m_ModuleUsersGroups_GroupMembers')) {
-            $oldSettings = $this->db->fetchOne('Select * from m_ModuleUsersGroups_GroupMembers', \Phalcon\Db\Enum::FETCH_ASSOC);
-
-            $settings = GroupMembers::findFirst();
-            if ($settings === null) {
-                $settings = new GroupMembers();
-            }
-            foreach ($settings as $key => $value) {
-                if (isset($oldSettings[$key])) {
-                    $settings->$key = $oldSettings[$key];
-                }
-            }
-            if ($settings->save()) {
-                $this->db->dropTable('m_ModuleUsersGroups_GroupMembers');
-            } else {
-                $this->messges[] = 'Error on transfer old settings for m_ModuleUsersGroups_GroupMembers';
-            }
-        }
-
-        // m_ModuleUsersGroups_UsersGroups
-        if ($this->db->tableExists('m_ModuleUsersGroups_UsersGroups')) {
-            $oldSettings = $this->db->fetchOne('Select * from m_ModuleUsersGroups_UsersGroups', \Phalcon\Db\Enum::FETCH_ASSOC);
-
-            $settings = UsersGroups::findFirst();
-            if ($settings === null) {
-                $settings = new UsersGroups();
-            }
-            foreach ($settings as $key => $value) {
-                if (isset($oldSettings[$key])) {
-                    $settings->$key = $oldSettings[$key];
-                }
-            }
-            if ($settings->save()) {
-                $this->db->dropTable('m_ModuleUsersGroups_UsersGroups');
-            } else {
-                $this->messges[] = 'Error on transfer old settings for ModuleUsersGroups_UsersGroups';
-            }
-        }
     }
 
     /**

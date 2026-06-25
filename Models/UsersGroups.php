@@ -78,6 +78,18 @@ class UsersGroups extends ModulesModelsBase
     {
         $this->setSource('m_ModuleUsersGroups_UsersGroups');
         parent::initialize();
+        // NOTE: these relations intentionally use NO_ACTION instead of ACTION_CASCADE.
+        //
+        // On module disable MikoPBX runs a "probe" (PbxExtensionState::makeBeforeDisableTest)
+        // that calls beforeDelete() on every module record. For ACTION_CASCADE relations that
+        // triggers a real cascade delete of the related rows. The probe wraps everything in a
+        // transaction and rolls it back, but the rollback runs on the MAIN database connection
+        // while this module stores its tables in a SEPARATE database file — so the cascade
+        // deletes are never rolled back and all group members and outbound-rule links are lost
+        // on every disable/enable cycle (issue #34).
+        //
+        // Cleanup of child records on real group deletion is therefore handled explicitly in
+        // ModuleUsersGroupsController::deleteAction() instead of relying on the ORM cascade.
         $this->hasMany(
             'id',
             GroupMembers::class,
@@ -86,8 +98,7 @@ class UsersGroups extends ModulesModelsBase
                 'alias'      => 'GroupMembers',
                 'foreignKey' => [
                     'allowNulls' => true,
-                    'action'     => Relation::ACTION_CASCADE,
-                    // When a group is deleted, delete the associated user-group mappings
+                    'action'     => Relation::NO_ACTION,
                 ],
             ]
         );
@@ -100,8 +111,7 @@ class UsersGroups extends ModulesModelsBase
                 'alias'      => 'AllowedOutboundRules',
                 'foreignKey' => [
                     'allowNulls' => true,
-                    'action'     => Relation::ACTION_CASCADE,
-                    // When a group is deleted, delete all references to the outbound rules
+                    'action'     => Relation::NO_ACTION,
                 ],
             ]
         );

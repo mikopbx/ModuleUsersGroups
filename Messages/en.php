@@ -42,6 +42,7 @@ return [
     'mod_usrgr_IsolateInstructions2' => 'Employees from other groups will not be able to call the isolated group.',
     'mod_usrgr_ColumnDefaultGroup' => 'Default group',
     'mod_usrgr_ErrorOnDeleteDefaultGroup' => 'Can\'t delete default group',
+    'mod_usrgr_ErrorOnDeleteGroup' => 'Failed to delete the group, the changes were rolled back',
     'mod_usrgr_SelectDefaultGroup' => 'Choose a group',
     'mod_usrgr_DefaultGroup' => 'Default group',
 ];
