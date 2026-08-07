@@ -619,31 +619,70 @@ class ModuleUsersGroupsController extends BaseController
             return;
         }
 
-        // Check if the group is a default group
+        // The default group must not be deleted
         if ($group->defaultGroup === '1') {
             $this->view->success = false;
             $this->flash->error($this->translation->_('mod_usrgr_ErrorOnDeleteDefaultGroup'));
             $this->forward('module-users-groups/module-users-groups/index');
             return;
-        } else {
-            // Find the default group
-            $defaultGroup = UsersGroups::findFirst('defaultGroup=1');
-
-            // Find users belonging to the current group
-            $usersOfCurrentGroup = GroupMembers::find('group_id=' . $group->id);
-            if ($defaultGroup) {
-                foreach ($usersOfCurrentGroup as $groupMember) {
-                    // Change the group membership to the default group
-                    $groupMember->group_id = $defaultGroup->id;
-                    if (!$this->saveEntity($groupMember)) {
-                        return;
-                    }
-                }
-            }
         }
 
-        // Delete the user group
-        $this->deleteEntity($group, 'module-users-groups/module-users-groups/index');
+        $defaultGroup = UsersGroups::findFirst('defaultGroup=1');
+        $childParams  = [
+            'conditions' => 'group_id = :groupId:',
+            'bind'       => ['groupId' => $group->id],
+        ];
+
+        // Child cleanup was moved here from the ORM relations (now NO_ACTION — see
+        // Models/UsersGroups.php / issue #34). It runs together with the group delete
+        // inside one module-database transaction so a mid-way failure cannot leave the
+        // group half-stripped. The per-row model events are enqueued as usual and
+        // coalesced into the reload by the core WorkerModelsEvents — we deliberately do
+        // NOT call reloadConfigs() here, because the SIP/dialplan reload services
+        // (amiCommander) are not available in the web (php-fpm) DI container.
+        $connection = (new UsersGroups())->getWriteConnection();
+        $connection->begin();
+        try {
+            // Members: move them to the default group, or drop them when there is none
+            foreach (GroupMembers::find($childParams) as $groupMember) {
+                if ($defaultGroup) {
+                    $groupMember->group_id = $defaultGroup->id;
+                    $saved = $groupMember->save();
+                } else {
+                    $saved = $groupMember->delete();
+                }
+                if (!$saved) {
+                    throw new \RuntimeException(implode('; ', $groupMember->getMessages()));
+                }
+            }
+
+            // Outbound-rule links that belong to this group
+            foreach (AllowedOutboundRules::find($childParams) as $allowedRule) {
+                if (!$allowedRule->delete()) {
+                    throw new \RuntimeException(implode('; ', $allowedRule->getMessages()));
+                }
+            }
+
+            if (!$group->delete()) {
+                throw new \RuntimeException(implode('; ', $group->getMessages()));
+            }
+
+            $connection->commit();
+        } catch (\Throwable $e) {
+            $connection->rollback();
+            $this->view->success = false;
+            $this->flash->error($this->translation->_('mod_usrgr_ErrorOnDeleteGroup'));
+            $this->forward('module-users-groups/module-users-groups/index');
+            return;
+        }
+
+        // Success — mirror BaseController::deleteEntity() response handling
+        $this->view->success = true;
+        if ($this->request->isAjax()) {
+            $this->view->reload = 'module-users-groups/module-users-groups/index';
+        } else {
+            $this->forward('module-users-groups/module-users-groups/index');
+        }
     }
 
 }

@@ -22,6 +22,7 @@ namespace Modules\ModuleUsersGroups\Lib\RestAPI\UsersGroups;
 use MikoPBX\PBXCoreREST\Lib\PBXApiResult;
 use MikoPBX\Common\Models\Users;
 use Modules\ModuleUsersGroups\Models\GroupMembers;
+use Modules\ModuleUsersGroups\Models\UsersGroups;
 
 /**
  * Cleanup orphaned group member records
@@ -42,39 +43,81 @@ class CleanupOrphanedMembersAction
         $result->processor = __METHOD__;
 
         try {
-            // Get valid user IDs using simple find
-            $validUsers = Users::find(['columns' => 'id']);
+            // Build the set of valid user IDs, ignoring empty/zero identifiers.
+            $validUserIds = [];
+            foreach (Users::find(['columns' => 'id']) as $user) {
+                $id = (int)$user->id;
+                if ($id > 0) {
+                    $validUserIds[] = $id;
+                }
+            }
 
-            if (count($validUsers) === 0) {
+            // Safety guard: if we could not resolve any valid user (e.g. the core
+            // database connection is not ready right after module enable), abort
+            // instead of deleting every membership. See issue #34.
+            if (count($validUserIds) === 0) {
                 $result->success = true;
                 $result->data = [
                     'deleted' => 0,
-                    'message' => 'No users in system'
+                    'message' => 'No valid users resolved, cleanup skipped'
                 ];
                 $result->httpCode = 200;
                 return $result;
             }
 
-            // Build list of valid user IDs
-            $validIds = [];
-            foreach ($validUsers as $user) {
-                $validIds[] = (int)$user->id;
+            $connection   = (new GroupMembers())->getWriteConnection();
+            $deletedCount = 0;
+
+            // 1. Members whose user no longer exists. Set-based DELETE guarded by the
+            //    non-empty valid-user list above (so it can never become "NOT IN ()").
+            $userIdsList = implode(',', $validUserIds);
+            $success = $connection->execute(
+                "DELETE FROM m_ModuleUsersGroups_GroupMembers WHERE user_id NOT IN ({$userIdsList})"
+            );
+            if ($success) {
+                $deletedCount += $connection->affectedRows();
             }
 
-            // Get module database connection through model instance
-            $groupMember = new GroupMembers();
-            $connection = $groupMember->getReadConnection();
-            $validIdsList = implode(',', $validIds);
+            // 2. Defence in depth: members and outbound-rule links pointing at a group
+            //    that no longer exists. These are normally cleaned up in
+            //    ModuleUsersGroupsController::deleteAction; this sweeps any that slipped
+            //    through (e.g. a future/alternate group-delete path). Skipped when no
+            //    group resolves, to avoid wiping everything on a transient empty read.
+            $validGroupIds = [];
+            foreach (UsersGroups::find(['columns' => 'id']) as $group) {
+                $gid = (int)$group->id;
+                if ($gid > 0) {
+                    $validGroupIds[] = $gid;
+                }
+            }
+            if ($success && count($validGroupIds) > 0) {
+                $groupIdsList = implode(',', $validGroupIds);
+                $success = $connection->execute(
+                    "DELETE FROM m_ModuleUsersGroups_GroupMembers WHERE group_id NOT IN ({$groupIdsList})"
+                );
+                if ($success) {
+                    $deletedCount += $connection->affectedRows();
+                    $success = $connection->execute(
+                        "DELETE FROM m_ModuleUsersGroups_AllowedOutboundRules WHERE group_id NOT IN ({$groupIdsList})"
+                    );
+                    if ($success) {
+                        $deletedCount += $connection->affectedRows();
+                    }
+                }
+            }
 
-            // Use direct SQL DELETE for performance
-            $sql = "DELETE FROM m_ModuleUsersGroups_GroupMembers WHERE user_id NOT IN ({$validIdsList})";
-            $success = $connection->execute($sql);
-            $deletedCount = $success ? $connection->affectedRows() : 0;
+            // A failed DELETE must be reported as a failure, not a silent success.
+            if ($success === false) {
+                $result->success = false;
+                $result->messages[] = 'Failed to cleanup orphaned records: DELETE returned false';
+                $result->httpCode = 500;
+                return $result;
+            }
 
             $result->success = true;
             $result->data = [
                 'deleted' => $deletedCount,
-                'valid_users' => count($validIds)
+                'valid_users' => count($validUserIds)
             ];
             $result->httpCode = 200;
 

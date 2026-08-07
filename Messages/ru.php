@@ -54,6 +54,7 @@ return [
     'mod_usrgr_IsolateInstructions2'     => 'Сотрудники из других групп, не смогут позвонить на изолированную группу.',
     'mod_usrgr_ColumnDefaultGroup'       => 'Группа по-умолчанию',
     'mod_usrgr_ErrorOnDeleteDefaultGroup'=> 'Нельзя удалить группу по-умолчанию',
+    'mod_usrgr_ErrorOnDeleteGroup'       => 'Не удалось удалить группу, изменения отменены',
     'mod_usrgr_SelectDefaultGroup'       => 'Выберите группу',
     'mod_usrgr_DefaultGroup'             => 'Группа по-умолчанию',
 ];
