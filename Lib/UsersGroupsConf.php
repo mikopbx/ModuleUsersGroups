@@ -210,11 +210,18 @@ class UsersGroupsConf extends ConfigClass
     public function generateOutRoutContext(array $rout): string
     {
         $conf = "\t" . 'same => n,ExecIf($["x${FROM_PEER}" == "x" && "${CHANNEL(channeltype)}" == "PJSIP" ]?Gosub(set_from_peer,s,1))' . " \n\t";
-        // If call is forwarded, use the forwarding source peer instead of calling peer for CallerID rules
-        $conf .= 'same => n,Set(EFFECTIVE_FROM_PEER=${IF($["${FW_SOURCE_PEER}x" != "x"]?${FW_SOURCE_PEER}:${FROM_PEER})})' . " \n\t";
-        $conf .= 'same => n,Set(GR_VARS=${DB(UsersGroups/${EFFECTIVE_FROM_PEER})})' . " \n\t";
+        // Route permissions always belong to the peer that initiated the call.
+        // Clear route-specific values first because a previous route check may have loaded another user's profile.
+        $conf .= 'same => n,Set(GR_PERM_ENABLE=${UNDEFINED})' . " \n\t";
+        $conf .= 'same => n,Set(GR_ID_' . $rout['id'] . '=${UNDEFINED})' . " \n\t";
+        $conf .= 'same => n,Set(GR_CID_' . $rout['id'] . '=${UNDEFINED})' . " \n\t";
+        $conf .= 'same => n,Set(GR_VARS=${DB(UsersGroups/${FROM_PEER})})' . " \n\t";
         $conf .= 'same => n,ExecIf($["${GR_VARS}x" != "x"]?Exec(Set(${GR_VARS})))' . " \n\t";
         $conf .= 'same => n,ExecIf($["${GR_PERM_ENABLE}" == "1" && "${GR_ID_' . $rout['id'] . '}" != "1"]?return)' . " \n\t";
+        // For a forwarded call only the Caller ID belongs to the employee who configured the forwarding.
+        $conf .= 'same => n,ExecIf($["${FW_SOURCE_PEER}x" != "x"]?Set(GR_CID_' . $rout['id'] . '=${UNDEFINED}))' . " \n\t";
+        $conf .= 'same => n,ExecIf($["${FW_SOURCE_PEER}x" != "x"]?Set(GR_VARS=${DB(UsersGroups/${FW_SOURCE_PEER})}))' . " \n\t";
+        $conf .= 'same => n,ExecIf($["${FW_SOURCE_PEER}x" != "x" && "${GR_VARS}x" != "x"]?Exec(Set(${GR_VARS})))' . " \n\t";
         $conf .= 'same => n,ExecIf($["${GR_PERM_ENABLE}" == "1" && "${GR_CID_' . $rout['id'] . '}x" != "x"]?MSet(GR_OLD_CALLERID=${CALLERID(num)},OUTGOING_CID=${GR_CID_' . $rout['id'] . '}))' . "\n\t";
         $conf .= 'same => n,ExecIf($["${OUTGOING_CID}x" != "x"]?Set(DOPTIONS=${DOPTIONS}f(${OUTGOING_CID})))' . " \n\t";
         $conf .= 'same => n,GosubIf($["${DIALPLAN_EXISTS(SIP-${CUT(CONTEXT,-,2)}-outgoing-ug-custom,${EXTEN},1)}" == "1"]?SIP-${CUT(CONTEXT,-,2)}-outgoing-ug-custom,${EXTEN},1)';
