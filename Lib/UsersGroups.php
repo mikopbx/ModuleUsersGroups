@@ -21,11 +21,8 @@
 namespace Modules\ModuleUsersGroups\Lib;
 
 use MikoPBX\Common\Models\Extensions;
-use MikoPBX\Core\Asterisk\AstDB;
 use MikoPBX\Core\System\PBX;
 use MikoPBX\Modules\PbxExtensionBase;
-use MikoPBX\Modules\PbxExtensionUtils;
-use Modules\ModuleUsersGroups\Models\AllowedOutboundRules;
 use Modules\ModuleUsersGroups\Models\GroupMembers;
 
 class UsersGroups extends PbxExtensionBase
@@ -79,107 +76,7 @@ class UsersGroups extends PbxExtensionBase
      */
     public static function reloadConfigs(): void
     {
-        // Create a new instance of the current class
-        $mod = new self();
-
-        // Fill the Asterisk database with relevant data
-        $mod->fillAsteriskDatabase();
-
-        // Reload the SIP configurations in Asterisk
         PBX::sipReload();
-
-        // Reload the dial plan configurations in Asterisk
         PBX::dialplanReload();
     }
-
-    /**
-     * Fills the Asterisk database with relevant data.
-     */
-    public function fillAsteriskDatabase(): void
-    {
-        $enabled = PbxExtensionUtils::isEnabled($this->moduleUniqueId);
-
-        $db = new AstDB();
-        $extension = Extensions::find("type='SIP'")->toArray();
-        if ($enabled === false) {
-            $cmd = "ARRAY(GR_PERM_ENABLE)=0";
-
-            // Loop through each extension and disable group permissions
-            foreach ($extension as $extensionData) {
-                $db->databasePut('UsersGroups', $extensionData['number'], $cmd);
-            }
-        } else {
-            $groupMembers = GroupMembers::find()->toArray();
-            /** @var AllowedOutboundRules $rule */
-            $allowedRules = AllowedOutboundRules::find()->toArray();
-
-            // Loop through each extension and set group ID and channel variables
-            foreach ($extension as $extensionData) {
-                [$groupId, $number] = $this->initGroupID($extensionData, $groupMembers);
-                $channelVars = $this->initChannelVariables($groupId, $allowedRules);
-
-                // Store the channel variables in the UsersGroups database
-                $db->databasePut('UsersGroups', $number, $channelVars);
-            }
-        }
-    }
-
-    /**
-     * Initializes the group ID for a given extension data.
-     *
-     * @param array $extensionData The extension data
-     * @param array $groupMembers The array of group members
-     * @return array The group ID and extension number
-     */
-    private function initGroupID(array $extensionData, array $groupMembers): array
-    {
-        // Find the group to which the employee belongs
-        $groupId = null;
-        $number = $extensionData['number'];
-        foreach ($groupMembers as $memberData) {
-            if (intval($memberData['user_id']) === intval($extensionData['userid'])) {
-                $groupId = $memberData['group_id'];
-                break;
-            }
-        }
-        return array($groupId, $number);
-    }
-
-    /**
-     * Initializes the channel variables for a given group ID.
-     *
-     * @param int $group_id The group ID
-     * @param array $allowedRules The array of allowed outbound rules
-     * @return string The channel variables in the format "ARRAY(varNames)=varValues"
-     */
-    private function initChannelVariables($group_id, array $allowedRules): string
-    {
-        if ($group_id) {
-            $varNames = 'GR_PERM_ENABLE';
-            $varValues = '1';
-
-            // Find all routes allowed in the group
-            foreach ($allowedRules as $ruleData) {
-                if (intval($ruleData['group_id']) !== intval($group_id)) {
-                    continue;
-                }
-
-                // Process the route rules
-                $varNames .= sprintf(',GR_ID_%s', $ruleData['rule_id']);
-                $varValues .= ',1';
-                if (empty($ruleData['caller_id'])) {
-                    continue;
-                }
-                $varNames .= sprintf(',GR_CID_%s', $ruleData['rule_id']);
-                $varValues .= ',' . $ruleData['caller_id'];
-            }
-        } else {
-            $varNames = 'GR_PERM_ENABLE';
-            $varValues = '0';
-        }
-
-        // Return the channel variables in the specified format
-        return "ARRAY({$varNames})={$varValues}";
-    }
-
 }

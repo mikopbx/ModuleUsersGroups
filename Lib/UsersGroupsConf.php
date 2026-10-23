@@ -58,6 +58,7 @@ class UsersGroupsConf extends ConfigClass
     public function getSettings(): void
     {
         $this->listUsers = UsersGroups::initUserList();
+        $this->groupSettings = [];
         $data = ModelUsersGroups::find();
         /** @var ModelUsersGroups $settings */
         foreach ($data as $settings) {
@@ -119,7 +120,7 @@ class UsersGroupsConf extends ConfigClass
 
         // Generate contexts for each group with isolation.
         foreach ($groups as $group => $users) {
-            $isolate = $this->groupSettings[$group]['isolate'] === '1';
+            $isolate = ($this->groupSettings[$group]['isolate'] ?? '0') === '1';
 
             // Skip if isolation is disabled or no users in the group.
             if ($isolate === false || count($users) === 0) {
@@ -156,8 +157,59 @@ class UsersGroupsConf extends ConfigClass
 
         // Add context for forbidden calls with voice notification
         $dialplan .= $this->generateForbiddenCallContext();
+        $dialplan .= $this->generateGroupPolicyContexts();
 
         return $dialplan;
+    }
+
+    /**
+     * Формирует справочник сотрудников и политики исходящих маршрутов групп.
+     */
+    private function generateGroupPolicyContexts(): string
+    {
+        $conf = '[users-group-members]' . PHP_EOL;
+        foreach ($this->listUsers as $number => $group) {
+            // В справочнике используем ID модели без сдвига named_call_group (+1).
+            $groupId = (int)$group - 1;
+            $conf .= "exten => $number,1,Return($groupId)" . PHP_EOL;
+        }
+        $conf .= PHP_EOL;
+
+        $rulesByGroup = [];
+        foreach (AllowedOutboundRules::find() as $rule) {
+            $rulesByGroup[(int)$rule->group_id][] = $rule;
+        }
+        foreach ($this->groupSettings as $settings) {
+            $groupId = (int)$settings['id'];
+            $conf .= "[users-group-policy-$groupId]" . PHP_EOL;
+            foreach ($rulesByGroup[$groupId] ?? [] as $rule) {
+                $routeId = (int)$rule->rule_id;
+                $conf .= "exten => $routeId,1,Set(UG_ROUTE_ALLOWED=1)" . PHP_EOL;
+                $callerId = CallerId::normalize((string)$rule->caller_id);
+                if ($callerId !== '') {
+                    $conf .= "same => n,Set(UG_ROUTE_CID=$callerId)" . PHP_EOL;
+                }
+                $conf .= 'same => n,Return()' . PHP_EOL;
+            }
+            $conf .= PHP_EOL;
+        }
+
+        // Результаты сбрасываются при каждом обращении, включая неизвестного сотрудника.
+        $conf .= '[users-group-profile]' . PHP_EOL;
+        $conf .= 'exten => s,1,Set(UG_MEMBER_KEY=${ARG1})' . PHP_EOL;
+        $conf .= 'same => n,Set(UG_GROUP_ID=)' . PHP_EOL;
+        $conf .= 'same => n,Set(UG_ROUTE_ALLOWED=0)' . PHP_EOL;
+        $conf .= 'same => n,Set(UG_ROUTE_CID=)' . PHP_EOL;
+        $conf .= 'same => n,GotoIf($["${UG_MEMBER_KEY}" = ""]?done)' . PHP_EOL;
+        $conf .= 'same => n,ExecIf(${REGEX("-WS$" ${ARG1})}?Set(UG_MEMBER_KEY=${ARG1:0:-3}))' . PHP_EOL;
+        $conf .= 'same => n,ExecIf(${REGEX("-TLS$" ${ARG1})}?Set(UG_MEMBER_KEY=${ARG1:0:-4}))' . PHP_EOL;
+        $conf .= 'same => n,GotoIf($[${DIALPLAN_EXISTS(users-group-members,${UG_MEMBER_KEY},1)} = 0]?done)' . PHP_EOL;
+        $conf .= 'same => n,Gosub(users-group-members,${UG_MEMBER_KEY},1)' . PHP_EOL;
+        $conf .= 'same => n,Set(UG_GROUP_ID=${GOSUB_RETVAL})' . PHP_EOL;
+        $conf .= 'same => n,GosubIf(${DIALPLAN_EXISTS(users-group-policy-${UG_GROUP_ID},${ARG2},1)}?users-group-policy-${UG_GROUP_ID},${ARG2},1)' . PHP_EOL;
+        $conf .= 'same => n(done),Return()' . PHP_EOL . PHP_EOL;
+
+        return $conf;
     }
 
     /**
@@ -210,21 +262,24 @@ class UsersGroupsConf extends ConfigClass
     public function generateOutRoutContext(array $rout): string
     {
         $conf = "\t" . 'same => n,ExecIf($["x${FROM_PEER}" == "x" && "${CHANNEL(channeltype)}" == "PJSIP" ]?Gosub(set_from_peer,s,1))' . " \n\t";
-        // Route permissions always belong to the peer that initiated the call.
-        // Clear route-specific values first because a previous route check may have loaded another user's profile.
-        $conf .= 'same => n,Set(GR_PERM_ENABLE=${UNDEFINED})' . " \n\t";
-        $conf .= 'same => n,Set(GR_ID_' . $rout['id'] . '=${UNDEFINED})' . " \n\t";
-        $conf .= 'same => n,Set(GR_CID_' . $rout['id'] . '=${UNDEFINED})' . " \n\t";
-        $conf .= 'same => n,Set(GR_VARS=${DB(UsersGroups/${FROM_PEER})})' . " \n\t";
-        $conf .= 'same => n,ExecIf($["${GR_VARS}x" != "x"]?Exec(Set(${GR_VARS})))' . " \n\t";
-        $conf .= 'same => n,ExecIf($["${GR_PERM_ENABLE}" == "1" && "${GR_ID_' . $rout['id'] . '}" != "1"]?return)' . " \n\t";
-        // For a forwarded call only the Caller ID belongs to the employee who configured the forwarding.
-        $conf .= 'same => n,ExecIf($["${FW_SOURCE_PEER}x" != "x"]?Set(GR_CID_' . $rout['id'] . '=${UNDEFINED}))' . " \n\t";
-        $conf .= 'same => n,ExecIf($["${FW_SOURCE_PEER}x" != "x"]?Set(GR_VARS=${DB(UsersGroups/${FW_SOURCE_PEER})}))' . " \n\t";
-        $conf .= 'same => n,ExecIf($["${FW_SOURCE_PEER}x" != "x" && "${GR_VARS}x" != "x"]?Exec(Set(${GR_VARS})))' . " \n\t";
-        $conf .= 'same => n,ExecIf($["${GR_PERM_ENABLE}" == "1" && "${GR_CID_' . $rout['id'] . '}x" != "x"]?MSet(GR_OLD_CALLERID=${CALLERID(num)},OUTGOING_CID=${GR_CID_' . $rout['id'] . '}))' . "\n\t";
-        $conf .= 'same => n,ExecIf($["${OUTGOING_CID}x" != "x"]?Set(DOPTIONS=${DOPTIONS}f(${OUTGOING_CID})))' . " \n\t";
-        $conf .= 'same => n,GosubIf($["${DIALPLAN_EXISTS(SIP-${CUT(CONTEXT,-,2)}-outgoing-ug-custom,${EXTEN},1)}" == "1"]?SIP-${CUT(CONTEXT,-,2)}-outgoing-ug-custom,${EXTEN},1)';
+        // Права маршрута принадлежат инициатору, а не сотруднику с переадресацией.
+        $conf .= 'same => n,Gosub(users-group-profile,s,1(${FROM_PEER},' . (int)$rout['id'] . '))' . " \n\t";
+        $conf .= 'same => n,ExecIf($["${UG_GROUP_ID}" != "" && "${UG_ROUTE_ALLOWED}" != "1"]?Return())' . " \n\t";
+        // Для переадресации повторный lookup заменяет только источник CallerID после проверки доступа.
+        $conf .= 'same => n,GosubIf($["${FW_SOURCE_PEER}" != ""]?users-group-profile,s,1(${FW_SOURCE_PEER},' . (int)$rout['id'] . '))' . " \n\t";
+        // Групповой CallerID имеет приоритет над значением из custom dialplan.
+        $conf .= 'same => n,Set(UG_EFFECTIVE_CID=${OUTGOING_CID})' . "\n\t";
+        $conf .= 'same => n,ExecIf($["${UG_ROUTE_CID}" != ""]?Set(UG_EFFECTIVE_CID=${UG_ROUTE_CID}))' . "\n\t";
+        // Снимок и добавленная опция f() действуют только в пределах текущей попытки Dial.
+        $conf .= 'same => n,GotoIf($[${LEN(${UG_EFFECTIVE_CID})} = 0]?ug-cid-ready)' . "\n\t";
+        $conf .= 'same => n,Set(UG_OLD_CALLERID=${CALLERID(num)})' . "\n\t";
+        $conf .= 'same => n,Set(UG_OLD_CALLERID_NAME=${CALLERID(name)})' . "\n\t";
+        $conf .= 'same => n,Set(UG_OLD_OUTGOING_CID=${OUTGOING_CID})' . "\n\t";
+        $conf .= 'same => n,Set(UG_OLD_DOPTIONS=${DOPTIONS})' . "\n\t";
+        $conf .= 'same => n,Set(UG_CID_OVERRIDE_ACTIVE=1)' . "\n\t";
+        $conf .= 'same => n,Set(OUTGOING_CID=${UG_EFFECTIVE_CID})' . "\n\t";
+        $conf .= 'same => n,Set(DOPTIONS=${DOPTIONS}f(${UG_EFFECTIVE_CID}))' . "\n\t";
+        $conf .= 'same => n(ug-cid-ready),GosubIf($["${DIALPLAN_EXISTS(SIP-${CUT(CONTEXT,-,2)}-outgoing-ug-custom,${EXTEN},1)}" == "1"]?SIP-${CUT(CONTEXT,-,2)}-outgoing-ug-custom,${EXTEN},1)';
 
         return $conf;
     }
@@ -240,7 +295,20 @@ class UsersGroupsConf extends ConfigClass
      */
     public function generateOutRoutAfterDialContext(array $rout): string
     {
-        return "\t" . 'same => n,ExecIf($["${GR_PERM_ENABLE}" == "1" && "${GR_OLD_CALLERID}x" != "x"]?MSet(CALLERID(num)=${GR_OLD_CALLERID},GR_OLD_CALLERID=${UNDEFINED}))';
+        $conf = "\t" . 'same => n,GotoIf($["${UG_CID_OVERRIDE_ACTIVE}" != "1"]?ug-cid-restored)' . "\n\t";
+        // Пустые исходные значения также должны восстанавливаться.
+        $conf .= 'same => n,Set(CALLERID(num)=${UG_OLD_CALLERID})' . "\n\t";
+        $conf .= 'same => n,Set(CALLERID(name)=${UG_OLD_CALLERID_NAME})' . "\n\t";
+        $conf .= 'same => n,Set(OUTGOING_CID=${UG_OLD_OUTGOING_CID})' . "\n\t";
+        $conf .= 'same => n,Set(DOPTIONS=${UG_OLD_DOPTIONS})' . "\n\t";
+        $conf .= 'same => n,Set(UG_OLD_CALLERID=)' . "\n\t";
+        $conf .= 'same => n,Set(UG_OLD_CALLERID_NAME=)' . "\n\t";
+        $conf .= 'same => n,Set(UG_OLD_OUTGOING_CID=)' . "\n\t";
+        $conf .= 'same => n,Set(UG_OLD_DOPTIONS=)' . "\n\t";
+        $conf .= 'same => n(ug-cid-restored),Set(UG_CID_OVERRIDE_ACTIVE=)' . "\n\t";
+        $conf .= 'same => n,Set(UG_EFFECTIVE_CID=)';
+
+        return $conf;
     }
 
     /**
@@ -251,8 +319,6 @@ class UsersGroupsConf extends ConfigClass
      */
     public function generatePeersPj(): string
     {
-        $mod = new UsersGroups();
-        $mod->fillAsteriskDatabase();
         $this->getSettings();
         return '';
     }

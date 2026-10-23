@@ -36,6 +36,7 @@ return [
     'mod_usrgr_ColumnGroupDescription'   => 'Описание',
     'mod_usrgr_ColumnGroupMembersCount'  => 'Количество в участников',
     'mod_usrgr_ValidateNameIsEmpty'      => 'Проверьте поле с названием группы',
+    'mod_usrgr_ValidateCallerIdInvalid'  => 'Недопустимый CallerID. Разрешены латиница, цифры, пробел и символы + - _ . * #. Допустимы имя и номер в угловых скобках. Исправьте значение или отключите маршрут.',
     'mod_usrgr_ColumnGroup'              => 'Группа',
     'mod_usrgr__GeneralSettings'         => 'Настройки группы',
     'mod_usrgr_UsersFilter'              => 'Сотрудники группы',

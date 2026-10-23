@@ -33,6 +33,7 @@ use MikoPBX\AdminCabinet\Controllers\BaseController;
 use MikoPBX\Modules\PbxExtensionUtils;
 use Modules\ModuleUsersGroups\App\Forms\DefaultGroupForm;
 use Modules\ModuleUsersGroups\App\Forms\ModuleUsersGroupsForm;
+use Modules\ModuleUsersGroups\Lib\CallerId;
 
 use function MikoPBX\Common\Config\appPath;
 
@@ -325,6 +326,7 @@ class ModuleUsersGroupsController extends BaseController
                         'rulename' => strip_tags($rule->getRepresent()),
                         'status' => in_array($rule->id, $allowedRulesIds, true) ? '' : 'disabled',
                         'callerid' => $callerId,
+                        'calleridInvalid' => !CallerId::isValid((string)$callerId),
                     ];
                 } else {
                     $routingTable[] = [
@@ -339,6 +341,7 @@ class ModuleUsersGroupsController extends BaseController
                         'rulename' => strip_tags($rule->getRepresent()),
                         'status' => in_array($rule->id, $allowedRulesIds, true) ? '' : 'disabled',
                         'callerid' => $callerId,
+                        'calleridInvalid' => !CallerId::isValid((string)$callerId),
                     ];
                 }
             }
@@ -359,6 +362,18 @@ class ModuleUsersGroupsController extends BaseController
             return;
         }
         $data = $this->request->getPost();
+        // Проверяем все включённые маршруты до любых изменений и reload-событий моделей.
+        foreach ($data as $key => $value) {
+            if (preg_match('/^rule-([0-9]+)$/D', (string)$key, $matches) !== 1 || $value !== 'on') {
+                continue;
+            }
+            $callerId = $data['caller_id-' . $matches[1]] ?? '';
+            if (!is_string($callerId) || !CallerId::isValid($callerId)) {
+                $this->view->success = false;
+                $this->flash->error($this->translation->_('mod_usrgr_ValidateCallerIdInvalid'));
+                return;
+            }
+        }
         $record = UsersGroups::findFirstById($data['id']);
         if ($record === null) {
             $record = new UsersGroups();
@@ -439,8 +454,8 @@ class ModuleUsersGroupsController extends BaseController
 
         // 2. Save the allowed outbound rules
         foreach ($data as $key => $value) {
-            if (substr_count($key, 'rule-') > 0) {
-                $rule_id = explode('rule-', $key)[1];
+            if (preg_match('/^rule-([0-9]+)$/D', (string)$key, $matches) === 1) {
+                $rule_id = $matches[1];
                 if ($value === 'on') {
                     $newRule = new AllowedOutboundRules();
                     $callerIdKey = "caller_id-$rule_id";
