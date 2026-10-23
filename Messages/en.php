@@ -20,6 +20,7 @@ return [
     'mod_usrgr__GeneralSettings' => 'Group settings',
     'mod_usrgr_ColumnGroup' => 'Group',
     'mod_usrgr_ValidateNameIsEmpty' => 'Check the field with the group name',
+    'mod_usrgr_ValidateCallerIdInvalid' => 'Invalid CallerID. Use Latin letters, digits, spaces and + - _ . * #. A name followed by a number in angle brackets is supported. Correct the value or disable the route.',
     'mod_usrgr_ColumnGroupMembersCount' => 'Number of participants',
     'mod_usrgr_ColumnGroupDescription' => 'Description',
     'mod_usrgr_ColumnGroupName' => 'Group',

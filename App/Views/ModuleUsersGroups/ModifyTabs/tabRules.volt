@@ -23,9 +23,12 @@
         <td class="disability {{ rule['status'] }}">{{ rule['rulename'] }}</td>
         <td class="disability {{ rule['status'] }}">{{ rule['provider'] }}</td>
         <td class="disability {{ rule['status'] }}">
-            <div class="ui input fluid">
-                <input type="text" name="caller_id-{{ rule['id'] }}" value="{{ rule['callerid'] }}" placeholder="{{ t._('mod_usrgr_ColumnCallerId') }}"/>
+            <div class="ui input fluid{% if rule['calleridInvalid'] %} error{% endif %}">
+                <input type="text" name="caller_id-{{ rule['id'] }}" value="{{ rule['callerid'] | escape_attr }}" placeholder="{{ t._('mod_usrgr_ColumnCallerId') }}"/>
             </div>
+            {% if rule['calleridInvalid'] %}
+                <div class="ui pointing red basic label">{{ t._('mod_usrgr_ValidateCallerIdInvalid') }}</div>
+            {% endif %}
         </td>
     </tr>
     {% if loop.last %}
